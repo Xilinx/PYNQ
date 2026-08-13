@@ -16,6 +16,7 @@ from .hwh_parser import HWH, get_hwh_name
 
 if os.environ.get("XILINX_XRT", False):
     from .embedded_device import EmbeddedDevice
+    from .versal_device import VersalDevice
     from .xclbin_parser import XclBin
     from .xrt_device import XrtDevice
 

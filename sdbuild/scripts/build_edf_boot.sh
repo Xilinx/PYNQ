@@ -260,13 +260,42 @@ step_extract_artifacts() {
     echo ""; echo "Artefacts:"; ls -lh "${board_out}/"
 }
 
-# Step 7: boot-partition config (single extlinux mechanism).
-step_write_boot_config() {
-    echo ""; echo "--- Step 7: Boot config (extlinux) ---"
-    local board_out="${OUTPUT_DIR}/${BOARD}"
+# Versal SD autoboot glue: boot.scr + uEnv.txt + uboot.env + extlinux.conf.
+# Versal's U-Boot drops to the EFI boot menu unless an environment whose
+# bootcmd loads the kernel from SD is supplied. uboot.env must use the
+# redundant layout (mkenvimage -r) at the 128 KB size Versal's
+# CONFIG_ENV_SIZE expects, or U-Boot misparses it and ignores bootcmd.
+_write_versal_boot_config() {
+    local board_out="$1"
+    local serial_tty="ttyAMA0" env_size=131072
+    local bootargs="earlycon console=${serial_tty},115200 clk_ignore_unused root=/dev/mmcblk0p2 rw rootwait uio_pdrv_genirq.of_id=generic-uio"
+    local bootcmd="load mmc 0:1 0x10000000 Image; load mmc 0:1 0x20000000 system.dtb; setenv bootargs ${bootargs}; booti 0x10000000 - 0x20000000"
 
-    # No 'append': bootargs are authoritative in the DT (/chosen/bootargs).
-    install -d "${board_out}/extlinux"
+    local cmd; cmd=$(mktemp)
+    {
+        echo "setenv bootargs '${bootargs}'"
+        echo "load mmc 0:1 0x10000000 Image"
+        echo "load mmc 0:1 0x20000000 system.dtb"
+        echo "booti 0x10000000 - 0x20000000"
+    } > "${cmd}"
+    mkimage -A arm64 -O linux -T script -C none -n "PYNQ ${BOARD} boot" \
+        -d "${cmd}" "${board_out}/boot.scr"
+    cp "${board_out}/boot.scr" "${board_out}/boot.scr.uimg"
+    rm -f "${cmd}"
+
+    cat > "${board_out}/uEnv.txt" <<EOF
+bootcmd=${bootcmd}
+uenvcmd=run bootcmd
+EOF
+
+    local env_txt; env_txt=$(mktemp)
+    cat > "${env_txt}" <<EOF
+bootcmd=${bootcmd}
+bootdelay=3
+EOF
+    mkenvimage -r -s "${env_size}" -o "${board_out}/uboot.env" "${env_txt}"
+    rm -f "${env_txt}"
+
     {
         echo "default pynq"
         echo "timeout 3"
@@ -274,8 +303,34 @@ step_write_boot_config() {
         echo "    menu label PYNQ ${BOARD}"
         echo "    kernel /Image"
         echo "    fdt /system.dtb"
+        echo "    append ${bootargs}"
     } > "${board_out}/extlinux/extlinux.conf"
-    echo "  wrote extlinux/extlinux.conf"
+    echo "  wrote Versal autoboot glue (boot.scr, uEnv.txt, uboot.env, extlinux.conf)"
+}
+
+# Step 7: boot-partition config.
+step_write_boot_config() {
+    echo ""; echo "--- Step 7: Boot config ---"
+    local board_out="${OUTPUT_DIR}/${BOARD}"
+    install -d "${board_out}/extlinux"
+
+    case "${EDF_BOOT_MACHINE}" in
+        *versal*)
+            _write_versal_boot_config "${board_out}"
+            ;;
+        *)
+            # No 'append': bootargs are authoritative in the DT (/chosen/bootargs).
+            {
+                echo "default pynq"
+                echo "timeout 3"
+                echo "label pynq"
+                echo "    menu label PYNQ ${BOARD}"
+                echo "    kernel /Image"
+                echo "    fdt /system.dtb"
+            } > "${board_out}/extlinux/extlinux.conf"
+            echo "  wrote extlinux/extlinux.conf"
+            ;;
+    esac
 }
 
 main() {

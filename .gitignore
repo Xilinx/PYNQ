@@ -38,6 +38,17 @@ dist/
 *.bit
 *.hwh
 *.xsa
+*.pdi
+*.dcp
+*.ncr
+
+# Vivado project directories, regenerated from the .tcl sources
+######################
+boards/*/base/base/
+boards/*/golden/golden/
+.Xil/
+*.pb
+hd_visual/
 
 # Test failure outputs
 ######################

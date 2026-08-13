@@ -319,11 +319,25 @@ class XsafileHandler(BitstreamHandler):
             return bit2bin(Path(self._xsa_bitstream_file).read_bytes())
 
 
+class PdifileHandler(BitstreamHandler):
+    """Handler for Versal Programmable Device Image (.pdi) files.
+
+    A PDI is already in the layout the FPGA Manager expects, so unlike a
+    .bit it needs no conversion. Metadata comes from the sibling .hwh and
+    optional .dtbo through the base class.
+
+    """
+
+    def get_bin_data(self):
+        return self._filepath.read_bytes()
+
+
 _bitstream_handlers = {
     ".bit": BitfileHandler,
     ".bin": BinfileHandler,
     ".xsa": XsafileHandler,
     ".xclbin": XclbinHandler,
+    ".pdi": PdifileHandler,
 }
 
 
@@ -662,6 +676,20 @@ class EmbeddedDevice(XrtDevice):
                     STATE_DIR = os.path.dirname(__file__)
                     pickle.dump(parser, open(f"{STATE_DIR}/_current_metadata.pkl", "wb"))
 
+    def write_fpga_manager(self, attribute, value):
+        """Write a value to an FPGA Manager sysfs attribute.
+
+        Parameters
+        ----------
+        attribute : str
+            The path of the sysfs attribute to write.
+        value : str
+            The value to write.
+
+        """
+        with open(attribute, "w") as fd:
+            fd.write(value)
+
     def download(self, bitstream, parser=None):
 
         if parser is None:
@@ -679,10 +707,8 @@ class EmbeddedDevice(XrtDevice):
         else:
             flag = 1
 
-        with open(self.BS_FPGA_MAN_FLAGS, "w") as fd:
-            fd.write(str(flag))
-        with open(self.BS_FPGA_MAN, "w") as fd:
-            fd.write(bitstream.binfile_name)
+        self.write_fpga_manager(self.BS_FPGA_MAN_FLAGS, str(flag))
+        self.write_fpga_manager(self.BS_FPGA_MAN, bitstream.binfile_name)
 
         self.set_axi_port_width(parser)
 

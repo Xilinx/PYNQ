@@ -1,0 +1,33 @@
+/* VCK190 board-specific device-tree nodes (appended to the machine's SDT base
+ * dts at bitbake time via PYNQ_BOARD_DTSI). Versal's top-level AXI container is
+ * named /axi (not /amba as on ZynqMP). */
+
+/ {
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0x20000000>;
+			alignment = <0x0 0x2000>;
+			/* Pin the cma pool to the low 2 GB DDR bank so the FPGA-manager
+			 * PDI DMA gets DMA-reachable contiguous memory. */
+			alloc-ranges = <0x0 0x0 0x0 0x80000000>;
+			linux,cma-default;
+		};
+	};
+};
+
+&{/axi} {
+	/* Platform device for the zocl kernel module. Without it zocl loads but
+	 * never probes, /dev/dri/renderD128 never appears, and pyxrt.device(0)
+	 * raises 'No such device with index 0'. Poll mode (no interrupts): the
+	 * base overlay's PL interrupts reach the GIC directly via CIPS pl_ps_irq
+	 * wiring inside the PDI. */
+	zyxclmm_drm {
+		compatible = "xlnx,zocl";
+		status = "okay";
+	};
+};

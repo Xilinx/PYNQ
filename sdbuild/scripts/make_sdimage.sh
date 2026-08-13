@@ -126,6 +126,10 @@ sudo cp "${BOOT_DIR}/Image" "${MNT_BOOT}/Image"
 sudo cp "${BOOT_DIR}/system.dtb" "${MNT_BOOT}/system.dtb"
 sudo mkdir -p "${MNT_BOOT}/extlinux"
 sudo cp "${BOOT_DIR}/extlinux/extlinux.conf" "${MNT_BOOT}/extlinux/extlinux.conf"
+# Optional autoboot glue (Versal ships boot.scr / uEnv.txt / uboot.env).
+for f in boot.scr boot.scr.uimg uEnv.txt uboot.env; do
+    [ -f "${BOOT_DIR}/${f}" ] && sudo cp "${BOOT_DIR}/${f}" "${MNT_BOOT}/${f}"
+done
 sync
 sudo umount "${MNT_BOOT}"; mountpoint -q "${MNT_BOOT}" || MNT_BOOT=""
 
