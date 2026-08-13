@@ -28,4 +28,4 @@ else:
     from .pmbus import DataRecorder, get_rails
 
 __all__ = ["lib", "tests"]
-__version__ = "3.1.3"
+__version__ = "4.0.0"

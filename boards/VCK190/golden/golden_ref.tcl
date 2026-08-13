@@ -2,22 +2,6 @@
 # Copyright (c) 2026, Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Golden Reference Design for VCK190 Segmented Configuration
-#
-# This script creates the static PS/NoC/DDR "contract" that all PL overlays
-# must conform to.  It produces:
-#   - CIPS with maximal PL-facing interfaces (clocks, resets, interrupts, AXI)
-#   - axi_noc_ps: PS-only paths to DDR (initial_boot, goes in boot PDI)
-#   - axi_noc_pl: PL-facing paths (DMA to DDR via inter-NoC, no initial_boot)
-#   - All PL-facing ports tied off so the design is DRC-clean standalone
-#
-# Overlays source this script, delete the tie-offs, and connect their own PL
-# logic.  The exported NoC solution (golden_noc.ncr) and routed checkpoint
-# (golden_routed.dcp) are used by build_user_overlay.tcl to guarantee
-# compatibility via read_noc_solution and pr_verify.
-#
-# Vivado version: 2025.2
-#
 
 namespace eval _tcl {
 proc get_script_folder {} {
@@ -37,22 +21,20 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
         "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version>."}
 }
 
-################################################################
 # BOARD STORE
-################################################################
-# The XilinxBoardStore is mounted at /board_store inside Docker containers.
-# Tell Vivado where to find board files so board automation rules work.
-if {[file isdirectory /board_store/boards]} {
-    set_param board.repoPaths [list /board_store/boards]
-    puts "Board store: /board_store/boards"
-} elseif {[info exists ::env(BOARD_STORE_PATH)] && [file isdirectory $::env(BOARD_STORE_PATH)/boards]} {
-    set_param board.repoPaths [list $::env(BOARD_STORE_PATH)/boards]
-    puts "Board store: $::env(BOARD_STORE_PATH)/boards"
+# BOARD_PART is resolved against a XilinxBoardStore checkout 
+# named by BOARD_STORE_PATH.
+if {![info exists ::env(BOARD_STORE_PATH)]} {
+    error "BOARD_STORE_PATH is not set: point it at a XilinxBoardStore checkout"
 }
+set board_store $::env(BOARD_STORE_PATH)/boards
+if {![file isdirectory $board_store]} {
+    error "No boards directory under BOARD_STORE_PATH ($board_store)"
+}
+set_param board.repoPaths [list $board_store]
+puts "Board store: $board_store"
 
-################################################################
 # PROJECT
-################################################################
 
 if {![info exists design_name] || $design_name eq ""} {
     set design_name golden
@@ -85,9 +67,7 @@ if { ${design_name} eq "" } {
     current_bd_design $design_name
 }
 
-##################################################################
 # HELPER: modify a key inside a flat {KEY VALUE KEY VALUE ...} list
-##################################################################
 proc dict_set_flat {listvar key value} {
     upvar $listvar L
     set idx [lsearch -exact $L $key]
@@ -98,9 +78,7 @@ proc dict_set_flat {listvar key value} {
     }
 }
 
-##################################################################
 # DESIGN CREATION
-##################################################################
 proc create_root_design { parentCell } {
     global design_name
 
@@ -111,16 +89,11 @@ proc create_root_design { parentCell } {
     set oldCurInst [current_bd_instance .]
     current_bd_instance $parentObj
 
-    ################################################################
     # CIPS: Apply VCK190 board preset, then enable golden interfaces
-    ################################################################
     set versal_cips_0 [create_bd_cell -type ip -vlnv xilinx.com:ip:versal_cips:3.4 versal_cips_0]
 
-    # Apply VCK190 board preset via PS_BOARD_INTERFACE property.
-    # NOTE: apply_bd_automation -rule xilinx.com:bd_rule:cips fails in Vivado
-    # 2025.2 with "key mc_type not known in dictionary", so we apply the preset
-    # directly.  Setting PS_BOARD_INTERFACE loads the board's default PS/PMC
-    # configuration (peripherals, MIO, DDR mode, etc.).
+    # apply_bd_automation's cips rule fails in Vivado 2025.2 with "key mc_type
+    # not known in dictionary", so set the board preset directly.
     set_property CONFIG.PS_BOARD_INTERFACE ps_pmc_fixed_io $versal_cips_0
 
     set pmc_cfg [get_property CONFIG.PS_PMC_CONFIG $versal_cips_0]
@@ -129,9 +102,7 @@ proc create_root_design { parentCell } {
     dict_set_flat pmc_cfg PS_USE_M_AXI_FPD       {1}
     dict_set_flat pmc_cfg PS_USE_M_AXI_LPD       {1}
 
-    # FPD_AXI_NOC0 is intentionally disabled: PL DMA uses axi_noc_pl, and PS
-    # DDR access goes through the CCI ports.  Enable this only if you add a
-    # dedicated SI on axi_noc_ps for PS non-coherent DMA.
+    # FPD_AXI_NOC0 stays disabled: PL DMA uses axi_noc_pl, PS DDR uses CCI.
     dict_set_flat pmc_cfg PS_USE_FPD_AXI_NOC0    {0}
 
     # Coherent CCI NoC ports (for PS-DDR boot paths)
@@ -159,25 +130,18 @@ proc create_root_design { parentCell } {
     set_property CONFIG.PS_PMC_CONFIG $pmc_cfg $versal_cips_0
     set_property SELECTED_SIM_MODEL tlm $versal_cips_0
 
-    ################################################################
     # Clock / Reset infrastructure
-    ################################################################
 
     # proc_sys_reset for pl0_ref_clk (333 MHz, primary PL clock)
     set rst_pl0 [create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_pl0]
 
-    # proc_sys_reset for pl1_ref_clk
     set rst_pl1 [create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_pl1]
 
-    # proc_sys_reset for pl2_ref_clk
     set rst_pl2 [create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_pl2]
 
-    # proc_sys_reset for pl3_ref_clk
     set rst_pl3 [create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_pl3]
 
-    ################################################################
     # PS NoC: DDR-only paths, all initial_boot (goes in boot PDI)
-    ################################################################
     set axi_noc_ps [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_noc:1.1 axi_noc_ps]
     set_property -dict [list \
         CONFIG.MC_CHAN_REGION1            {DDR_LOW1} \
@@ -191,8 +155,7 @@ proc create_root_design { parentCell } {
         CONFIG.NUM_CLKS  {7} \
     ] $axi_noc_ps
 
-    # Apply board connections for DDR4 -- this sets all DDR timing parameters,
-    # speed grade, clock frequency, and creates external ports automatically.
+    # This also creates the DDR4 external ports.
     apply_board_connection -board_interface "ddr4_dimm1" \
         -ip_intf "axi_noc_ps/CH0_DDR4_0" -diagram $design_name
     apply_board_connection -board_interface "ddr4_dimm1_sma_clk" \
@@ -236,9 +199,7 @@ proc create_root_design { parentCell } {
     set_property -dict [list CONFIG.ASSOCIATED_BUSIF {S05_AXI}] [get_bd_pins /axi_noc_ps/aclk5]
     set_property -dict [list CONFIG.ASSOCIATED_BUSIF {S00_INI}] [get_bd_pins /axi_noc_ps/aclk6]
 
-    ################################################################
     # PL NoC: PL DMA paths to DDR via inter-NoC (no initial_boot)
-    ################################################################
     set axi_noc_pl [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_noc:1.1 axi_noc_pl]
     set_property -dict [list \
         CONFIG.NUM_SI    {2} \
@@ -267,9 +228,7 @@ proc create_root_design { parentCell } {
 
     set_property -dict [list CONFIG.ASSOCIATED_BUSIF {S00_AXI:S01_AXI}] [get_bd_pins /axi_noc_pl/aclk0]
 
-    ################################################################
     # PL Interface Tie-offs (DRC-clean standalone)
-    ################################################################
 
     # Tie-off for M_AXI_FPD (PS master -> PL slave)
     set pl_tieoff_fpd [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vip:1.1 pl_tieoff_fpd]
@@ -310,9 +269,7 @@ proc create_root_design { parentCell } {
         CONFIG.CONST_WIDTH {1} \
     ] $pl_tieoff_irq
 
-    ################################################################
     # Interface connections
-    ################################################################
     # (DDR4 external ports and connections created by apply_board_connection above)
 
     # PS -> NoC (DDR paths)
@@ -334,9 +291,7 @@ proc create_root_design { parentCell } {
     connect_bd_intf_net [get_bd_intf_pins pl_tieoff_dma0/M_AXI] [get_bd_intf_pins axi_noc_pl/S00_AXI]
     connect_bd_intf_net [get_bd_intf_pins pl_tieoff_dma1/M_AXI] [get_bd_intf_pins axi_noc_pl/S01_AXI]
 
-    ################################################################
     # Clock connections
-    ################################################################
 
     # PS NoC clocks from CIPS
     connect_bd_net [get_bd_pins versal_cips_0/pmc_axi_noc_axi0_clk]  [get_bd_pins axi_noc_ps/aclk0]
@@ -379,9 +334,7 @@ proc create_root_design { parentCell } {
         connect_bd_net [get_bd_pins pl_tieoff_irq/dout] $irq_pin
     }
 
-    ################################################################
     # Address segments (PS -> DDR only in golden reference)
-    ################################################################
     foreach ns {{PMC_NOC_AXI_0 S00} {LPD_AXI_NOC_0 S01} {FPD_CCI_NOC_0 S02} {FPD_CCI_NOC_1 S03} {FPD_CCI_NOC_2 S04} {FPD_CCI_NOC_3 S05}} {
         set master [lindex $ns 0]
         set slave  [lindex $ns 1]
@@ -409,7 +362,5 @@ proc create_root_design { parentCell } {
     save_bd_design
 }
 
-##################################################################
 # MAIN FLOW
-##################################################################
 create_root_design ""

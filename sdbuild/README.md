@@ -11,7 +11,7 @@ configuration within an isolated container.
 
 To use the Docker-based flow, ensure the following tools are installed **on your host machine**:
 
-* **Vivado**, **Vitis**, and **Petalinux**, version 2024.1
+* **Vivado** and **Vitis**, version 2025.2
 * A supported Linux distribution (see [UG973](https://docs.amd.com/r/2024.1-English/ug973-vivado-release-notes-install-license/Supported-Operating-Systems))
 * **Docker** (Install via the [official instructions](https://docs.docker.com/engine/install/))
 
@@ -34,21 +34,23 @@ be owned by your user on the host system, helping to avoid permission issues.
 
 ### 3. Run the Docker Container
 
-Before running the container, make sure you know where Vivado and Petalinux are 
-installed on your host. For example:
+Set `XILINX_TOOLS` to the directory that holds your `Vivado` and `Vitis` installs,
+and mount it inside the container at that same path — the tool `settings64.sh`
+scripts source their companion files by absolute path. The container entrypoint
+sources them for you.
 
-* Vivado: `/tools/Xilinx`
-* Petalinux: `/home/user/petalinux`
-
-Then, from within the PYNQ repo top-level directory, you can start the container as follows:
+From the PYNQ repo top-level directory:
 
 ```sh
+export XILINX_TOOLS=/tools/Xilinx/2025.2   # wherever yours is installed
+
 docker run \
   --init \
   --rm \
   -it \
-  -v /tools/Xilinx:/tools/Xilinx:ro \
-  -v /home/user/petalinux:/home/user/petalinux:ro \
+  -e XILINX_TOOLS \
+  -e XILINXD_LICENSE_FILE \
+  -v "$XILINX_TOOLS:$XILINX_TOOLS:ro" \
   -v $(pwd):/workspace \
   --name pynq-sdbuild-env \
   --privileged \
@@ -61,15 +63,11 @@ Notes:
 * `-v $(pwd):/workspace` mounts your local PYNQ repo inside the container.
 * The `:ro` option mounts tool directories as read-only.
 * `--privileged` is required for parts of the build process.
+* `XILINXD_LICENSE_FILE` is forwarded from your host environment. If it names a
+  local file or directory rather than a `port@host` license server, mount that
+  path read-only as well.
 
 ### 4. Build the PYNQ Image
-
-Inside the container, first set up the tool environment:
-
-```sh
-source /tools/Xilinx/Vivado/2024.1/settings64.sh
-source /home/user/petalinux/settings.sh
-```
 
 Ensure that the prebuilt pynq sdist and rootfs tarballs are in the `sdbuild/prebuilt` 
 folder named `pynq_sdist.tar.gz` and `pynq_rootfs.<arch>.tar.gz` , then build your image:
@@ -77,6 +75,22 @@ folder named `pynq_sdist.tar.gz` and `pynq_rootfs.<arch>.tar.gz` , then build yo
 ```
 cd sdbuild
 make BOARDS=ZCU104 # Replace ZCU104 with the board you'd like to target.
+```
+
+### The EDF cache
+
+Boards that build their boot artefacts with AMD's EDF (Yocto/bitbake) flow need a
+workspace for the EDF layers, plus a shared-state cache and a downloads
+directory. Nothing needs to be prepared: the first build creates
+`sdbuild/edf-cache/` and syncs the EDF manifest into it. Because the repo is a
+bind mount this cache persists across container runs, and it is not removed by
+`make clean` — the downloads alone run to tens of GB, so a rebuild reuses them.
+
+To keep one cache shared between checkouts (or on a larger filesystem), point
+`EDF_CACHE` at it, or override `EDF_DIR`, `SSTATE_DIR` and `DL_DIR` individually:
+
+```sh
+make BOARDS=VCK190 EDF_CACHE=/scratch/pynq-edf-cache
 ```
 
 ## VM-Based Setup (Alternative)

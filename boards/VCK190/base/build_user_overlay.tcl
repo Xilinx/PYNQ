@@ -1,38 +1,5 @@
 # Copyright (c) 2026, Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
-#
-# Generic script for building user overlays on top of the VCK190 golden
-# reference design.  This script automates the full flow:
-#
-#   1. Sources golden_ref.tcl (creates CIPS, PS NoC, PL NoC, tie-offs)
-#   2. Removes PL tie-offs
-#   3. Calls user's create_user_pl_design proc
-#   4. Sets segmented_configuration, locks NoC solution
-#   5. Runs implementation through write_device_image
-#   6. Runs pr_verify against golden routed checkpoint
-#   7. Copies PLD PDI to output
-#
-# Usage:
-#   1. Create a TCL file defining proc create_user_pl_design {}
-#   2. Source this script:
-#        vivado -mode batch -source build_user_overlay.tcl \
-#               -tclargs <user_design.tcl> <output_name>
-#
-# The user's create_user_pl_design proc receives the block design with
-# golden reference (CIPS, NoC, clocks/resets) already created and
-# tie-offs removed. It should:
-#   - Add PL IPs
-#   - Connect M_AXI_FPD, M_AXI_LPD to PL peripherals
-#   - Connect DMA masters to axi_noc_pl/S00_AXI, S01_AXI
-#   - Connect interrupts to versal_cips_0/pl_ps_irq*
-#   - Assign addresses
-#
-# Available resources from golden reference:
-#   - versal_cips_0: CIPS with M_AXI_FPD, M_AXI_LPD, pl0-3_ref_clk,
-#                    pl0-3_resetn, pl_ps_irq0-15
-#   - axi_noc_ps:   PS NoC with DDR (initial_boot), NSI_0 for PL DMA
-#   - axi_noc_pl:   PL NoC with S00_AXI, S01_AXI (DMA -> DDR via NMI_0)
-#   - rst_pl0..3:   proc_sys_reset for each PL clock domain
 
 if {$argc < 2} {
     puts "Usage: vivado -mode batch -source build_user_overlay.tcl -tclargs <user_design.tcl> <output_name>"
@@ -59,16 +26,12 @@ puts "  Output name: $overlay_name"
 puts "  Golden dir:  $golden_dir"
 puts "============================================"
 
-################################################################
 # Step 1: Source golden reference design
-################################################################
 puts "\n--- Step 1: Creating golden reference design ---"
 set design_name $overlay_name
 source [file join $golden_dir golden_ref.tcl]
 
-################################################################
 # Step 2: Remove PL tie-offs
-################################################################
 puts "\n--- Step 2: Removing PL tie-offs ---"
 delete_bd_objs [get_bd_cells pl_tieoff_fpd]
 delete_bd_objs [get_bd_cells pl_tieoff_lpd]
@@ -76,9 +39,7 @@ delete_bd_objs [get_bd_cells pl_tieoff_dma0]
 delete_bd_objs [get_bd_cells pl_tieoff_dma1]
 delete_bd_objs [get_bd_cells pl_tieoff_irq]
 
-################################################################
 # Step 3: Source user design
-################################################################
 puts "\n--- Step 3: Applying user PL design ---"
 source $user_design_tcl
 create_user_pl_design
@@ -86,9 +47,7 @@ create_user_pl_design
 validate_bd_design
 save_bd_design
 
-################################################################
 # Step 4: Build
-################################################################
 puts "\n--- Step 4: Building overlay ---"
 
 make_wrapper -files [get_files [current_bd_design].bd] -top
@@ -132,9 +91,7 @@ if { [string match "*Complete*" $impl_status] == 0 } {
     exit 1
 }
 
-################################################################
 # Step 5: Verify against golden reference
-################################################################
 puts "\n--- Step 5: Running pr_verify ---"
 
 set golden_dcp [file join $golden_dir golden_routed.dcp]
@@ -154,9 +111,7 @@ if {[file exists $golden_dcp]} {
     puts "WARNING: golden_routed.dcp not found, skipping pr_verify"
 }
 
-################################################################
 # Step 6: Export artifacts
-################################################################
 puts "\n--- Step 6: Exporting artifacts ---"
 
 write_hw_platform -fixed -include_bit -force ./${overlay_name}.xsa
