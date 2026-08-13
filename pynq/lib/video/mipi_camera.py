@@ -55,8 +55,8 @@ class MipiCamera(DefaultHierarchy):
     def __init__(self, description):
         super().__init__(description)
         self._vdma = self.axi_vdma
-        # Resolved on the first configure(); no I2C at construction time so
-        # that overlay load cannot fail when no camera is attached.
+        # Resolved on the first configure(): no I2C here, so overlay load
+        # cannot fail when no camera is attached.
         self._sensor = None
         self._bayer_phase = None
         self._wb_gains = None
@@ -93,8 +93,7 @@ class MipiCamera(DefaultHierarchy):
         if self._vdma.readchannel.running:
             self._vdma.readchannel.stop()
 
-        # Reset demosaic, gamma LUT and CSC before reprogramming them, then
-        # power up the camera so it can answer on I2C.
+        # Reset demosaic, gamma LUT and CSC before reprogramming them.
         self.gpio_ip_reset.write(0x00, 0x01)
         self.gpio_ip_reset.write(0x00, 0x00)
         self.gpio_ip_reset.write(0x00, 0x01)
@@ -120,23 +119,12 @@ class MipiCamera(DefaultHierarchy):
             wb_gains = self._sensor.WB_GAINS
         self._wb_gains = tuple(wb_gains)
 
-        # Already powered up above, so skip the sensor's own power cycle.
         self._sensor.configure(mode_id, self.gpio_ip_reset,
                                power_cycle=False)
 
-        # active_lanes is inert: the subsystem is built with
-        # C_CSI_EN_ACTIVELANES = false, so the lane count is fixed in
-        # hardware.
-        #
-        # HS_SETTLE is deliberately NOT written here. The build-time
-        # C_HS_SETTLE_NS = 124 ns already sits inside the D-PHY spec
-        # window for every supported sensor -- the windows are
-        # [93.9, 159.9] ns for the OV5640 at 672 Mbps and [91.6, 156.0] ns
-        # for the IMX parts at ~912 Mbps, which intersect at
-        # [93.9, 156.0] ns. One build therefore covers all three, and
-        # overwriting it at runtime only risks pushing a working link out
-        # of spec. Each sensor still declares HS_SETTLE_NS so the value is
-        # recorded next to its line rate if a future part needs it.
+        # HS_SETTLE is deliberately not written: the build-time 124 ns is
+        # in spec for every supported sensor, and overriding it stalls the
+        # link. See MipiCsi2RxSubsystem.configure.
         self.mipi_csi2_rx_subsyst.configure(
             active_lanes=self._sensor.LANE_COUNT)
 
@@ -313,13 +301,10 @@ class MipiCamera(DefaultHierarchy):
         - dphy_dl0_pkt_count > 0 but packet_count 0 => data dropped before
           the line buffer (lane map or filtered data type).
         - packet_count > 0 but readframe hangs => downstream (VDMA/format).
-        - one lane counting packets while the other stays at 0 => a
-          physical-layer fault, not a configuration one: both lanes are
-          enabled by the same sensor register, so no register setting
-          produces this. Reseat or replace the flex cable and retry with
-          a known-good module before suspecting the driver. A lane that
-          never recovers is usually damage from swapping a camera with
-          the board powered on.
+        - one lane counting, the other stuck at 0 => physical-layer fault.
+          Both lanes come from one sensor register, so no configuration
+          produces this; reseat the cable and try a known-good module. A
+          lane that never recovers is usually damage from hot-swapping.
 
         Returns
         -------

@@ -7,17 +7,14 @@ Register tables are ported verbatim from the Raspberry Pi kernel driver
 ``drivers/media/i2c/imx708.c`` (rpi-6.6.y); the symbol each one comes from
 is named above it.
 
-The sensor's native array is 4608x2592, and the driver's binned readout
-modes are 1536x864 and 2304x1296 — neither is 720p or 1080p. Rather than
-retune the analogue readout, this driver keeps each kernel mode's
-registers exactly as validated and uses only the sensor's digital crop
-(``DIG_CROP_*``) to take a centred 1280x720 or 1920x1080 window out of the
-binned image. The field of view is correspondingly a little narrower than
-the full binned mode.
+The driver's binned modes are 1536x864 and 2304x1296 — neither is 720p nor
+1080p. Rather than retune the analogue readout, each kernel mode is kept
+exactly as validated and the sensor's digital crop (``DIG_CROP_*``) takes a
+centred 1280x720 or 1920x1080 window out of it, so the field of view is a
+little narrower than the full binned mode.
 
-The module is driven fixed-focus: the DW9817 VCM sits at a separate I2C
-address (0x0C) and is left alone, so the lens stays at its power-on
-position.
+The module is fixed-focus: the DW9817 VCM sits at its own I2C address
+(0x0C) and is left at its power-on position.
 """
 
 from .sony_sensor import SonySensor
@@ -40,8 +37,6 @@ _REG_BASE_SPC_GAINS_L = 0x7B10
 _REG_BASE_SPC_GAINS_R = 0x7C00
 _REG_LPF_INTENSITY_EN = 0xC428
 
-
-
 _LPF_INTENSITY_DISABLED = 0x01
 
 # Gain limits, from IMX708_ANA_GAIN_* / IMX708_DGTL_GAIN_* in imx708.c
@@ -50,11 +45,10 @@ _ANA_GAIN_MAX = 960
 _DGTL_GAIN_MIN = 0x0100
 _DGTL_GAIN_MAX = 0xFFFF
 
-# Exposure must leave room for the frame's blanking.
-# From IMX708_EXPOSURE_OFFSET in imx708.c.
+# From IMX708_EXPOSURE_OFFSET in imx708.c; exposure must leave room for
+# the frame's blanking.
 _EXPOSURE_OFFSET = 48
-# Both binned modes report exposure_lines_min = 4 and
-# exposure_lines_step = 2 in supported_modes_10bit_no_hdr.
+# supported_modes_10bit_no_hdr: both binned modes.
 _EXPOSURE_MIN = 4
 _EXPOSURE_STEP = 2
 
@@ -92,15 +86,14 @@ _CFG_COMMON = (
 )
 
 # Ported from link_450Mhz_regs in imx708.c. 450 MHz is the nominal link
-# frequency (imx708.dtsi) and the one the D-PHY build targets.
+# frequency and the one the D-PHY build targets.
 _CFG_LINK_450MHZ = (
     (0x030E, 0x01),
     (0x030F, 0x2C),
 )
 
-# Ported from pdaf_gains in imx708.c. Shading correction for the
-# phase-detect pixels; applied only when the sensor reports the
-# uncalibrated default at _REG_BASE_SPC_GAINS_L.
+# Ported from pdaf_gains in imx708.c. Phase-detect pixel shading
+# correction, applied only to uncalibrated sensors.
 _PDAF_GAINS = (
     (0x4C, 0x4C, 0x4C, 0x46, 0x3E, 0x38, 0x35, 0x35, 0x35),
     (0x35, 0x35, 0x35, 0x38, 0x3E, 0x46, 0x4C, 0x4C, 0x4C),
@@ -231,8 +224,6 @@ class _Mode:
         self.fps = fps
         self.x_offset = ((binned_width - width) // 2) & ~1
         self.y_offset = ((binned_height - height) // 2) & ~1
-        # The line length is fixed by the mode, so the frame rate is set
-        # by the frame length alone.
         self.frame_length = pixel_rate // (line_length * fps)
 
     def crop_registers(self):
@@ -287,22 +278,17 @@ class IMX708(SonySensor):
     I2C_ADDR = 0x1A
     ID_REG = 0x0016
     ID_VALUE = 0x0708
-    # 450 MHz link frequency (imx708.dtsi) => 900 Mbps/lane DDR, just under
-    # the 912 Mbps the D-PHY is built for.
+    # 450 MHz link => 900 Mbps/lane DDR, under the 912 Mbps build.
     HS_SETTLE_NS = 124
     # codes[0] (no flip) in imx708.c is SRGGB10.
     BAYER_PHASE = 0x0
-    # Raw sensor with no on-chip AWB, so the pipeline has to correct the
-    # green bias itself. These are daylight-ish starting gains, not a
-    # calibrated matrix; adjust via MipiCamera.wb_gains under other
-    # lighting.
+    # Daylight starting point, not a calibrated matrix.
     WB_GAINS = (1.8, 1.0, 1.6)
     MODES = {
         (1280, 720, 60): 0,
         (1920, 1080, 30): 1,
     }
-    # The sensor accepts back-to-back writes; the OV5640's 10 ms per-write
-    # delay would make these ~200-entry tables take seconds.
+    # Accepts back-to-back writes; a per-write delay would cost seconds.
     REG_DELAY = 0
     #: Mirror/flip control register for this part.
     REG_ORIENTATION = 0x0101

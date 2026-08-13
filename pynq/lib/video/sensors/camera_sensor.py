@@ -42,10 +42,8 @@ class CameraSensor(metaclass=abc.ABCMeta):
         Default demosaic Bayer phase (0=RGGB, 1=GRBG, 2=GBRG, 3=BGGR).
     WB_GAINS : tuple of float
         Default (red, green, blue) white balance gains applied by the
-        colour space converter. Sensors with their own on-chip auto
-        white balance leave this at unity; raw sensors need it, because
-        silicon is roughly twice as sensitive to green as to red or blue
-        and an uncorrected frame comes out visibly green.
+        colour space converter. Sensors with on-chip AWB leave this at
+        unity; raw sensors need it, or the frame comes out green.
     MODES : dict
         Maps ``(width, height, fps)`` to a sensor mode id. Each sensor is
         the source of truth for the modes it supports.
@@ -191,13 +189,9 @@ class CameraSensor(metaclass=abc.ABCMeta):
         .. warning::
 
             This gates sensor power only -- it does **not** isolate the
-            MIPI data lines, so it is not a substitute for powering the
-            board down before swapping cameras. The CSI connector has no
-            hot-plug protection: the flex contacts mate in an arbitrary
-            order, so a data lane can connect before ground. Swapping a
-            camera on a live board has destroyed modules on this setup,
-            the signature being one data lane permanently dead while the
-            others still count packets (see ``MipiCamera.diagnostics``).
+            MIPI lines, so it is no substitute for powering the board down
+            before swapping cameras. The CSI connector has no hot-plug
+            protection, and doing so has destroyed modules on this setup.
 
         Parameters
         ----------

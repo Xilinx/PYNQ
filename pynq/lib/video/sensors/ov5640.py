@@ -7,8 +7,7 @@ from .camera_sensor import CameraSensor
 
 __all__ = ["OV5640"]
 
-# Register tables ported from pcam_5c.h
-# Each entry is (register_address, data_byte)
+# Register tables ported from pcam_5c.h; entries are (address, data).
 
 _CFG_INIT = (
     (0x3008, 0x42),

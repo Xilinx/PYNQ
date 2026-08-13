@@ -512,7 +512,7 @@ _registers = {
     },
 }
 
-#: Matrix coefficients are 16-bit fixed point with 0x1000 representing 1.0.
+#: Coefficients are 16-bit fixed point, 0x1000 = 1.0.
 _UNITY_COEFF = 0x1000
 
 
@@ -574,16 +574,11 @@ class VideoProcessingCSC(DefaultIP):
 
     @gains.setter
     def gains(self, gains):
-        """Write a diagonal colour matrix with the given per-channel gains.
+        """Write a diagonal matrix, scaling each channel without mixing.
 
-        The off-diagonal terms stay zero, so this scales each channel
-        independently without mixing them -- which is exactly what white
-        balancing a raw sensor needs. Gains of 1.0 give the identity
-        (passthrough) matrix.
-
-        This IP sits upstream of ``axis_channel_swap``, so its channels are
-        still in the demosaic's RGB order, matching the r/g/b offset
-        register names.
+        Gains of 1.0 give the identity (passthrough) matrix. This IP sits
+        upstream of ``axis_channel_swap``, so its channels are in the
+        demosaic's RGB order.
         """
         gains = tuple(gains)
         if len(gains) != 3:

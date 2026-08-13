@@ -14,9 +14,8 @@ from .imx219 import IMX219
 from .imx708 import IMX708
 from .ov5640 import OV5640
 
-#: Sensors probed by :func:`detect_sensor`, in order. All three sit at
-#: distinct I2C addresses so the order is not load-bearing, but keeping it
-#: deterministic keeps the failure messages stable.
+#: Sensors probed by :func:`detect_sensor`. All sit at distinct I2C
+#: addresses, so the order only fixes the failure message.
 SENSORS = (OV5640, IMX219, IMX708)
 
 __all__ = ["CameraSensor", "SonySensor", "OV5640", "IMX219", "IMX708",

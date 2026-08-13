@@ -4,10 +4,8 @@
 """Sony IMX219 driver — Raspberry Pi Camera Module v2.
 
 Register tables are ported from the Raspberry Pi kernel driver
-``drivers/media/i2c/imx219.c`` (rpi-6.6.y), which is validated against
-real silicon; the symbol each table comes from is named above it. The
-crop and timing values for the two modes exposed here are derived from
-that driver's mode table and are marked as such.
+``drivers/media/i2c/imx219.c`` (rpi-6.6.y); the symbol each one comes
+from is named above it.
 """
 
 from .sony_sensor import SonySensor
@@ -40,9 +38,8 @@ _BINNING_NONE = 0x0000
 _BINNING_2X2_ANALOG = 0x0303
 
 
-# 2-lane pixel rate and line length are fixed for every mode, so the frame
-# rate is set purely by the frame length. From imx219.c:
-# IMX219_PIXEL_RATE and the LINE_LENGTH_A entry in imx219_common_regs.
+# Fixed for every 2-lane mode, so frame rate is set by frame length alone.
+# From IMX219_PIXEL_RATE and LINE_LENGTH_A in imx219.c.
 _PIXEL_RATE = 182400000
 _LINE_LENGTH = 3448
 _LINES_PER_SECOND = _PIXEL_RATE // _LINE_LENGTH
@@ -112,10 +109,9 @@ _CFG_RAW10 = (
 def _centred_crop(out_width, out_height, binning):
     """Derive a centred readout window for an output size.
 
-    The kernel driver only tabulates the modes Raspberry Pi ships; the two
-    modes we expose are the standard v2 sensor modes, so the windows are
-    computed here from the array geometry rather than copied. Offsets are
-    forced even to keep the Bayer phase (RGGB) unchanged.
+    Computed from the array geometry rather than copied, since the kernel
+    driver only tabulates the modes Raspberry Pi ships. Offsets are forced
+    even to keep the Bayer phase (RGGB) unchanged.
     """
     scale = 2 if binning else 1
     crop_w = out_width * scale
@@ -135,8 +131,6 @@ class _Mode:
         self.binning = binning
         self.left, self.top, self.crop_w, self.crop_h = _centred_crop(
             width, height, binning)
-        # Frame length sets the frame rate: the pixel rate and line length
-        # are fixed for all 2-lane modes.
         self.frame_length = _LINES_PER_SECOND // fps
 
     def registers(self):
@@ -173,8 +167,8 @@ _MODE_CONFIGS = {
     1: _Mode(1920, 1080, 30, binning=False),
 }
 
-# Exposure must leave room for the frame's blanking, hence the offset.
-# From IMX219_EXPOSURE_OFFSET in imx219.c.
+# From IMX219_EXPOSURE_OFFSET in imx219.c; exposure must leave room for
+# the frame's blanking.
 _EXPOSURE_OFFSET = 4
 
 
@@ -197,22 +191,17 @@ class IMX219(SonySensor):
     I2C_ADDR = 0x10
     ID_REG = 0x0000
     ID_VALUE = 0x0219
-    # 456 MHz link frequency (imx219.dtsi) => 912 Mbps/lane DDR, which is
-    # what the D-PHY is built for.
+    # 456 MHz link => 912 Mbps/lane DDR, what the D-PHY is built for.
     HS_SETTLE_NS = 124
     # imx219_mbus_formats[0] (no flip) is SRGGB10.
     BAYER_PHASE = 0x0
-    # Raw sensor with no on-chip AWB, so the pipeline has to correct the
-    # green bias itself. These are daylight-ish starting gains, not a
-    # calibrated matrix; adjust via MipiCamera.wb_gains under other
-    # lighting.
+    # Daylight starting point, not a calibrated matrix.
     WB_GAINS = (1.8, 1.0, 1.6)
     MODES = {
         (1280, 720, 60): 0,
         (1920, 1080, 30): 1,
     }
-    # The sensor accepts back-to-back writes; the OV5640's 10 ms per-write
-    # delay would make these ~200-entry tables take seconds.
+    # Accepts back-to-back writes; a per-write delay would cost seconds.
     REG_DELAY = 0
     #: Mirror/flip control register for this part.
     REG_ORIENTATION = 0x0172
