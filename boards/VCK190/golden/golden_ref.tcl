@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2025, Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2026, Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Golden Reference Design for VCK190 Segmented Configuration

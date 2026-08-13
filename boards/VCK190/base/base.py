@@ -1,4 +1,4 @@
-#   Copyright (c) 2026, Xilinx, Inc.
+#   Copyright (c) 2026, Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 """VCK190 BaseOverlay -- board-specific overlay wrapper.
@@ -24,9 +24,6 @@ data path end-to-end.
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
-
 import pynq
 
 _GPIO_MAP = {
@@ -34,34 +31,6 @@ _GPIO_MAP = {
     "buttons": ("axi_gpio_pb", "in", 4),
     "switches": ("axi_gpio_dip_sw", "in", 4),
 }
-
-
-def _remap_bit_to_pdi(bitfile_name: str) -> str:
-    """Versal PL programming uses ``.pdi``, not ``.bit``. Several
-    stock PYNQ notebooks hardcode ``BaseOverlay("base.bit")`` though
-    -- on Versal boards that filename has no on-disk match and the
-    overlay load fails. Auto-remap to ``<stem>.pdi`` when the caller
-    passes a ``.bit`` path that doesn't exist but a sibling ``.pdi``
-    does (either absolute-file, local-cwd, or inside the installed
-    overlay package directory).
-    """
-    if not isinstance(bitfile_name, str) or not bitfile_name.endswith(".bit"):
-        return bitfile_name
-    if Path(bitfile_name).is_file():
-        return bitfile_name
-
-    stem = bitfile_name[:-4]
-    candidates = [stem + ".pdi"]
-    # When bitfile_name is a bare name (no path), Overlay() would look
-    # it up under the package dir. Do the same remap check there.
-    if os.sep not in bitfile_name:
-        pkg_dir = Path(__file__).resolve().parent
-        candidates.append(str(pkg_dir / (stem + ".pdi")))
-
-    for candidate in candidates:
-        if Path(candidate).is_file():
-            return candidate
-    return bitfile_name
 
 
 class BaseOverlay(pynq.Overlay):
@@ -73,19 +42,12 @@ class BaseOverlay(pynq.Overlay):
     Parameters
     ----------
     bitfile_name : str
-        Path to the PDI (default: ``"base.pdi"``). A ``.bit`` filename
-        is silently remapped to ``.pdi`` when no ``.bit`` file exists
-        -- this keeps stock PYNQ notebooks that hardcode
-        ``BaseOverlay("base.bit")`` working on Versal.
+        Path to the PDI, for example ``"base.pdi"``.
     **kwargs
         Forwarded to :class:`pynq.Overlay`.
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        if args:
-            args = (_remap_bit_to_pdi(args[0]),) + args[1:]
-        elif "bitfile_name" in kwargs:
-            kwargs["bitfile_name"] = _remap_bit_to_pdi(kwargs["bitfile_name"])
         super().__init__(*args, **kwargs)
         if self.is_loaded():
             self._init_gpio()

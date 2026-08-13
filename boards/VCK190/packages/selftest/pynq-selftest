@@ -1,5 +1,5 @@
 #!/usr/local/share/pynq-venv/bin/python3
-# PYNQ image self-test. See README.md for the required environment.
+# PYNQ image self-test.
 #   pynq-selftest [--no-peripherals]
 
 import argparse

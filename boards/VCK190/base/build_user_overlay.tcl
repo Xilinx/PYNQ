@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Advanced Micro Devices, Inc.
+# Copyright (c) 2026, Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Generic script for building user overlays on top of the VCK190 golden
