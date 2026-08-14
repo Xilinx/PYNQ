@@ -58,7 +58,7 @@ class DrmDriver:
         self._video_file = os.fdopen(self._video_fd, "r+b", buffering=0)
 
         self._device = self._videolib.pynqvideo_device_init(self._video_fd)
-        if self._device == 0:
+        if self._device == self._ffi.NULL:
             raise RuntimeError("Unable to create DRM device")
 
         if event_loop:
