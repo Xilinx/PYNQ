@@ -86,7 +86,7 @@ ENV TERM=xterm
 ENV LD_PRELOAD="/lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libcap.so.2"
 
 COPY docker-entrypoint.sh /usr/local/bin/pynq-sdbuild-entrypoint
-RUN chmod +x /usr/local/bin/pynq-sdbuild-entrypoint
+RUN chmod 0755 /usr/local/bin/pynq-sdbuild-entrypoint
 
 # Switch to non-root user
 USER ${USERNAME}
