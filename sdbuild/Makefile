@@ -1,4 +1,5 @@
 # Copyright (C) 2022 Xilinx, Inc
+# Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 ifneq (,$(filter pynqremote,$(MAKECMDGOALS)))
@@ -149,7 +150,7 @@ BOOT_STAMP_$1   := $$(BOOT_ROOT_$1)/.boot_built
 BOOT_ENV_$1 := BOARD=$1 BOARD_PATH=$$(BOARDDIR_$1) ARCH=$$(ARCH_$1) \
 	FPGA_MANAGER=$$(FPGA_MANAGER_$1) OUTPUT_DIR=$$(BOOT_ROOT) ROOTDIR=$$(CURDIR)
 
-$$(BOOT_STAMP_$1): $$(BOARD_EDF_ENV_$1) | $$(BOOT_ROOT_$1)
+$$(BOOT_STAMP_$1): $$(BOARD_EDF_ENV_$1) $$(BITSTREAM_ABS_$1) | $$(BOOT_ROOT_$1)
 	$$(BOOT_ENV_$1) $$(SCRIPT_DIR)/build_edf_boot.sh
 	touch $$@
 
@@ -365,8 +366,8 @@ endif
 endif
 
 	vivado -version | fgrep ${KERNEL_VERSION}
-ifdef REBUILD_PYNQ_SDIST
 	vitis -version | fgrep ${KERNEL_VERSION}
+ifdef REBUILD_PYNQ_SDIST
 	which microblaze-xilinx-elf-gcc
 endif
 ifdef REBUILD_PYNQ_ROOTFS
