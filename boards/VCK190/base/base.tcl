@@ -2,30 +2,13 @@
 # Copyright (c) 2026, Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# VCK190 Base Overlay -- reference implementation on top of golden reference.
-#
-# This script:
-#   1. Sources golden_ref.tcl (creates CIPS, PS NoC, PL NoC, tie-offs)
-#   2. Removes PL tie-offs
-#   3. Adds PL peripherals: GPIO (LEDs, buttons, DIP switches), BRAM,
-#      UARTLite, AXI DMA with loopback FIFO
-#   4. Routes DMA data through the PL NoC to DDR
-#
-# Vivado version: 2025.2
-#
 
-################################################################
 # Step 1: Source the golden reference design
-################################################################
 # Pre-set design_name so golden_ref.tcl creates project/BD named "base"
 set design_name "base"
 source [file join [file dirname [info script]] ../golden/golden_ref.tcl]
 
-################################################################
 # Step 2: Remove PL tie-offs from the golden reference
-################################################################
-# The golden design has AXI VIP tie-offs and an xlconstant for interrupts.
-# Remove them so we can connect real PL logic.
 delete_bd_objs [get_bd_cells pl_tieoff_fpd]
 delete_bd_objs [get_bd_cells pl_tieoff_lpd]
 delete_bd_objs [get_bd_cells pl_tieoff_dma0]
@@ -38,9 +21,7 @@ foreach irq_pin [get_bd_pins versal_cips_0/pl_ps_irq*] {
 }
 delete_bd_objs [get_bd_cells pl_tieoff_irq]
 
-################################################################
 # Step 3: PL Peripherals -- Control Path (M_AXI_FPD via SmartConnect)
-################################################################
 
 # SmartConnect: fan-out M_AXI_FPD to 6 PL slaves
 set axi_smc [create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 axi_smc]
@@ -91,9 +72,7 @@ set axi_dma_0 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 axi_dma_0
     CONFIG.c_s2mm_burst_size {256} \
 ] $axi_dma_0
 
-################################################################
 # Step 3b: DMA Loopback via AXI Stream FIFO
-################################################################
 
 # AXI Stream Data FIFO: connects DMA MM2S output back to S2MM input
 set axis_data_fifo_0 [create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:2.0 axis_data_fifo_0]
@@ -102,9 +81,7 @@ set axis_data_fifo_0 [create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo
     CONFIG.TDATA_NUM_BYTES {16} \
 ] $axis_data_fifo_0
 
-################################################################
 # Step 3c: UART (routed through axi_smc M05_AXI)
-################################################################
 
 set axi_uartlite_0 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite:2.0 axi_uartlite_0]
  set_property -dict [list \
@@ -113,32 +90,18 @@ set axi_uartlite_0 [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite:2.0
  CONFIG.USE_BOARD_FLOW {true} \
  ] $axi_uartlite_0
 
-################################################################
 # Step 4: External board interfaces (GPIO, UART)
-################################################################
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 gpio_led
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 gpio_pb
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 gpio_dp
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 uart2_bank306
 
-################################################################
 # Step 5: Reconfigure PL NoC for base overlay
-################################################################
-# The golden axi_noc_pl has 2 SI (tied off), 0 MI, 1 NMI.
-# For the base overlay we need:
-#   - S00_AXI: DMA M_AXI_MM2S -> DDR (read channel)
-#   - S01_AXI: DMA M_AXI_S2MM -> DDR (write channel)
-#   - M00_INI remains connected to axi_noc_ps/S00_INI
-# No changes needed -- the 2 SI / 1 NMI topology matches our needs.
-
-# Also need M_AXI_FPD connection via SmartConnect (was going to tie-off)
-# and M_AXI_LPD (we leave LPD unused for now, just connect a VIP)
+# M_AXI_LPD is unused; a VIP keeps the port driven.
 set pl_lpd_tieoff [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vip:1.1 pl_lpd_tieoff]
 set_property -dict [list CONFIG.INTERFACE_MODE {SLAVE} CONFIG.PROTOCOL {AXI4}] $pl_lpd_tieoff
 
-################################################################
 # Step 6: Interface connections
-################################################################
 
 # BRAM
 connect_bd_intf_net [get_bd_intf_pins axi_bram_ctrl_0/BRAM_PORTA] [get_bd_intf_pins axi_bram_ctrl_0_bram/BRAM_PORTA]
@@ -173,9 +136,7 @@ connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXIS_MM2S]     [get_bd_intf_pi
 connect_bd_intf_net [get_bd_intf_pins axis_data_fifo_0/M_AXIS]    [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM]
 
 
-################################################################
 # Step 7: Clock connections
-################################################################
 
 # pl0_ref_clk drives new PL peripherals (golden_ref.tcl already connected
 # pl0_ref_clk to CIPS aclk pins, NoC clocks, and rst_pl0)
@@ -192,9 +153,7 @@ connect_bd_net [get_bd_pins versal_cips_0/pl0_ref_clk] \
     [get_bd_pins axi_uartlite_0/s_axi_aclk] \
     [get_bd_pins pl_lpd_tieoff/aclk]
 
-################################################################
 # Step 8: Reset connections
-################################################################
 
 connect_bd_net [get_bd_pins rst_pl0/peripheral_aresetn] \
     [get_bd_pins axi_smc/aresetn] \
@@ -207,9 +166,7 @@ connect_bd_net [get_bd_pins rst_pl0/peripheral_aresetn] \
     [get_bd_pins axi_uartlite_0/s_axi_aresetn] \
     [get_bd_pins pl_lpd_tieoff/aresetn]
 
-################################################################
 # Step 9: Interrupt connections
-################################################################
 
 connect_bd_net [get_bd_pins axi_dma_0/mm2s_introut]        [get_bd_pins versal_cips_0/pl_ps_irq0]
 connect_bd_net [get_bd_pins axi_dma_0/s2mm_introut]         [get_bd_pins versal_cips_0/pl_ps_irq1]
@@ -224,9 +181,7 @@ foreach idx {2 3 4 5 6 7 11 12 13 14 15} {
     connect_bd_net [get_bd_pins irq_tieoff/dout] [get_bd_pins versal_cips_0/pl_ps_irq${idx}]
 }
 
-################################################################
 # Step 10: Address assignments
-################################################################
 
 # M_AXI_FPD address space (via SmartConnect)
 assign_bd_address -offset 0xA4000000 -range 0x00002000 \
@@ -272,9 +227,7 @@ assign_bd_address -offset 0x000800000000 -range 0x180000000 \
     -target_address_space [get_bd_addr_spaces axi_dma_0/Data_S2MM] \
     [get_bd_addr_segs axi_noc_ps/S00_INI/C0_DDR_LOW1] -force
 
-################################################################
 # Step 11: Validate and save
-################################################################
 
  validate_bd_design
  save_bd_design

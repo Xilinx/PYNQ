@@ -1,11 +1,12 @@
 # Copyright (C) 2022 Xilinx, Inc
+# Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 ifneq (,$(filter pynqremote,$(MAKECMDGOALS)))
 override PYNQREMOTE = 1
 endif
 
-# Packages enabled in every PYNQ.remote (PetaLinux) rootfs. Boards add
+# Packages enabled in every PYNQ.remote base rootfs. Boards add
 # board-specific remote packages via REMOTE_PACKAGES_<board> in their .spec file.
 REMOTE_PACKAGES ?= grpc pynq-cpp
 
@@ -113,6 +114,13 @@ PYNQ_ROOTFS ?= $(CURDIR)/prebuilt/pynq_rootfs.$$(ARCH_$1).tar.gz
 
 BOARDDIR_$1 := $$(BOARDDIR)/$1
 BITSTREAM_ABS_$1 := $$(patsubst %, $$(BOARDDIR_$1)/%, $$(BITSTREAM_$1))
+
+# Build the board's overlay from its own sources. Delete the artefact to
+# rebuild it; boards without a BITSTREAM entry have nothing to build.
+ifneq ($$(BITSTREAM_$1),)
+$$(BITSTREAM_ABS_$1):
+	$$(MAKE) -C $$(dir $$(BITSTREAM_ABS_$1))
+endif
 BUILD_ROOT_$1 := $$(BUILD_ROOT)/$1
 BOOT_ROOT_$1 := $$(BOOT_ROOT)/$1
 QEMU_$1 := $$(shell which qemu-$$(ARCH_$1)-static)
@@ -142,7 +150,7 @@ BOOT_STAMP_$1   := $$(BOOT_ROOT_$1)/.boot_built
 BOOT_ENV_$1 := BOARD=$1 BOARD_PATH=$$(BOARDDIR_$1) ARCH=$$(ARCH_$1) \
 	FPGA_MANAGER=$$(FPGA_MANAGER_$1) OUTPUT_DIR=$$(BOOT_ROOT) ROOTDIR=$$(CURDIR)
 
-$$(BOOT_STAMP_$1): $$(BOARD_EDF_ENV_$1) | $$(BOOT_ROOT_$1)
+$$(BOOT_STAMP_$1): $$(BOARD_EDF_ENV_$1) $$(BITSTREAM_ABS_$1) | $$(BOOT_ROOT_$1)
 	$$(BOOT_ENV_$1) $$(SCRIPT_DIR)/build_edf_boot.sh
 	touch $$@
 
@@ -168,7 +176,7 @@ endif
 STAGE4_DEPENDS_$1 := $$(foreach package, $$(STAGE4_PACKAGES_$1), $$(PACKAGE_BUILD_$$(package)_$1) $$(PACKAGE_BUILD_$$(package)))
 STAGING_$1 := $$(BUILD_ROOT)/$$(UBUNTU_RELEASE).$1
 
-$$(ROOT_$1) : $$(BASE_PATH_$1) $$(STAGE4_DEPENDS_$1) $$(MODULES_$1) $$(KERNEL_DEVSRC_$1) | $$(CCACHEDIR)
+$$(ROOT_$1) : $$(BASE_PATH_$1) $$(BITSTREAM_ABS_$1) $$(STAGE4_DEPENDS_$1) $$(MODULES_$1) $$(KERNEL_DEVSRC_$1) | $$(CCACHEDIR)
 	sudo rm -fr $$(STAGING_$1)
 	mkdir $$(STAGING_$1)
 	(cd $$(STAGING_$1) && sudo tar -xf $$(realpath $$<))
@@ -359,10 +367,12 @@ endif
 
 	vivado -version | fgrep ${KERNEL_VERSION}
 	vitis -version | fgrep ${KERNEL_VERSION}
-	which petalinux-config
-	which arm-linux-gnueabihf-gcc
+ifdef REBUILD_PYNQ_SDIST
 	which microblaze-xilinx-elf-gcc
+endif
+ifdef REBUILD_PYNQ_ROOTFS
 	which ct-ng
+endif
 	bash $(SCRIPT_DIR)/check_env.sh
 
 boot_files: checkenv $(BOOT_FILES)

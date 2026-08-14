@@ -40,6 +40,10 @@ RUN apt-get update \
 RUN curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo \
  && chmod +x /usr/local/bin/repo
 
+RUN git clone --depth 1 https://github.com/Xilinx/XilinxBoardStore.git \
+    /opt/XilinxBoardStore
+ENV BOARD_STORE_PATH=/opt/XilinxBoardStore
+
 # Build and install crosstool-ng
 RUN mkdir /opt/crosstool-ng-src \
  && cd /opt/crosstool-ng-src \
@@ -79,14 +83,15 @@ ENV PATH="/opt/crosstool-ng/bin:${PATH}"
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 ENV TERM=xterm
-ENV LD_PRELOAD=/lib/x86_64-linux-gnu/libudev.so.1
-ENV EDF_DIR=/edf-cache/pynq-edf
-ENV SSTATE_DIR=/edf-cache/sstate
-ENV DL_DIR=/edf-cache/downloads
+ENV LD_PRELOAD="/lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libcap.so.2"
+
+COPY docker-entrypoint.sh /usr/local/bin/pynq-sdbuild-entrypoint
+RUN chmod +x /usr/local/bin/pynq-sdbuild-entrypoint
 
 # Switch to non-root user
 USER ${USERNAME}
 WORKDIR /workspace
 ENV USERNAME=${USERNAME}
 
-CMD /bin/bash
+ENTRYPOINT ["/usr/local/bin/pynq-sdbuild-entrypoint"]
+CMD ["/bin/bash"]

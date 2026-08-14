@@ -36,30 +36,34 @@ if [ -d /usr/local/share/fatfs_contents ]; then
 fi
 
 
-# 3. 3rd party board may have additional pynq.overlay entries and notebooks - deliver those now if they exist
-if [ "$BOARDDIR" != "$DEFAULT_BOARDDIR" ] && [ "$PYNQ_BOARD" != "Unknown" ]; then
+# 3. Deliver the board's overlays and notebooks. These are read from the board
+# directory itself, which holds the built bitstream or PDI that is not in git.
+if [ -d "$PYNQ_BOARDDIR" ] && [ "$PYNQ_BOARD" != "Unknown" ]; then
 
-    overlays=`find -L $BOARDDIR/$PYNQ_BOARD -maxdepth 2 -iname '*.bit' -printf '%h\n'`
+    overlays=$(find -L "$PYNQ_BOARDDIR" -maxdepth 2 \
+        \( -iname '*.bit' -o -iname '*.pdi' \) ! -iname '*_boot.pdi' \
+        -printf '%h\n' | sort -u)
+
     for ol in $overlays ; do
-	ol_name=`basename $ol`
-	sudo mkdir -p $pynqoverlays_dir/$ol_name
-	sudo cp -fL $ol/*.bit $ol/*.hwh $ol/*.py $pynqoverlays_dir/$ol_name
+        ol_name=$(basename "$ol")
+        sudo mkdir -p "$pynqoverlays_dir/$ol_name"
+        for f in "$ol"/*.bit "$ol"/*.pdi "$ol"/*.hwh "$ol"/*.py "$ol"/*.dtbo ; do
+            [ -f "$f" ] || continue
+            # A boot PDI is loaded by the platform, not by an overlay.
+            case "$(basename "$f")" in *_boot.pdi) continue ;; esac
+            sudo cp -fL "$f" "$pynqoverlays_dir/$ol_name/"
+        done
 
-    # Copy device tree overlays if they exist
-    if [ -f $ol/*.dtbo ]; then
-        sudo cp -fL $ol/*.dtbo $pynqoverlays_dir/$ol_name
-    fi
-
-	if [ -e $ol_name/notebooks ]; then
-		sudo mkdir -p $target/home/xilinx/pynq_git/notebooks/$ol_name
-		sudo cp -fLr $ol_name/notebooks/* $target/home/xilinx/pynq_git/notebooks/$ol_name
-	fi
+        if [ -d "$ol/notebooks" ]; then
+            sudo mkdir -p "$target/home/xilinx/pynq_git/notebooks/$ol_name"
+            sudo cp -fLr "$ol/notebooks/"* "$target/home/xilinx/pynq_git/notebooks/$ol_name"
+        fi
     done
-    
-    if [ -e $BOARDDIR/$PYNQ_BOARD/notebooks ]; then
-    	sudo mkdir -p $target/home/xilinx/pynq_git/notebooks
-	sudo cp -fLr $BOARDDIR/$PYNQ_BOARD/notebooks/* $target/home/xilinx/pynq_git/notebooks
-    fi    
+
+    if [ -d "$PYNQ_BOARDDIR/notebooks" ]; then
+        sudo mkdir -p "$target/home/xilinx/pynq_git/notebooks"
+        sudo cp -fLr "$PYNQ_BOARDDIR/notebooks/"* "$target/home/xilinx/pynq_git/notebooks"
+    fi
 fi
 
 # 4. Deliver PYNQ python source distribution for installation

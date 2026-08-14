@@ -21,6 +21,9 @@ if {[llength $locked_ips] > 0} {
     save_bd_design
 }
 
+# The DDRMC needs its memory-configuration files generated before synthesis.
+generate_target all [get_files ./${overlay_name}/${overlay_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd]
+
 make_wrapper -files [get_files ./${overlay_name}/${overlay_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd] -top
 
 set wrapper_files [glob -nocomplain \

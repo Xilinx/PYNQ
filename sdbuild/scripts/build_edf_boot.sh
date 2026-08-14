@@ -42,10 +42,10 @@ EDF_BOOT_MACHINE="${EDF_BOOT_MACHINE:?Set EDF_BOOT_MACHINE in ${BOARD_PATH}/edf.
 EDF_LINUX_MACHINE="${EDF_LINUX_MACHINE:-${EDF_BOOT_MACHINE}}"
 EDF_BOARD_DTS="${EDF_BOARD_DTS:-}"
 
-# Persistent caches / work dirs (override via env).
-EDF_DIR="${EDF_DIR:-${HOME}/pynq-edf}"
-SSTATE_DIR="${SSTATE_DIR:-${HOME}/pynq-edf-sstate}"
-DL_DIR="${DL_DIR:-${HOME}/pynq-edf-downloads}"
+EDF_CACHE="${EDF_CACHE:-${ROOTDIR}/edf-cache}"
+EDF_DIR="${EDF_DIR:-${EDF_CACHE}/pynq-edf}"
+SSTATE_DIR="${SSTATE_DIR:-${EDF_CACHE}/sstate}"
+DL_DIR="${DL_DIR:-${EDF_CACHE}/downloads}"
 META_PYNQ="${META_PYNQ:-${ROOTDIR}/boot/meta-pynq}"
 BB_NUMBER_THREADS="${BB_NUMBER_THREADS:-$(nproc)}"
 PARALLEL_MAKE_JOBS="${PARALLEL_MAKE_JOBS:-$(nproc)}"
