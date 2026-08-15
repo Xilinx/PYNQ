@@ -521,6 +521,11 @@ def _gain_to_coeff(gain):
     return max(0, min(round(gain * _UNITY_COEFF), 0xFFFF))
 
 
+#: Diagonal coefficients for (red, green, blue). Reversed because
+#: axis_channel_swap downstream inverts the component order; measured by
+#: driving one gain at a time and reading back the channel means.
+_DIAGONAL_REGS = ("k33", "k22", "k11")
+
 _COEFF_REGS = ["k11", "k12", "k13",
                "k21", "k22", "k23",
                "k31", "k32", "k33",
@@ -570,31 +575,27 @@ class VideoProcessingCSC(DefaultIP):
         """Per-channel (red, green, blue) gains on the matrix diagonal."""
         rmap = self.register_map
         return tuple(int(getattr(rmap, name)) / _UNITY_COEFF
-                     for name in ("k11", "k22", "k33"))
+                     for name in _DIAGONAL_REGS)
 
     @gains.setter
     def gains(self, gains):
         """Write a diagonal matrix, scaling each channel without mixing.
 
-        Gains of 1.0 give the identity (passthrough) matrix. This IP sits
-        upstream of ``axis_channel_swap``, so its channels are in the
-        demosaic's RGB order.
+        Gains of 1.0 give the identity (passthrough) matrix.
         """
         gains = tuple(gains)
         if len(gains) != 3:
             raise ValueError(
                 f"Expected (red, green, blue) gains, got {len(gains)} values")
-        red, green, blue = (_gain_to_coeff(g) for g in gains)
         rmap = self.register_map
-        rmap.k11 = red
+        for name, gain in zip(_DIAGONAL_REGS, gains):
+            setattr(rmap, name, _gain_to_coeff(gain))
         rmap.k12 = 0x0
         rmap.k13 = 0x0
         rmap.k21 = 0x0
-        rmap.k22 = green
         rmap.k23 = 0x0
         rmap.k31 = 0x0
         rmap.k32 = 0x0
-        rmap.k33 = blue
         rmap.r_offset = 0x0
         rmap.g_offset = 0x0
         rmap.b_offset = 0x0

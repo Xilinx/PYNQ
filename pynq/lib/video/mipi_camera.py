@@ -249,9 +249,10 @@ class MipiCamera(DefaultHierarchy):
     def wb_gains(self):
         """White balance (red, green, blue) gains.
 
-        None until the pipeline has been configured. Assigning takes
-        effect on the next frame, so gains can be tuned against a live
-        capture without reconfiguring the pipeline.
+        None until the pipeline has been configured. Assigning retunes a
+        live capture without reconfiguring, but frames already queued in
+        the VDMA ring keep the old gains: discard several frames before
+        judging the result.
         """
         return self._wb_gains
 
