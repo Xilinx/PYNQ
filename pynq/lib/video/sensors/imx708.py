@@ -282,8 +282,12 @@ class IMX708(SonySensor):
     HS_SETTLE_NS = 124
     # codes[0] (no flip) in imx708.c is SRGGB10.
     BAYER_PHASE = 0x0
-    # Daylight starting point, not a calibrated matrix.
-    WB_GAINS = (1.8, 1.0, 1.6)
+    # Untested: copied from the IMX219, which was measured. Both are raw
+    # Sony parts with no on-chip AWB, so the correction is the same in
+    # kind, but the magnitudes have not been checked on this sensor.
+    WB_GAINS = (1.0, 0.94, 1.89)
+    # 4096/65535 in libcamera's imx708.json, matching the IMX219.
+    BLACK_LEVEL = 16
     MODES = {
         (1280, 720, 60): 0,
         (1920, 1080, 30): 1,

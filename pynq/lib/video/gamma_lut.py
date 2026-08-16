@@ -69,8 +69,9 @@ class GammaLut(DefaultIP):
         description["registers"] = _registers
         super().__init__(description)
 
-    def configure(self, width, height):
-        """Configure with identity LUT and enable.
+    def configure(self, width, height, black_level=0, gains=(1.0, 1.0, 1.0),
+                  gamma=1.0):
+        """Configure the transfer curve and enable.
 
         Parameters
         ----------
@@ -78,22 +79,46 @@ class GammaLut(DefaultIP):
             Frame width in pixels
         height : int
             Frame height in lines
+        black_level : int
+            Black pedestal to subtract, in 8-bit counts. Raw sensors add
+            a constant offset to every pixel that no other stage in the
+            pipeline removes.
+        gains : tuple of float
+            Per-channel (red, green, blue) gains, applied after the
+            pedestal is subtracted. Correcting white balance here rather
+            than on the colour space converter keeps the two operations
+            in the right order: scaling before the offset is removed
+            skews the ratios in the shadows.
+        gamma : float
+            Encoding gamma. The default of 1.0 leaves the output
+            scene-linear, matching the sensor; 2.2 approximates sRGB for
+            display.
         """
         rmap = self.register_map
         rmap.width = width
         rmap.height = height
         rmap.video_format = 0x0
-        self._set_linear_lut()
+        self._set_curve(black_level, gains, gamma)
         rmap.ap_ctrl = 0x81  # ap_start=1, auto_restart=1 in a single write
 
-    def _set_linear_lut(self):
-        """Write identity (linear ramp) LUT to all three channels."""
-        arr = self.mmio.array
-        ramp = np.arange(256, dtype=np.uint16)
-        for base in _CHANNEL_OFFSETS.values():
+    def _set_curve(self, black_level=0, gains=(1.0, 1.0, 1.0), gamma=1.0):
+        """Write the transfer curve to all three channels.
+
+        Entries are stored as uint16 but the value range is 8-bit, the
+        same as the input.
+        """
+        if len(gains) != 3:
+            raise ValueError(
+                f"Expected (red, green, blue) gains, got {len(gains)} values")
+        x = np.arange(256, dtype=np.float32)
+        span = max(255 - black_level, 1)
+        for (channel, base), gain in zip(_CHANNEL_OFFSETS.items(), gains):
+            y = np.clip((x - black_level) * gain / span, 0.0, 1.0)
+            if gamma != 1.0:
+                y = y ** (1.0 / gamma)
             word_start = base // 4
-            u16 = arr[word_start:word_start + 128].view(np.uint16)
-            u16[:] = ramp
+            u16 = self.mmio.array[word_start:word_start + 128].view(np.uint16)
+            u16[:] = np.round(y * 255).astype(np.uint16)
 
     def set_lut(self, channel, values):
         """Write a custom LUT for a single channel.

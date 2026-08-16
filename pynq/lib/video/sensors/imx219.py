@@ -200,9 +200,16 @@ class IMX219(SonySensor):
     HS_SETTLE_NS = 124
     # imx219_mbus_formats[0] (no flip) is SRGGB10.
     BAYER_PHASE = 0x0
-    # Grey-world measurement on a daylight scene; the raw channels come
-    # out close to neutral, so this is nearly a passthrough.
-    WB_GAINS = (1.06, 1.0, 1.05)
+    # Measured on an indoor scene after subtracting the pedestal, so
+    # only approximately balanced: recalibrate against a grey card for
+    # anything colour-critical. Blue is genuinely weak on this part;
+    # before the pedestal is removed the offset dilutes the ratio and
+    # hides it.
+    WB_GAINS = (1.0, 0.94, 1.89)
+    # 4096/65535 in libcamera's imx219.json, i.e. 64 in the sensor's
+    # native 10 bits. Confirmed by fitting mean against analogue gain
+    # across four gain codes.
+    BLACK_LEVEL = 16
     MODES = {
         (1280, 720, 60): 0,
         (1920, 1080, 30): 1,

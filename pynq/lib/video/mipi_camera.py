@@ -60,9 +60,10 @@ class MipiCamera(DefaultHierarchy):
         self._sensor = None
         self._bayer_phase = None
         self._wb_gains = None
+        self._gamma = 1.0
 
     def configure(self, videomode, sensor=None, bayer_phase=None,
-                  wb_gains=None):
+                  wb_gains=None, gamma=1.0):
         """Configure the camera and pipeline for the given video mode.
 
         Identifies the attached camera if it is not already known, then
@@ -84,6 +85,10 @@ class MipiCamera(DefaultHierarchy):
         wb_gains : tuple of float or None
             White balance (red, green, blue) gains. Defaults to the
             sensor's ``WB_GAINS``; override to suit the lighting.
+        gamma : float
+            Encoding gamma. The default of 1.0 keeps frames
+            scene-linear, as the sensor produces them; pass 2.2 to
+            approximate sRGB, which is what a display expects.
 
         Returns
         -------
@@ -118,6 +123,7 @@ class MipiCamera(DefaultHierarchy):
         if wb_gains is None:
             wb_gains = self._sensor.WB_GAINS
         self._wb_gains = tuple(wb_gains)
+        self._gamma = gamma
 
         self._sensor.configure(mode_id, self.gpio_ip_reset,
                                power_cycle=False)
@@ -130,9 +136,13 @@ class MipiCamera(DefaultHierarchy):
 
         self.demosaic.configure(videomode.width, videomode.height,
                                 bayer_phase)
-        self.gamma_lut.configure(videomode.width, videomode.height)
-        self.v_proc_sys.configure(videomode.width, videomode.height,
-                                  self._wb_gains)
+        # White balance lives on the gamma LUT, not the CSC: the pedestal
+        # has to come off before the gains are applied, and the CSC's
+        # offset registers act after its matrix.
+        self.gamma_lut.configure(videomode.width, videomode.height,
+                                 black_level=self._sensor.BLACK_LEVEL,
+                                 gains=self._wb_gains, gamma=self._gamma)
+        self.v_proc_sys.configure(videomode.width, videomode.height)
 
         self.pixel_pack.bits_per_pixel = videomode.bits_per_pixel
         self._vdma.readchannel.mode = videomode
@@ -258,8 +268,27 @@ class MipiCamera(DefaultHierarchy):
 
     @wb_gains.setter
     def wb_gains(self, value):
-        self.v_proc_sys.gains = value
-        self._wb_gains = self.v_proc_sys.gains
+        self._wb_gains = tuple(value)
+        self._rebuild_curve()
+
+    @property
+    def gamma(self):
+        """Encoding gamma, 1.0 for scene-linear output.
+
+        None until the pipeline has been configured. Assigning rebuilds
+        the transfer curve on a live capture.
+        """
+        return self._gamma
+
+    @gamma.setter
+    def gamma(self, value):
+        self._gamma = value
+        self._rebuild_curve()
+
+    def _rebuild_curve(self):
+        """Reload the gamma LUT from the current pedestal, gains and gamma."""
+        self.gamma_lut._set_curve(self._require_sensor().BLACK_LEVEL,
+                                  self._wb_gains, self._gamma)
 
     def _require_sensor(self):
         if self._sensor is None:

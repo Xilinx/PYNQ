@@ -44,6 +44,11 @@ class CameraSensor(metaclass=abc.ABCMeta):
         Default (red, green, blue) white balance gains applied by the
         colour space converter. Sensors with on-chip AWB leave this at
         unity; raw sensors need it, or the frame comes out green.
+    BLACK_LEVEL : int
+        Black pedestal the sensor adds to every pixel, in 8-bit counts.
+        Subtracted by the gamma LUT before the white balance gains are
+        applied. Left at zero for sensors whose on-chip ISP already
+        removes it.
     MODES : dict
         Maps ``(width, height, fps)`` to a sensor mode id. Each sensor is
         the source of truth for the modes it supports.
@@ -69,6 +74,8 @@ class CameraSensor(metaclass=abc.ABCMeta):
     BAYER_PHASE = 0x0
     #: Unity by default: only raw sensors without on-chip AWB need this.
     WB_GAINS = (1.0, 1.0, 1.0)
+    #: Zero by default: only raw sensors expose their black pedestal.
+    BLACK_LEVEL = 0
     MODES = {}
     #: Delay in seconds after each register write in a configuration table.
     REG_DELAY = 0.01
