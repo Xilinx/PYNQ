@@ -35,7 +35,11 @@ _REG_TP_WINDOW_HEIGHT = 0x0626
 
 
 _BINNING_NONE = 0x0000
-_BINNING_2X2_ANALOG = 0x0303
+# IMX219_BINNING_2X2_NORMAL. The 0x0303 "special" variant is what the
+# kernel picks for RAW8 only; at RAW10 it uses normal binning, and
+# special binning additionally halves exposure and frame length
+# (rate_factor in imx219.c).
+_BINNING_2X2 = 0x0101
 
 
 # Fixed for every 2-lane mode, so frame rate is set by frame length alone.
@@ -109,16 +113,17 @@ _CFG_RAW10 = (
 def _centred_crop(out_width, out_height, binning):
     """Derive a centred readout window for an output size.
 
-    Computed from the array geometry rather than copied, since the kernel
-    driver only tabulates the modes Raspberry Pi ships. Offsets are forced
-    even to keep the Bayer phase (RGGB) unchanged.
+    Binned modes read the whole array and let the binning do the
+    downscale, matching mode_1640_1232_regs in imx219.c; cropping *and*
+    binning is not a combination the kernel driver ever programs.
+    Unbinned modes take a centred window, as mode_1920_1080_regs does.
+    Offsets are forced even to keep the Bayer phase (RGGB) unchanged.
     """
-    scale = 2 if binning else 1
-    crop_w = out_width * scale
-    crop_h = out_height * scale
-    left = ((_ARRAY_WIDTH - crop_w) // 2) & ~1
-    top = ((_ARRAY_HEIGHT - crop_h) // 2) & ~1
-    return left, top, crop_w, crop_h
+    if binning:
+        return 0, 0, _ARRAY_WIDTH, _ARRAY_HEIGHT
+    left = ((_ARRAY_WIDTH - out_width) // 2) & ~1
+    top = ((_ARRAY_HEIGHT - out_height) // 2) & ~1
+    return left, top, out_width, out_height
 
 
 class _Mode:
@@ -135,7 +140,7 @@ class _Mode:
 
     def registers(self):
         """The mode-specific register writes, in programming order."""
-        binning = _BINNING_2X2_ANALOG if self.binning else _BINNING_NONE
+        binning = _BINNING_2X2 if self.binning else _BINNING_NONE
         return (
             (_REG_X_ADD_STA, self.left >> 8),
             (_REG_X_ADD_STA + 1, self.left & 0xFF),
