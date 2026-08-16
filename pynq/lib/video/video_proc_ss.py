@@ -521,10 +521,9 @@ def _gain_to_coeff(gain):
     return max(0, min(round(gain * _UNITY_COEFF), 0xFFFF))
 
 
-#: Diagonal coefficients for (red, green, blue). Reversed because
-#: axis_channel_swap downstream inverts the component order; measured by
-#: driving one gain at a time and reading back the channel means.
-_DIAGONAL_REGS = ("k33", "k22", "k11")
+#: Diagonal coefficients for (red, green, blue). Verified against the
+#: sensor colour-bar pattern: k11 scales red, k22 green, k33 blue.
+_DIAGONAL_REGS = ("k11", "k22", "k33")
 
 _COEFF_REGS = ["k11", "k12", "k13",
                "k21", "k22", "k23",
