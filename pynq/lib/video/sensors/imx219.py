@@ -195,8 +195,9 @@ class IMX219(SonySensor):
     HS_SETTLE_NS = 124
     # imx219_mbus_formats[0] (no flip) is SRGGB10.
     BAYER_PHASE = 0x0
-    # Daylight starting point, not a calibrated matrix.
-    WB_GAINS = (1.8, 1.0, 1.6)
+    # Grey-world measurement on a daylight scene; the raw channels come
+    # out close to neutral, so this is nearly a passthrough.
+    WB_GAINS = (1.06, 1.0, 1.05)
     MODES = {
         (1280, 720, 60): 0,
         (1920, 1080, 30): 1,
