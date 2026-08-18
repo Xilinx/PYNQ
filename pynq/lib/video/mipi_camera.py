@@ -5,6 +5,8 @@
 import contextlib
 from enum import Enum
 
+import numpy as np
+
 from pynq import DefaultHierarchy
 
 from .common import VideoMode
@@ -289,6 +291,66 @@ class MipiCamera(DefaultHierarchy):
         """Reload the gamma LUT from the current pedestal, gains and gamma."""
         self.gamma_lut._set_curve(self._require_sensor().BLACK_LEVEL,
                                   self._wb_gains, self._gamma)
+
+    def auto_white_balance(self, frames=4, discard=6):
+        """Measure white balance from the scene and apply it.
+
+        Grey-world balance: assumes the average of the scene is neutral
+        and scales red and blue to match green. That holds for a varied
+        scene and fails on one dominated by a single colour, so point the
+        camera at something mixed.
+
+        The sensor's per-channel WB_GAINS are a fixed starting point
+        measured under one illuminant; this adapts to the actual light.
+        Measurement is taken through an identity curve so the current
+        gains do not bias the result, and the pedestal is subtracted
+        before the ratios are formed — an offset common to all channels
+        pulls every ratio towards 1 and would hide the imbalance.
+
+        Parameters
+        ----------
+        frames : int
+            Frames to average. More frames reduce noise.
+        discard : int
+            Frames to drop before measuring, to flush the ones already
+            queued in the VDMA ring with the old curve applied.
+
+        Returns
+        -------
+        tuple of float
+            The (red, green, blue) gains that were applied.
+
+        Raises
+        ------
+        RuntimeError
+            If a channel carries no signal above the black level, which
+            means the scene is too dark to balance.
+        """
+        black = self._require_sensor().BLACK_LEVEL
+        saved = self._wb_gains
+        self.gamma_lut._set_curve(0, (1.0, 1.0, 1.0), 1.0)
+        try:
+            for _ in range(discard):
+                self.readframe().freebuffer()
+            total = np.zeros(3)
+            for _ in range(frames):
+                frame = self.readframe()
+                total += frame.reshape(-1, 3).mean(axis=0)
+                frame.freebuffer()
+        except Exception:
+            self._wb_gains = saved
+            self._rebuild_curve()
+            raise
+        signal = total / frames - black
+        if np.any(signal <= 0):
+            self._wb_gains = saved
+            self._rebuild_curve()
+            raise RuntimeError(
+                f"Scene too dark to white balance: channel means "
+                f"{np.round(total / frames, 1)} against a black level of "
+                f"{black}. Raise exposure or gain and retry.")
+        self.wb_gains = tuple(signal[1] / signal)
+        return self._wb_gains
 
     def _require_sensor(self):
         if self._sensor is None:
