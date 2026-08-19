@@ -331,18 +331,18 @@ class MipiCamera(DefaultHierarchy):
         self.gamma_lut._set_curve(0, (1.0, 1.0, 1.0), 1.0)
         try:
             for _ in range(discard):
-                self.readframe().freebuffer()
+                self.readframe()
             total = np.zeros(3)
             for _ in range(frames):
+                # Buffers are deliberately not freed here. A reshape or
+                # slice of a PynqBuffer is a view that inherits the
+                # buffer's pointer and frees it again when collected, so
+                # an explicit freebuffer() alongside one is a double free.
+                # Letting the frames fall out of scope leaves them to the
+                # VDMA frame cache, which recycles them.
                 frame = self.readframe()
-                # Reduce into a plain ndarray before freeing. A reshape or
-                # slice of a PynqBuffer is a view that inherits the buffer's
-                # pointer, so it frees the same memory again when it is
-                # garbage collected; np.asarray(...).copy() breaks that link.
-                pixels = np.asarray(frame).reshape(-1, 3)
-                total += pixels.mean(axis=0, dtype=np.float64).copy()
-                del pixels
-                frame.freebuffer()
+                total += np.asarray(frame).reshape(-1, 3).mean(
+                    axis=0, dtype=np.float64)
         except Exception:
             self._wb_gains = saved
             self._rebuild_curve()
