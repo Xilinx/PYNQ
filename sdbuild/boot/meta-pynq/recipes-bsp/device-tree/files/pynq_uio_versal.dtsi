@@ -1,0 +1,13 @@
+/*
+ * pl_ps_irq0 is hwirq 116 on Versal; device-tree SPI numbers are hwirq - 32.
+ * The address is nominal and only has to stay clear of the overlay's IPs.
+ */
+
+/ {
+	fabric@a8000000 {
+		compatible = "generic-uio";
+		reg = <0x0 0xa8000000 0x0 0x10000>;
+		interrupt-parent = <&gic>;
+		interrupts = <0x0 0x54 0x4>;
+	};
+};
