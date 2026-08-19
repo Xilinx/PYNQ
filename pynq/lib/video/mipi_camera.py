@@ -62,10 +62,10 @@ class MipiCamera(DefaultHierarchy):
         self._sensor = None
         self._bayer_phase = None
         self._wb_gains = None
-        self._gamma = 1.0
+        self._gamma = None
 
     def configure(self, videomode, sensor=None, bayer_phase=None,
-                  wb_gains=None, gamma=1.0):
+                  wb_gains=None, gamma=None):
         """Configure the camera and pipeline for the given video mode.
 
         Identifies the attached camera if it is not already known, then
@@ -87,10 +87,12 @@ class MipiCamera(DefaultHierarchy):
         wb_gains : tuple of float or None
             White balance (red, green, blue) gains. Defaults to the
             sensor's ``WB_GAINS``; override to suit the lighting.
-        gamma : float
-            Encoding gamma. The default of 1.0 keeps frames
-            scene-linear, as the sensor produces them; pass 2.2 to
-            approximate sRGB, which is what a display expects.
+        gamma : float or None
+            Encoding gamma. Defaults to the sensor's ``GAMMA``: 2.2 for
+            a raw part, whose scene-linear output looks dark on a
+            display expecting roughly sRGB, and 1.0 for one whose
+            on-chip ISP has already encoded its output. Pass 1.0 to get
+            scene-linear frames for measurement.
 
         Returns
         -------
@@ -125,6 +127,9 @@ class MipiCamera(DefaultHierarchy):
         if wb_gains is None:
             wb_gains = self._sensor.WB_GAINS
         self._wb_gains = tuple(wb_gains)
+
+        if gamma is None:
+            gamma = self._sensor.GAMMA
         self._gamma = gamma
 
         self._sensor.configure(mode_id, self.gpio_ip_reset,
@@ -275,7 +280,7 @@ class MipiCamera(DefaultHierarchy):
 
     @property
     def gamma(self):
-        """Encoding gamma, 1.0 for scene-linear output.
+        """Encoding gamma; 1.0 gives scene-linear output.
 
         None until the pipeline has been configured. Assigning rebuilds
         the transfer curve on a live capture.

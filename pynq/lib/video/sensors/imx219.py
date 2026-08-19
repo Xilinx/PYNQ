@@ -208,6 +208,9 @@ class IMX219(SonySensor):
     # to 1.2%. Indoor illuminant, no grey card: a starting point for
     # colour-critical work, not a calibration.
     WB_GAINS = (0.799, 0.541, 1.0)
+    # Raw sensor output is scene-linear; 2.2 approximates sRGB so
+    # the image looks right on a display without hand tuning.
+    GAMMA = 2.2
     # 4096/65535 in libcamera's imx219.json, i.e. 64 in the sensor's
     # native 10 bits. Confirmed by fitting mean against analogue gain
     # across four gain codes.
@@ -249,10 +252,13 @@ class IMX219(SonySensor):
         self._write_config(_CFG_RAW10)
         self._write_config(cfg.registers())
 
-        # No AE loop, so pick a mid-scale starting point: expose for most
-        # of the frame and apply a modest analogue gain.
+        # No AE loop, so pick a starting point that suits a typical indoor
+        # scene. Code 216 is 6.4x: the white balance attenuates green to
+        # about half to keep the gains under unity, and this makes that
+        # back up. Measured indoors it lands the mean around 120 of 255
+        # with nothing clipping.
         self.set_exposure(int(cfg.frame_length * 0.9) - _EXPOSURE_OFFSET)
-        self.set_gain(128)
+        self.set_gain(216)
 
     def set_exposure(self, lines):
         """Set the exposure time in lines.

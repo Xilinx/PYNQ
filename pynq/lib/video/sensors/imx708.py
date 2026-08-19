@@ -292,6 +292,9 @@ class IMX708(SonySensor):
     # Indoor illuminant, no grey card: a starting point, not a
     # calibration.
     WB_GAINS = (0.877, 0.472, 1.0)
+    # Raw sensor output is scene-linear; 2.2 approximates sRGB so
+    # the image looks right on a display without hand tuning.
+    GAMMA = 2.2
     # 4096/65535 in libcamera's imx708.json, matching the IMX219, and
     # confirmed here by fitting mean against gain across four gain codes.
     BLACK_LEVEL = 16
@@ -336,10 +339,14 @@ class IMX708(SonySensor):
         # mode only, and neither mode here uses it.
         self.write_reg(_REG_LPF_INTENSITY_EN, _LPF_INTENSITY_DISABLED)
 
-        # No AE loop, so pick a mid-scale starting point: expose for most
-        # of the frame and apply a modest analogue gain.
+        # No AE loop, so pick a starting point that suits a typical indoor
+        # scene. Code 864 is 6.4x, matching the IMX219: the white balance
+        # attenuates green to roughly half to keep every gain under unity,
+        # and this makes that back up. Chosen for parity with the IMX219
+        # rather than measured on this part — adjust with set_gain if an
+        # indoor scene comes out dark or clipped.
         self.set_exposure(int(cfg.frame_length * 0.9) - _EXPOSURE_OFFSET)
-        self.set_gain(_ANA_GAIN_MIN * 3)
+        self.set_gain(864)
 
     def _write_pdaf_gains(self):
         """Apply PDAF shading gains if the sensor is uncalibrated.

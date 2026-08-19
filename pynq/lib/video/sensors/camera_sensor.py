@@ -76,6 +76,11 @@ class CameraSensor(metaclass=abc.ABCMeta):
     WB_GAINS = (1.0, 1.0, 1.0)
     #: Zero by default: only raw sensors expose their black pedestal.
     BLACK_LEVEL = 0
+    #: Encoding gamma the pipeline applies for this sensor. Unity here,
+    #: since a sensor with an on-chip ISP has already encoded its output;
+    #: raw parts override it, as their scene-linear data looks dark on a
+    #: display that expects roughly sRGB.
+    GAMMA = 1.0
     MODES = {}
     #: Delay in seconds after each register write in a configuration table.
     REG_DELAY = 0.01
