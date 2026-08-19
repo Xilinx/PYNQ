@@ -269,7 +269,14 @@ class OV5640(CameraSensor):
     ID_REG = 0x300A
     ID_VALUE = 0x5640
     HS_SETTLE_NS = 149
-    BAYER_PHASE = 0x0
+    # BGGR, not the RGGB the other sensors use: _CFG_INIT sets the flip
+    # bits in 0x3820, which shifts the Bayer grid by a row. Measured, not
+    # assumed — a phase sweep gave means identical to 0.08 counts against
+    # the historic phase-0-plus-a-[2,1,0]-reorder-in-the-notebook result.
+    # Correcting it here rather than in the notebook means every sensor
+    # reads the same way, and the fix reaches tie() as well, which shares
+    # DDR buffers and never passes through Python.
+    BAYER_PHASE = 0x3
     MODES = {
         (1280, 720, 60): 0,
         (1920, 1080, 30): 1,
