@@ -4,12 +4,11 @@
 # Build PDI and export hardware platform for VCK190 base overlay.
 # Uses Segmented Configuration: produces boot.pdi + pld.pdi
 #
-# The NoC solution is locked to the golden reference (golden_noc.ncr)
-# and the result is verified against the golden routed checkpoint
-# (golden_routed.dcp) using pr_verify.
+# The NoC solution is locked to the golden reference (golden_noc.ncr).
+# check_compatibility.tcl verifies the result against the golden reference.
 
 set overlay_name "base"
-set design_name "base"
+set design_name "vck190_pynq"
 
 open_project ./${overlay_name}/${overlay_name}.xpr
 
@@ -72,24 +71,6 @@ puts "Implementation status: $impl_status"
 if { [string match "*Complete*" $impl_status] == 0 } {
     puts "ERROR: Implementation did not complete successfully (status: $impl_status)"
     exit 1
-}
-
-# Verify NoC compatibility with golden reference
-set golden_dcp "../golden/golden_routed.dcp"
-if {[file exists $golden_dcp]} {
-    puts "Running pr_verify against golden reference..."
-    set overlay_dcps [glob -nocomplain ./${overlay_name}/${overlay_name}.runs/impl_1/*_routed.dcp]
-    if {[llength $overlay_dcps] > 0} {
-        set result [catch {pr_verify [file normalize $golden_dcp] [lindex $overlay_dcps 0]} msg]
-        if {$result != 0} {
-            puts "WARNING: pr_verify failed: $msg"
-            puts "         The overlay may not be compatible with the golden boot PDI."
-        } else {
-            puts "pr_verify PASSED -- overlay is compatible with golden reference"
-        }
-    }
-} else {
-    puts "WARNING: Golden routed DCP not found at $golden_dcp, skipping pr_verify"
 }
 
 write_hw_platform -fixed -include_bit -force ./${overlay_name}.xsa

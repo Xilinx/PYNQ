@@ -8,7 +8,7 @@
 # and pld.pdi (PL tie-offs, not used at runtime -- overlays replace it).
 
 set overlay_name "golden"
-set design_name  "golden"
+set design_name  "vck190_pynq"
 
 open_project ./${overlay_name}/${overlay_name}.xpr
 

@@ -4,7 +4,7 @@
 # VCK190 Golden Reference Design Build
 
 overlay_name := golden
-design_name  := golden
+design_name  := vck190_pynq
 
 all: block_design build
 	@echo
@@ -16,13 +16,13 @@ all: block_design build
 	@echo
 
 block_design:
-	vivado -mode batch -source golden_ref.tcl -notrace
+	vivado -mode batch -source $(overlay_name).tcl -notrace
 
 build:
 	vivado -mode batch -source build_golden.tcl -notrace
 
 clean:
 	rm -rf $(overlay_name) *.jou *.log NA .Xil .crashReporter
-	rm -f *.pdi *.hwh *.xsa *.ncr *.dcp
+	rm -f *.pdi *.hwh *.xsa *.ncr *.dcp optional_data.txt
 
 .PHONY: all block_design build clean
