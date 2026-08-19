@@ -341,7 +341,11 @@ class _S:
 
 def _overlay():
     if _S.base is None:
+        import asyncio
         from pynq.overlays.base import BaseOverlay
+        # Interrupt readers bind to whichever event loop is current when the
+        # overlay is created, so install one before programming the PL.
+        asyncio.set_event_loop(asyncio.new_event_loop())
         log.debug("programming PL with %s", OVERLAY_BIT)
         _S.base = BaseOverlay(OVERLAY_BIT)
         log.debug("PL programmed")
@@ -437,6 +441,72 @@ def b_bram():
         bad("BRAM read-back mismatch (got 0x%08X / 0x%08X)" % (v0, v1))
 
 
+# Every PL interrupt is multiplexed onto pl_ps_irq0 through axi_intc_0.
+_EXPECTED_INTERRUPTS = {
+    "axi_dma_0/mm2s_introut",
+    "axi_dma_0/s2mm_introut",
+    "axi_gpio_dip_sw/ip2intc_irpt",
+    "axi_gpio_pb/ip2intc_irpt",
+    "axi_timer_0/interrupt",
+    "axi_timer_1/interrupt",
+    "axi_uartlite_0/interrupt",
+}
+
+
+def b_interrupt_metadata():
+    base = _overlay()
+    pins = set(base.interrupt_pins)
+    log.debug("interrupt_pins=%s", sorted(pins))
+    missing = sorted(_EXPECTED_INTERRUPTS - pins)
+    if missing:
+        bad("interrupt sources missing from metadata: %s" % ", ".join(missing))
+        return
+    wrong = sorted(p for p in _EXPECTED_INTERRUPTS
+                   if base.interrupt_pins[p]["controller"] != "axi_intc_0")
+    ok("%d PL interrupt sources routed through axi_intc_0" % len(_EXPECTED_INTERRUPTS)) \
+        if not wrong else \
+        bad("interrupt sources not routed via axi_intc_0: %s" % ", ".join(wrong))
+
+
+def b_interrupt_controller():
+    base = _overlay()
+    ctrls = base.interrupt_controllers
+    if "axi_intc_0" not in ctrls:
+        bad("axi_intc_0 missing from interrupt_controllers: %s" % list(ctrls))
+        return
+    raw = ctrls["axi_intc_0"]["raw_irq"]
+    log.debug("axi_intc_0=%s", dict(ctrls["axi_intc_0"]))
+    ok("axi_intc_0 attached to pl_ps_irq0 (hwirq %d)" % raw) if raw == 116 \
+        else bad("axi_intc_0 hwirq is %s, expected 116 for pl_ps_irq0" % raw)
+
+
+def b_timer_interrupt():
+    import asyncio
+    base = _overlay()
+    tmr = base.axi_timer_0
+    rm = tmr.register_map
+    rm.TCSR0.ENT0 = 0
+    rm.TCSR0.T0INT = 1
+    rm.TLR0 = 0x000FFFFF
+    rm.TCSR0.LOAD0 = 1
+    rm.TCSR0.LOAD0 = 0
+    rm.TCSR0.UDT0 = 1
+    rm.TCSR0.ARHT0 = 0
+    rm.TCSR0.ENIT0 = 1
+    rm.TCSR0.ENT0 = 1
+    log.debug("axi_timer_0 started, waiting on interrupt")
+    try:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.wait_for(tmr.interrupt.wait(), timeout=5))
+        ok("AXI timer interrupt delivered through axi_intc_0")
+    except asyncio.TimeoutError:
+        bad("AXI timer interrupt not delivered within 5 s")
+    finally:
+        rm.TCSR0.ENT0 = 0
+        rm.TCSR0.ENIT0 = 0
+        rm.TCSR0.T0INT = 1
+
+
 PYNQ_VENV = "/usr/local/share/pynq-venv"
 
 
@@ -501,6 +571,9 @@ def main():
     run(23, "AXI DMA loopback (PL<->DDR)",             b_dma_loopback,     timeout=60,  hardware=True)
     run(24, "AXI BRAM read/write",                     b_bram,             timeout=20,  hardware=True)
     run(25, "Static MAC from EEPROM (not random)",     c_mac)
+    run(26, "PL interrupt metadata (7 sources)",       b_interrupt_metadata, timeout=20, hardware=True)
+    run(27, "Interrupt controller on pl_ps_irq0",      b_interrupt_controller, timeout=20, hardware=True)
+    run(28, "AXI timer interrupt delivery",            b_timer_interrupt,   timeout=30, hardware=True)
 
     print("-" * 54)
     print(" summary: %d passed, %d failed, %d skipped" % (_passed, _failed, _skipped))
