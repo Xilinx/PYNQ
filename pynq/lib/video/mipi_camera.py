@@ -335,7 +335,13 @@ class MipiCamera(DefaultHierarchy):
             total = np.zeros(3)
             for _ in range(frames):
                 frame = self.readframe()
-                total += frame.reshape(-1, 3).mean(axis=0)
+                # Reduce into a plain ndarray before freeing. A reshape or
+                # slice of a PynqBuffer is a view that inherits the buffer's
+                # pointer, so it frees the same memory again when it is
+                # garbage collected; np.asarray(...).copy() breaks that link.
+                pixels = np.asarray(frame).reshape(-1, 3)
+                total += pixels.mean(axis=0, dtype=np.float64).copy()
+                del pixels
                 frame.freebuffer()
         except Exception:
             self._wb_gains = saved
@@ -349,7 +355,12 @@ class MipiCamera(DefaultHierarchy):
                 f"Scene too dark to white balance: channel means "
                 f"{np.round(total / frames, 1)} against a black level of "
                 f"{black}. Raise exposure or gain and retry.")
-        self.wb_gains = tuple(signal[1] / signal)
+        gains = signal[1] / signal
+        # Normalise so the largest gain is 1.0. Only the ratios carry the
+        # colour; scaling them all up would clip highlights that were in
+        # range in the raw frame, and there is no auto exposure to pull
+        # them back. Use gamma to recover the brightness instead.
+        self.wb_gains = tuple(gains / gains.max())
         return self._wb_gains
 
     def _require_sensor(self):

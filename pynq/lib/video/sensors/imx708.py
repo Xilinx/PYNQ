@@ -285,13 +285,13 @@ class IMX708(SonySensor):
     # Measured on this part, not inherited: green is roughly 1.9x red and
     # 2.1x blue. Two independent methods agreed to about 1% — a direct
     # read through an identity curve, and the slope of mean against
-    # analogue gain, which is immune to the pedestal. Boosting red and
-    # blue rather than attenuating green matches the IMX219, at the cost
-    # of headroom: blue saturates at a raw input of 129, red at 145.
-    # Like any fixed white balance these bake in the illuminant they were
-    # measured under (indoor, no grey card), so treat them as a starting
-    # point for colour-critical work.
-    WB_GAINS = (1.86, 1.0, 2.12)
+    # analogue gain, which is immune to the pedestal. Normalised so the
+    # largest gain is 1.0, as on the IMX219: with no auto exposure, a
+    # gain above unity clips highlights that were in range in the raw
+    # frame, and gamma recovers the lost brightness without clipping.
+    # Indoor illuminant, no grey card: a starting point, not a
+    # calibration.
+    WB_GAINS = (0.877, 0.472, 1.0)
     # 4096/65535 in libcamera's imx708.json, matching the IMX219, and
     # confirmed here by fitting mean against gain across four gain codes.
     BLACK_LEVEL = 16

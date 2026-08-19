@@ -200,12 +200,14 @@ class IMX219(SonySensor):
     HS_SETTLE_NS = 124
     # imx219_mbus_formats[0] (no flip) is SRGGB10.
     BAYER_PHASE = 0x0
-    # Measured on an indoor scene after subtracting the pedestal, so
-    # only approximately balanced: recalibrate against a grey card for
-    # anything colour-critical. Blue is genuinely weak on this part;
-    # before the pedestal is removed the offset dilutes the ratio and
-    # hides it.
-    WB_GAINS = (1.0, 0.94, 1.89)
+    # Normalised so the largest gain is 1.0: the pipeline has no auto
+    # exposure, so a gain above unity clips highlights that were within
+    # range in the raw frame. Attenuating costs brightness, which gamma
+    # recovers without clipping. Ratios are what matter, and these came
+    # from two grey-world measurements at different exposures agreeing
+    # to 1.2%. Indoor illuminant, no grey card: a starting point for
+    # colour-critical work, not a calibration.
+    WB_GAINS = (0.799, 0.541, 1.0)
     # 4096/65535 in libcamera's imx219.json, i.e. 64 in the sensor's
     # native 10 bits. Confirmed by fitting mean against analogue gain
     # across four gain codes.
