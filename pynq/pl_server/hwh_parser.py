@@ -1,4 +1,5 @@
-#   Copyright (c) 2021, Xilinx, Inc.
+#   Copyright (c) 2021-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import abc
@@ -667,13 +668,16 @@ class _HWHVersal(_HWHABC):
 
     Versal's CIPS packs most of its settings into a single space-delimited
     `KEY VALUE` string parameter, `PS_PMC_CONFIG`, rather than exposing
-    each one as its own XML parameter. PL interrupts reach the GIC-500 at
-    SPI 88 (`pl_ps_irq0`) and SPI 104 (`pl_ps_irq1`), 16 lines each.
+    each one as its own XML parameter. Versal exposes sixteen individual
+    one-bit PL-to-PS interrupt ports rather than wide buses; `pl_ps_irq<n>`
+    is hwirq 116 + n.
 
     """
 
     family_ps = "versal_cips"
-    family_irq = {"pl_ps_irq0": ((88, 16),), "pl_ps_irq1": ((104, 16),)}
+    family_irq = {
+        "pl_ps_irq{}".format(i): ((116 + i, 1),) for i in range(16)
+    }
     family_gpio = "GPIO_0"
 
     @staticmethod

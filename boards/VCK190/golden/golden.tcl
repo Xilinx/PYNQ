@@ -51,7 +51,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 # project, but make sure you do not have an existing project
 # <./myproj/project_1.xpr> in the current working folder.
 
-set overlay_name base
+set overlay_name golden
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
    create_project ${overlay_name} ${overlay_name} -part xcvc1902-vsva2197-2MP-e-S
@@ -138,17 +138,8 @@ if { $bCheckIPs == 1 } {
 xilinx.com:ip:versal_cips:3.4\
 xilinx.com:ip:proc_sys_reset:5.0\
 xilinx.com:ip:axi_noc:1.1\
-xilinx.com:ip:smartconnect:1.0\
-xilinx.com:ip:axi_gpio:2.0\
-xilinx.com:ip:axi_bram_ctrl:4.1\
-xilinx.com:ip:emb_mem_gen:1.0\
-xilinx.com:ip:axi_dma:7.1\
-xilinx.com:ip:axis_data_fifo:2.0\
-xilinx.com:ip:axi_uartlite:2.0\
-xilinx.com:ip:axi_intc:4.1\
-xilinx.com:ip:xlconcat:2.1\
-xilinx.com:ip:axi_timer:2.0\
 xilinx.com:ip:axi_vip:1.1\
+xilinx.com:ip:xlconstant:1.1\
 "
 
    set list_ips_missing ""
@@ -218,14 +209,6 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.FREQ_HZ {200000000} \
    ] $ddr4_dimm1_sma_clk
-
-  set gpio_led [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 gpio_led ]
-
-  set gpio_pb [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 gpio_pb ]
-
-  set gpio_dp [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 gpio_dp ]
-
-  set uart2_bank306 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 uart2_bank306 ]
 
 
   # Create ports
@@ -457,171 +440,107 @@ proc create_root_design { parentCell } {
    CONFIG.ASSOCIATED_BUSIF {S00_AXI:S01_AXI} \
  ] [get_bd_pins $axi_noc_pl/aclk0]
 
-  # Create instance: axi_smc, and set properties
-  set axi_smc [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 axi_smc ]
-  set_property -dict [list \
-    CONFIG.NUM_MI {9} \
-    CONFIG.NUM_SI {1} \
-  ] $axi_smc
-
-
-  # Create instance: axi_gpio_led, and set properties
-  set axi_gpio_led [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_led ]
-  set_property -dict [list \
-    CONFIG.C_INTERRUPT_PRESENT {0} \
-    CONFIG.GPIO_BOARD_INTERFACE {gpio_led} \
-    CONFIG.USE_BOARD_FLOW {true} \
-  ] $axi_gpio_led
-
-
-  # Create instance: axi_gpio_pb, and set properties
-  set axi_gpio_pb [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_pb ]
-  set_property -dict [list \
-    CONFIG.C_INTERRUPT_PRESENT {1} \
-    CONFIG.GPIO_BOARD_INTERFACE {gpio_pb} \
-    CONFIG.USE_BOARD_FLOW {true} \
-  ] $axi_gpio_pb
-
-
-  # Create instance: axi_gpio_dip_sw, and set properties
-  set axi_gpio_dip_sw [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_dip_sw ]
-  set_property -dict [list \
-    CONFIG.C_INTERRUPT_PRESENT {1} \
-    CONFIG.GPIO_BOARD_INTERFACE {gpio_dp} \
-    CONFIG.USE_BOARD_FLOW {true} \
-  ] $axi_gpio_dip_sw
-
-
-  # Create instance: axi_bram_ctrl_0, and set properties
-  set axi_bram_ctrl_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 axi_bram_ctrl_0 ]
-
-  # Create instance: axi_bram_ctrl_0_bram, and set properties
-  set axi_bram_ctrl_0_bram [ create_bd_cell -type ip -vlnv xilinx.com:ip:emb_mem_gen:1.0 axi_bram_ctrl_0_bram ]
-  set_property CONFIG.MEMORY_TYPE {True_Dual_Port_RAM} $axi_bram_ctrl_0_bram
-
-
-  # Create instance: axi_dma_0, and set properties
-  set axi_dma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 axi_dma_0 ]
-  set_property -dict [list \
-    CONFIG.c_addr_width {64} \
-    CONFIG.c_include_sg {0} \
-    CONFIG.c_m_axi_mm2s_data_width {128} \
-    CONFIG.c_m_axi_s2mm_data_width {128} \
-    CONFIG.c_m_axis_mm2s_tdata_width {128} \
-    CONFIG.c_mm2s_burst_size {256} \
-    CONFIG.c_s2mm_burst_size {256} \
-    CONFIG.c_s_axis_s2mm_tdata_width {128} \
-  ] $axi_dma_0
-
-
-  # Create instance: axis_data_fifo_0, and set properties
-  set axis_data_fifo_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:2.0 axis_data_fifo_0 ]
-  set_property -dict [list \
-    CONFIG.FIFO_DEPTH {1024} \
-    CONFIG.TDATA_NUM_BYTES {16} \
-  ] $axis_data_fifo_0
-
-
-  # Create instance: axi_uartlite_0, and set properties
-  set axi_uartlite_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite:2.0 axi_uartlite_0 ]
-  set_property -dict [list \
-    CONFIG.C_S_AXI_ACLK_FREQ_HZ {99999908} \
-    CONFIG.UARTLITE_BOARD_INTERFACE {uart2_bank306} \
-    CONFIG.USE_BOARD_FLOW {true} \
-  ] $axi_uartlite_0
-
-
-  # Create instance: axi_intc_0, and set properties
-  set axi_intc_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 axi_intc_0 ]
-  set_property -dict [list \
-    CONFIG.C_IRQ_CONNECTION {1} \
-    CONFIG.C_KIND_OF_INTR {0xFFFFFFFF} \
-  ] $axi_intc_0
-
-
-  # Create instance: intr_concat, and set properties
-  set intr_concat [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 intr_concat ]
-  set_property CONFIG.NUM_PORTS {7} $intr_concat
-
-
-  # Create instance: axi_timer_0, and set properties
-  set axi_timer_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_timer:2.0 axi_timer_0 ]
-
-  # Create instance: axi_timer_1, and set properties
-  set axi_timer_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_timer:2.0 axi_timer_1 ]
-
-  # Create instance: pl_lpd_tieoff, and set properties
-  set pl_lpd_tieoff [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vip:1.1 pl_lpd_tieoff ]
+  # Create instance: pl_tieoff_fpd, and set properties
+  set pl_tieoff_fpd [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vip:1.1 pl_tieoff_fpd ]
   set_property -dict [list \
     CONFIG.INTERFACE_MODE {SLAVE} \
     CONFIG.PROTOCOL {AXI4} \
-  ] $pl_lpd_tieoff
+  ] $pl_tieoff_fpd
+
+
+  # Create instance: pl_tieoff_lpd, and set properties
+  set pl_tieoff_lpd [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vip:1.1 pl_tieoff_lpd ]
+  set_property -dict [list \
+    CONFIG.INTERFACE_MODE {SLAVE} \
+    CONFIG.PROTOCOL {AXI4} \
+  ] $pl_tieoff_lpd
+
+
+  # Create instance: pl_tieoff_dma0, and set properties
+  set pl_tieoff_dma0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vip:1.1 pl_tieoff_dma0 ]
+  set_property -dict [list \
+    CONFIG.ADDR_WIDTH {64} \
+    CONFIG.ARUSER_WIDTH {0} \
+    CONFIG.AWUSER_WIDTH {0} \
+    CONFIG.BUSER_WIDTH {0} \
+    CONFIG.DATA_WIDTH {128} \
+    CONFIG.HAS_BRESP {1} \
+    CONFIG.HAS_BURST {1} \
+    CONFIG.HAS_CACHE {1} \
+    CONFIG.HAS_LOCK {1} \
+    CONFIG.HAS_PROT {1} \
+    CONFIG.HAS_QOS {1} \
+    CONFIG.HAS_REGION {1} \
+    CONFIG.HAS_RRESP {1} \
+    CONFIG.HAS_WSTRB {1} \
+    CONFIG.ID_WIDTH {0} \
+    CONFIG.INTERFACE_MODE {MASTER} \
+    CONFIG.PROTOCOL {AXI4} \
+    CONFIG.READ_WRITE_MODE {READ_WRITE} \
+    CONFIG.RUSER_WIDTH {0} \
+    CONFIG.SUPPORTS_NARROW {1} \
+    CONFIG.WUSER_WIDTH {0} \
+  ] $pl_tieoff_dma0
+
+
+  # Create instance: pl_tieoff_dma1, and set properties
+  set pl_tieoff_dma1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vip:1.1 pl_tieoff_dma1 ]
+  set_property -dict [list \
+    CONFIG.ADDR_WIDTH {64} \
+    CONFIG.ARUSER_WIDTH {0} \
+    CONFIG.AWUSER_WIDTH {0} \
+    CONFIG.BUSER_WIDTH {0} \
+    CONFIG.DATA_WIDTH {128} \
+    CONFIG.HAS_BRESP {1} \
+    CONFIG.HAS_BURST {1} \
+    CONFIG.HAS_CACHE {1} \
+    CONFIG.HAS_LOCK {1} \
+    CONFIG.HAS_PROT {1} \
+    CONFIG.HAS_QOS {1} \
+    CONFIG.HAS_REGION {1} \
+    CONFIG.HAS_RRESP {1} \
+    CONFIG.HAS_WSTRB {1} \
+    CONFIG.ID_WIDTH {0} \
+    CONFIG.INTERFACE_MODE {MASTER} \
+    CONFIG.PROTOCOL {AXI4} \
+    CONFIG.READ_WRITE_MODE {READ_WRITE} \
+    CONFIG.RUSER_WIDTH {0} \
+    CONFIG.SUPPORTS_NARROW {1} \
+    CONFIG.WUSER_WIDTH {0} \
+  ] $pl_tieoff_dma1
+
+
+  # Create instance: pl_tieoff_irq, and set properties
+  set pl_tieoff_irq [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 pl_tieoff_irq ]
+  set_property -dict [list \
+    CONFIG.CONST_VAL {0} \
+    CONFIG.CONST_WIDTH {1} \
+  ] $pl_tieoff_irq
 
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axi_bram_ctrl_0_BRAM_PORTA [get_bd_intf_pins axi_bram_ctrl_0/BRAM_PORTA] [get_bd_intf_pins axi_bram_ctrl_0_bram/BRAM_PORTA]
-  connect_bd_intf_net -intf_net axi_bram_ctrl_0_BRAM_PORTB [get_bd_intf_pins axi_bram_ctrl_0/BRAM_PORTB] [get_bd_intf_pins axi_bram_ctrl_0_bram/BRAM_PORTB]
-  connect_bd_intf_net -intf_net axi_dma_0_M_AXIS_MM2S [get_bd_intf_pins axi_dma_0/M_AXIS_MM2S] [get_bd_intf_pins axis_data_fifo_0/S_AXIS]
-  connect_bd_intf_net -intf_net axi_gpio_dip_sw_GPIO [get_bd_intf_ports gpio_dp] [get_bd_intf_pins axi_gpio_dip_sw/GPIO]
-  connect_bd_intf_net -intf_net axi_gpio_led_GPIO [get_bd_intf_ports gpio_led] [get_bd_intf_pins axi_gpio_led/GPIO]
-  connect_bd_intf_net -intf_net axi_gpio_pb_GPIO [get_bd_intf_ports gpio_pb] [get_bd_intf_pins axi_gpio_pb/GPIO]
   connect_bd_intf_net -intf_net axi_noc_pl_M00_INI [get_bd_intf_pins axi_noc_pl/M00_INI] [get_bd_intf_pins axi_noc_ps/S00_INI]
   connect_bd_intf_net -intf_net axi_noc_ps_CH0_DDR4_0 [get_bd_intf_ports ddr4_dimm1] [get_bd_intf_pins axi_noc_ps/CH0_DDR4_0]
-  connect_bd_intf_net -intf_net axi_smc_M00_AXI [get_bd_intf_pins axi_smc/M00_AXI] [get_bd_intf_pins axi_gpio_dip_sw/S_AXI]
-  connect_bd_intf_net -intf_net axi_smc_M01_AXI [get_bd_intf_pins axi_smc/M01_AXI] [get_bd_intf_pins axi_gpio_led/S_AXI]
-  connect_bd_intf_net -intf_net axi_smc_M02_AXI [get_bd_intf_pins axi_smc/M02_AXI] [get_bd_intf_pins axi_gpio_pb/S_AXI]
-  connect_bd_intf_net -intf_net axi_smc_M03_AXI [get_bd_intf_pins axi_smc/M03_AXI] [get_bd_intf_pins axi_bram_ctrl_0/S_AXI]
-  connect_bd_intf_net -intf_net axi_smc_M04_AXI [get_bd_intf_pins axi_smc/M04_AXI] [get_bd_intf_pins axi_dma_0/S_AXI_LITE]
-  connect_bd_intf_net -intf_net axi_smc_M05_AXI [get_bd_intf_pins axi_smc/M05_AXI] [get_bd_intf_pins axi_uartlite_0/S_AXI]
-  connect_bd_intf_net -intf_net axi_smc_M06_AXI [get_bd_intf_pins axi_smc/M06_AXI] [get_bd_intf_pins axi_intc_0/s_axi]
-  connect_bd_intf_net -intf_net axi_smc_M07_AXI [get_bd_intf_pins axi_smc/M07_AXI] [get_bd_intf_pins axi_timer_0/S_AXI]
-  connect_bd_intf_net -intf_net axi_smc_M08_AXI [get_bd_intf_pins axi_smc/M08_AXI] [get_bd_intf_pins axi_timer_1/S_AXI]
-  connect_bd_intf_net -intf_net axi_uartlite_0_UART [get_bd_intf_ports uart2_bank306] [get_bd_intf_pins axi_uartlite_0/UART]
-  connect_bd_intf_net -intf_net axis_data_fifo_0_M_AXIS [get_bd_intf_pins axis_data_fifo_0/M_AXIS] [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM]
   connect_bd_intf_net -intf_net ddr4_dimm1_sma_clk_1 [get_bd_intf_ports ddr4_dimm1_sma_clk] [get_bd_intf_pins axi_noc_ps/sys_clk0]
-  connect_bd_intf_net -intf_net pl_tieoff_dma0_M_AXI [get_bd_intf_pins axi_dma_0/M_AXI_MM2S] [get_bd_intf_pins axi_noc_pl/S00_AXI]
-  connect_bd_intf_net -intf_net pl_tieoff_dma1_M_AXI [get_bd_intf_pins axi_dma_0/M_AXI_S2MM] [get_bd_intf_pins axi_noc_pl/S01_AXI]
+  connect_bd_intf_net -intf_net pl_tieoff_dma0_M_AXI [get_bd_intf_pins pl_tieoff_dma0/M_AXI] [get_bd_intf_pins axi_noc_pl/S00_AXI]
+  connect_bd_intf_net -intf_net pl_tieoff_dma1_M_AXI [get_bd_intf_pins pl_tieoff_dma1/M_AXI] [get_bd_intf_pins axi_noc_pl/S01_AXI]
   connect_bd_intf_net -intf_net versal_cips_0_FPD_CCI_NOC_0 [get_bd_intf_pins versal_cips_0/FPD_CCI_NOC_0] [get_bd_intf_pins axi_noc_ps/S02_AXI]
   connect_bd_intf_net -intf_net versal_cips_0_FPD_CCI_NOC_1 [get_bd_intf_pins versal_cips_0/FPD_CCI_NOC_1] [get_bd_intf_pins axi_noc_ps/S03_AXI]
   connect_bd_intf_net -intf_net versal_cips_0_FPD_CCI_NOC_2 [get_bd_intf_pins versal_cips_0/FPD_CCI_NOC_2] [get_bd_intf_pins axi_noc_ps/S04_AXI]
   connect_bd_intf_net -intf_net versal_cips_0_FPD_CCI_NOC_3 [get_bd_intf_pins versal_cips_0/FPD_CCI_NOC_3] [get_bd_intf_pins axi_noc_ps/S05_AXI]
   connect_bd_intf_net -intf_net versal_cips_0_LPD_AXI_NOC_0 [get_bd_intf_pins versal_cips_0/LPD_AXI_NOC_0] [get_bd_intf_pins axi_noc_ps/S01_AXI]
-  connect_bd_intf_net -intf_net versal_cips_0_M_AXI_FPD [get_bd_intf_pins versal_cips_0/M_AXI_FPD] [get_bd_intf_pins axi_smc/S00_AXI]
-  connect_bd_intf_net -intf_net versal_cips_0_M_AXI_LPD [get_bd_intf_pins versal_cips_0/M_AXI_LPD] [get_bd_intf_pins pl_lpd_tieoff/S_AXI]
+  connect_bd_intf_net -intf_net versal_cips_0_M_AXI_FPD [get_bd_intf_pins versal_cips_0/M_AXI_FPD] [get_bd_intf_pins pl_tieoff_fpd/S_AXI]
+  connect_bd_intf_net -intf_net versal_cips_0_M_AXI_LPD [get_bd_intf_pins versal_cips_0/M_AXI_LPD] [get_bd_intf_pins pl_tieoff_lpd/S_AXI]
   connect_bd_intf_net -intf_net versal_cips_0_PMC_NOC_AXI_0 [get_bd_intf_pins versal_cips_0/PMC_NOC_AXI_0] [get_bd_intf_pins axi_noc_ps/S00_AXI]
 
   # Create port connections
-  connect_bd_net -net axi_dma_0_mm2s_introut  [get_bd_pins axi_dma_0/mm2s_introut] \
-  [get_bd_pins intr_concat/In0]
-  connect_bd_net -net axi_dma_0_s2mm_introut  [get_bd_pins axi_dma_0/s2mm_introut] \
-  [get_bd_pins intr_concat/In1]
-  connect_bd_net -net axi_gpio_dip_sw_ip2intc_irpt  [get_bd_pins axi_gpio_dip_sw/ip2intc_irpt] \
-  [get_bd_pins intr_concat/In2]
-  connect_bd_net -net axi_gpio_pb_ip2intc_irpt  [get_bd_pins axi_gpio_pb/ip2intc_irpt] \
-  [get_bd_pins intr_concat/In3]
-  connect_bd_net -net axi_intc_0_irq  [get_bd_pins axi_intc_0/irq] \
+  connect_bd_net -net pl_tieoff_irq_dout  [get_bd_pins pl_tieoff_irq/dout] \
   [get_bd_pins versal_cips_0/pl_ps_irq0]
-  connect_bd_net -net axi_timer_0_interrupt  [get_bd_pins axi_timer_0/interrupt] \
-  [get_bd_pins intr_concat/In5]
-  connect_bd_net -net axi_timer_1_interrupt  [get_bd_pins axi_timer_1/interrupt] \
-  [get_bd_pins intr_concat/In6]
-  connect_bd_net -net axi_uartlite_0_interrupt  [get_bd_pins axi_uartlite_0/interrupt] \
-  [get_bd_pins intr_concat/In4]
-  connect_bd_net -net intr_concat_dout  [get_bd_pins intr_concat/dout] \
-  [get_bd_pins axi_intc_0/intr]
   connect_bd_net -net rst_pl0_peripheral_aresetn  [get_bd_pins rst_pl0/peripheral_aresetn] \
-  [get_bd_pins axi_smc/aresetn] \
-  [get_bd_pins axi_gpio_dip_sw/s_axi_aresetn] \
-  [get_bd_pins axi_gpio_led/s_axi_aresetn] \
-  [get_bd_pins axi_gpio_pb/s_axi_aresetn] \
-  [get_bd_pins axi_bram_ctrl_0/s_axi_aresetn] \
-  [get_bd_pins axi_dma_0/axi_resetn] \
-  [get_bd_pins axis_data_fifo_0/s_axis_aresetn] \
-  [get_bd_pins axi_uartlite_0/s_axi_aresetn] \
-  [get_bd_pins axi_intc_0/s_axi_aresetn] \
-  [get_bd_pins axi_timer_0/s_axi_aresetn] \
-  [get_bd_pins axi_timer_1/s_axi_aresetn] \
-  [get_bd_pins pl_lpd_tieoff/aresetn]
+  [get_bd_pins pl_tieoff_fpd/aresetn] \
+  [get_bd_pins pl_tieoff_lpd/aresetn] \
+  [get_bd_pins pl_tieoff_dma0/aresetn] \
+  [get_bd_pins pl_tieoff_dma1/aresetn]
   connect_bd_net -net versal_cips_0_fpd_cci_noc_axi0_clk  [get_bd_pins versal_cips_0/fpd_cci_noc_axi0_clk] \
   [get_bd_pins axi_noc_ps/aclk2]
   connect_bd_net -net versal_cips_0_fpd_cci_noc_axi1_clk  [get_bd_pins versal_cips_0/fpd_cci_noc_axi1_clk] \
@@ -638,20 +557,10 @@ proc create_root_design { parentCell } {
   [get_bd_pins rst_pl0/slowest_sync_clk] \
   [get_bd_pins versal_cips_0/m_axi_fpd_aclk] \
   [get_bd_pins versal_cips_0/m_axi_lpd_aclk] \
-  [get_bd_pins axi_smc/aclk] \
-  [get_bd_pins axi_gpio_dip_sw/s_axi_aclk] \
-  [get_bd_pins axi_gpio_led/s_axi_aclk] \
-  [get_bd_pins axi_gpio_pb/s_axi_aclk] \
-  [get_bd_pins axi_bram_ctrl_0/s_axi_aclk] \
-  [get_bd_pins axi_dma_0/s_axi_lite_aclk] \
-  [get_bd_pins axi_dma_0/m_axi_mm2s_aclk] \
-  [get_bd_pins axi_dma_0/m_axi_s2mm_aclk] \
-  [get_bd_pins axis_data_fifo_0/s_axis_aclk] \
-  [get_bd_pins axi_uartlite_0/s_axi_aclk] \
-  [get_bd_pins axi_intc_0/s_axi_aclk] \
-  [get_bd_pins axi_timer_0/s_axi_aclk] \
-  [get_bd_pins axi_timer_1/s_axi_aclk] \
-  [get_bd_pins pl_lpd_tieoff/aclk]
+  [get_bd_pins pl_tieoff_fpd/aclk] \
+  [get_bd_pins pl_tieoff_lpd/aclk] \
+  [get_bd_pins pl_tieoff_dma0/aclk] \
+  [get_bd_pins pl_tieoff_dma1/aclk]
   connect_bd_net -net versal_cips_0_pl0_resetn  [get_bd_pins versal_cips_0/pl0_resetn] \
   [get_bd_pins rst_pl0/ext_reset_in]
   connect_bd_net -net versal_cips_0_pl1_ref_clk  [get_bd_pins versal_cips_0/pl1_ref_clk] \
@@ -680,22 +589,12 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x000800000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces versal_cips_0/FPD_CCI_NOC_3] [get_bd_addr_segs axi_noc_ps/S05_AXI/C0_DDR_LOW1] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces versal_cips_0/LPD_AXI_NOC_0] [get_bd_addr_segs axi_noc_ps/S01_AXI/C0_DDR_LOW0] -force
   assign_bd_address -offset 0x000800000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces versal_cips_0/LPD_AXI_NOC_0] [get_bd_addr_segs axi_noc_ps/S01_AXI/C0_DDR_LOW1] -force
-  assign_bd_address -offset 0xA4000000 -range 0x00002000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
-  assign_bd_address -offset 0xA6000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs axi_dma_0/S_AXI_LITE/Reg] -force
-  assign_bd_address -offset 0xA6010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs axi_gpio_dip_sw/S_AXI/Reg] -force
-  assign_bd_address -offset 0xA6020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs axi_gpio_led/S_AXI/Reg] -force
-  assign_bd_address -offset 0xA6030000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs axi_gpio_pb/S_AXI/Reg] -force
-  assign_bd_address -offset 0xA6040000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs axi_intc_0/S_AXI/Reg] -force
-  assign_bd_address -offset 0xA6060000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs axi_timer_0/S_AXI/Reg] -force
-  assign_bd_address -offset 0xA6070000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs axi_timer_1/S_AXI/Reg] -force
-  assign_bd_address -offset 0xA6050000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs axi_uartlite_0/S_AXI/Reg] -force
-  assign_bd_address -offset 0x80000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_LPD] [get_bd_addr_segs pl_lpd_tieoff/S_AXI/Reg] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces versal_cips_0/PMC_NOC_AXI_0] [get_bd_addr_segs axi_noc_ps/S00_AXI/C0_DDR_LOW0] -force
   assign_bd_address -offset 0x000800000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces versal_cips_0/PMC_NOC_AXI_0] [get_bd_addr_segs axi_noc_ps/S00_AXI/C0_DDR_LOW1] -force
-  assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces axi_dma_0/Data_MM2S] [get_bd_addr_segs axi_noc_ps/S00_INI/C0_DDR_LOW0] -force
-  assign_bd_address -offset 0x000800000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces axi_dma_0/Data_MM2S] [get_bd_addr_segs axi_noc_ps/S00_INI/C0_DDR_LOW1] -force
-  assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces axi_dma_0/Data_S2MM] [get_bd_addr_segs axi_noc_ps/S00_INI/C0_DDR_LOW0] -force
-  assign_bd_address -offset 0x000800000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces axi_dma_0/Data_S2MM] [get_bd_addr_segs axi_noc_ps/S00_INI/C0_DDR_LOW1] -force
+  assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces pl_tieoff_dma0/Master_AXI] [get_bd_addr_segs axi_noc_ps/S00_INI/C0_DDR_LOW0] -force
+  assign_bd_address -offset 0x000800000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces pl_tieoff_dma0/Master_AXI] [get_bd_addr_segs axi_noc_ps/S00_INI/C0_DDR_LOW1] -force
+  assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces pl_tieoff_dma1/Master_AXI] [get_bd_addr_segs axi_noc_ps/S00_INI/C0_DDR_LOW0] -force
+  assign_bd_address -offset 0x000800000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces pl_tieoff_dma1/Master_AXI] [get_bd_addr_segs axi_noc_ps/S00_INI/C0_DDR_LOW1] -force
 
 
   # Restore current instance

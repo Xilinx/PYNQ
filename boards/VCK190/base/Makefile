@@ -3,17 +3,16 @@
 #
 # VCK190 Base Overlay Build (Segmented Configuration)
 #
-# Sources the golden reference design, adds PL logic (GPIO, DMA, BRAM, UART),
-# then builds a PL PDI locked to the golden NoC solution.
+# Builds a PL PDI locked to the golden NoC solution, then checks it against
+# the golden reference.
 
 overlay_name := base
-design_name := base
+design_name := vck190_pynq
 
 GOLDEN_DIR := ../golden
 GOLDEN_NCR := $(GOLDEN_DIR)/golden_noc.ncr
-GOLDEN_DCP := $(GOLDEN_DIR)/golden_routed.dcp
 
-all: $(GOLDEN_NCR) block_design pdi
+all: $(GOLDEN_NCR) block_design pdi check_timing check_compatibility
 	@echo
 	@echo "Built $(overlay_name) for VCK190 (Segmented Configuration)"
 	@echo "  XSA: $(overlay_name).xsa  (primary – contains PDI + HWH)"
@@ -34,7 +33,14 @@ block_design:
 pdi:
 	vivado -mode batch -source build_pdi.tcl -notrace
 
-clean:
-	rm -rf $(overlay_name) *.jou *.log NA .Xil .crashReporter *.pdi *.hwh *.xsa
+check_timing:
+	vivado -mode batch -source check_timing.tcl -notrace
 
-.PHONY: all golden block_design pdi clean
+check_compatibility:
+	vivado -mode batch -source check_compatibility.tcl -notrace
+
+clean:
+	rm -rf $(overlay_name) *.jou *.log NA .Xil .crashReporter hd_visual
+	rm -f *.pdi *.hwh *.xsa optional_data.txt
+
+.PHONY: all golden block_design pdi check_timing check_compatibility clean
