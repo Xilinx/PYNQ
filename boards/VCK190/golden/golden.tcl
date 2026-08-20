@@ -51,16 +51,6 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 # project, but make sure you do not have an existing project
 # <./myproj/project_1.xpr> in the current working folder.
 
-# Vivado ships the VCK190 board files. BOARD_STORE_PATH overrides them with a
-# XilinxBoardStore checkout when it is set.
-if {[info exists ::env(BOARD_STORE_PATH)]} {
-   set board_store $::env(BOARD_STORE_PATH)/boards
-   if {![file isdirectory $board_store]} {
-      error "No boards directory under BOARD_STORE_PATH ($board_store)"
-   }
-   set_param board.repoPaths [list $board_store]
-}
-
 set overlay_name golden
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {

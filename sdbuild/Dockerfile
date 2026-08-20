@@ -40,10 +40,6 @@ RUN apt-get update \
 RUN curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo \
  && chmod +x /usr/local/bin/repo
 
-RUN git clone --depth 1 https://github.com/Xilinx/XilinxBoardStore.git \
-    /opt/XilinxBoardStore
-ENV BOARD_STORE_PATH=/opt/XilinxBoardStore
-
 # Build and install crosstool-ng
 RUN mkdir /opt/crosstool-ng-src \
  && cd /opt/crosstool-ng-src \
