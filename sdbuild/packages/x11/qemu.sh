@@ -26,7 +26,7 @@ echo startfluxbox > /root/.xinitrc
 mkdir /root/armsoc_build
 cd /root/armsoc_build
 
-git clone https://anongit.freedesktop.org/git/xorg/driver/xf86-video-armsoc.git -c http.sslverify=false
+git clone https://gitlab.freedesktop.org/xorg/driver/xf86-video-armsoc.git
 cd xf86-video-armsoc
 git apply /armsoc.patch --ignore-whitespace
 git apply /pixmap.patch --ignore-whitespace
