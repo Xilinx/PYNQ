@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 
 import pynq._3rdparty.tinynumpy as tnp
-from ..metadata.runtime_metadata_parser import RuntimeMetadataParser
+from pynqmetadata.views.runtime import RuntimeMetadataParser
 from pynqmetadata.frontends import Metadata
 from .device import Device
 from .embedded_device import (

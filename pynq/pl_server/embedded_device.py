@@ -1,4 +1,5 @@
 # Copyright (C) 2022 Xilinx, Inc
+# Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -11,7 +12,7 @@ import platform
 import numpy as np
 from pynqmetadata.frontends import Metadata
 
-from ..metadata.runtime_metadata_parser import RuntimeMetadataParser
+from pynqmetadata.views.runtime import RuntimeMetadataParser
 from .xrt_device import XrtDevice, XrtMemory
 from .global_state import GlobalState, save_global_state
 from .global_state import initial_global_state_file_boot_check, load_global_state
