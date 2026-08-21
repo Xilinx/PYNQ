@@ -269,19 +269,18 @@ class OV5640(CameraSensor):
     ID_REG = 0x300A
     ID_VALUE = 0x5640
     HS_SETTLE_NS = 149
-    # BGGR, not the RGGB the other sensors use: _CFG_INIT sets the flip
-    # bits in 0x3820, which shifts the Bayer grid by a row. Measured, not
-    # assumed — a phase sweep gave means identical to 0.08 counts against
-    # the historic phase-0-plus-a-[2,1,0]-reorder-in-the-notebook result.
-    # Correcting it here rather than in the notebook means every sensor
-    # reads the same way, and the fix reaches tie() as well, which shares
-    # DDR buffers and never passes through Python.
+    # BGGR: _CFG_INIT sets the flip bits in 0x3820, shifting the Bayer
+    # grid by a row. Confirmed by a phase sweep.
     BAYER_PHASE = 0x3
     MODES = {
         (1280, 720, 60): 0,
         (1920, 1080, 30): 1,
         (1920, 1080, 15): 2,
     }
+
+    def __init__(self, i2c_bus, slave_addr=None):
+        super().__init__(i2c_bus, slave_addr)
+        self._awb = None
 
     def configure(self, mode, gpio_ip, power_cycle=True, reset_settle=1.0):
         """Full sensor initialization sequence.
@@ -325,7 +324,7 @@ class OV5640(CameraSensor):
         self.write_reg(0x3008, 0x02)
         time.sleep(0.01)
         self.write_reg(0x3008, 0x42)
-        self._write_config(_CFG_ADVANCED_AWB)
+        self.awb = 'advanced'
 
     def start(self):
         """Wake the sensor and start streaming."""
@@ -364,15 +363,19 @@ class OV5640(CameraSensor):
         current = self.read_reg(0x3820)
         self.write_reg(0x3820, current ^ 0x06)
 
-    def set_awb(self, mode='advanced'):
-        """Change auto white balance mode.
+    @property
+    def awb(self):
+        """Auto white balance mode: 'advanced', 'simple' or 'disabled'.
 
-        Parameters
-        ----------
-        mode : str
-            One of 'advanced', 'simple', 'disabled'
+        Reports the last mode written, as the sensor cannot read it
+        back. None until :meth:`configure` has run.
         """
+        return self._awb
+
+    @awb.setter
+    def awb(self, mode):
         if mode not in _AWB_CONFIGS:
             raise ValueError(f"Invalid AWB mode '{mode}', must be one of "
                              f"{list(_AWB_CONFIGS.keys())}")
         self._write_config(_AWB_CONFIGS[mode])
+        self._awb = mode

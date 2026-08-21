@@ -88,11 +88,8 @@ class MipiCamera(DefaultHierarchy):
             White balance (red, green, blue) gains. Defaults to the
             sensor's ``WB_GAINS``; override to suit the lighting.
         gamma : float or None
-            Encoding gamma. Defaults to the sensor's ``GAMMA``: 2.2 for
-            a raw part, whose scene-linear output looks dark on a
-            display expecting roughly sRGB, and 1.0 for one whose
-            on-chip ISP has already encoded its output. Pass 1.0 to get
-            scene-linear frames for measurement.
+            Encoding gamma. Defaults to the sensor's ``GAMMA``; pass 1.0
+            for scene-linear frames to measure from.
 
         Returns
         -------
@@ -143,9 +140,8 @@ class MipiCamera(DefaultHierarchy):
 
         self.demosaic.configure(videomode.width, videomode.height,
                                 bayer_phase)
-        # White balance lives on the gamma LUT, not the CSC: the pedestal
-        # has to come off before the gains are applied, and the CSC's
-        # offset registers act after its matrix.
+        # White balance goes on the gamma LUT: the pedestal must come off
+        # before the gains, and the CSC's offsets act after its matrix.
         self.gamma_lut.configure(videomode.width, videomode.height,
                                  black_level=self._sensor.BLACK_LEVEL,
                                  gains=self._wb_gains, gamma=self._gamma)
@@ -305,12 +301,11 @@ class MipiCamera(DefaultHierarchy):
         scene and fails on one dominated by a single colour, so point the
         camera at something mixed.
 
-        The sensor's per-channel WB_GAINS are a fixed starting point
-        measured under one illuminant; this adapts to the actual light.
-        Measurement is taken through an identity curve so the current
-        gains do not bias the result, and the pedestal is subtracted
-        before the ratios are formed — an offset common to all channels
-        pulls every ratio towards 1 and would hide the imbalance.
+        The sensor's ``WB_GAINS`` are a fixed starting point measured
+        under one illuminant; this adapts to the actual light. Measured
+        through an identity curve so the current gains do not bias the
+        result, and with the pedestal subtracted — an offset common to
+        all channels pulls every ratio towards 1 and hides the imbalance.
 
         Parameters
         ----------
@@ -339,12 +334,9 @@ class MipiCamera(DefaultHierarchy):
                 self.readframe()
             total = np.zeros(3)
             for _ in range(frames):
-                # Buffers are deliberately not freed here. A reshape or
-                # slice of a PynqBuffer is a view that inherits the
-                # buffer's pointer and frees it again when collected, so
-                # an explicit freebuffer() alongside one is a double free.
-                # Letting the frames fall out of scope leaves them to the
-                # VDMA frame cache, which recycles them.
+                # A view of a PynqBuffer inherits its pointer and frees
+                # it again when collected, so freebuffer() here would
+                # double free. The frame cache recycles them anyway.
                 frame = self.readframe()
                 total += np.asarray(frame).reshape(-1, 3).mean(
                     axis=0, dtype=np.float64)
@@ -361,10 +353,8 @@ class MipiCamera(DefaultHierarchy):
                 f"{np.round(total / frames, 1)} against a black level of "
                 f"{black}. Raise exposure or gain and retry.")
         gains = signal[1] / signal
-        # Normalise so the largest gain is 1.0. Only the ratios carry the
-        # colour; scaling them all up would clip highlights that were in
-        # range in the raw frame, and there is no auto exposure to pull
-        # them back. Use gamma to recover the brightness instead.
+        # Normalise so the largest gain is 1.0: only the ratios carry
+        # colour, and there is no AE loop to pull back a gain that clips.
         self.wb_gains = tuple(gains / gains.max())
         return self._wb_gains
 

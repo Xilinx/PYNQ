@@ -52,6 +52,9 @@ _EXPOSURE_OFFSET = 48
 _EXPOSURE_MIN = 4
 _EXPOSURE_STEP = 2
 
+# 6.4x, from 1024 / (1024 - 864).
+_DEFAULT_GAIN = 864
+
 # Ported from mode_common_regs in imx708.c. Written once per power cycle.
 _CFG_COMMON = (
     (0x0100, 0x00),
@@ -264,7 +267,7 @@ class IMX708(SonySensor):
 
     There is no auto-exposure loop: exposure and gain are set to fixed
     defaults sized for the selected mode and can be adjusted afterwards
-    with :meth:`set_exposure` and :meth:`set_gain`.
+    with :attr:`exposure` and :attr:`gain`.
 
     Parameters
     ----------
@@ -282,21 +285,14 @@ class IMX708(SonySensor):
     HS_SETTLE_NS = 124
     # codes[0] (no flip) in imx708.c is SRGGB10.
     BAYER_PHASE = 0x0
-    # Measured on this part, not inherited: green is roughly 1.9x red and
-    # 2.1x blue. Two independent methods agreed to about 1% — a direct
-    # read through an identity curve, and the slope of mean against
-    # analogue gain, which is immune to the pedestal. Normalised so the
-    # largest gain is 1.0, as on the IMX219: with no auto exposure, a
-    # gain above unity clips highlights that were in range in the raw
-    # frame, and gamma recovers the lost brightness without clipping.
-    # Indoor illuminant, no grey card: a starting point, not a
-    # calibration.
+    # Measured on this part under one indoor illuminant, no grey card:
+    # a starting point, not a calibration. Normalised so the largest is
+    # 1.0, as there is no AE loop to pull back a gain that clips.
     WB_GAINS = (0.877, 0.472, 1.0)
-    # Raw sensor output is scene-linear; 2.2 approximates sRGB so
-    # the image looks right on a display without hand tuning.
+    # Raw output is scene-linear; 2.2 approximates sRGB for display.
     GAMMA = 2.2
-    # 4096/65535 in libcamera's imx708.json, matching the IMX219, and
-    # confirmed here by fitting mean against gain across four gain codes.
+    # 4096/65535 in libcamera's imx708.json. Confirmed by fitting mean
+    # against analogue gain.
     BLACK_LEVEL = 16
     MODES = {
         (1280, 720, 60): 0,
@@ -339,14 +335,11 @@ class IMX708(SonySensor):
         # mode only, and neither mode here uses it.
         self.write_reg(_REG_LPF_INTENSITY_EN, _LPF_INTENSITY_DISABLED)
 
-        # No AE loop, so pick a starting point that suits a typical indoor
-        # scene. Code 864 is 6.4x, matching the IMX219: the white balance
-        # attenuates green to roughly half to keep every gain under unity,
-        # and this makes that back up. Chosen for parity with the IMX219
-        # rather than measured on this part — adjust with set_gain if an
-        # indoor scene comes out dark or clipped.
-        self.set_exposure(int(cfg.frame_length * 0.9) - _EXPOSURE_OFFSET)
-        self.set_gain(864)
+        # No AE loop, so pick a starting point for a typical indoor
+        # scene. Not measured on this part.
+        self.exposure = int(cfg.frame_length * 0.9) - _EXPOSURE_OFFSET
+        self.gain = _DEFAULT_GAIN
+        self.digital_gain = _DGTL_GAIN_MIN
 
     def _write_pdaf_gains(self):
         """Apply PDAF shading gains if the sensor is uncalibrated.
@@ -362,35 +355,38 @@ class IMX708(SonySensor):
             for i in range(54):
                 self.write_reg(base + i, gains[i % 9])
 
-    def set_exposure(self, lines):
-        """Set the exposure time in lines.
+    @property
+    def exposure(self):
+        """Exposure time in lines, clamped to the frame length less
+        the blanking the sensor needs and rounded down to 2 lines."""
+        return self.read_reg16(_REG_EXPOSURE)
 
-        Parameters
-        ----------
-        lines : int
-            Integration time. Clamped to the frame length less the
-            blanking the sensor needs, and rounded down to the sensor's
-            2-line granularity.
-        """
+    @exposure.setter
+    def exposure(self, lines):
         if self._mode is None:
             raise RuntimeError("configure() the sensor first")
         limit = self._mode.frame_length - _EXPOSURE_OFFSET
         lines = max(_EXPOSURE_MIN, min(lines, limit))
         self.write_reg16(_REG_EXPOSURE, lines - lines % _EXPOSURE_STEP)
 
-    def set_gain(self, analog, digital=_DGTL_GAIN_MIN):
-        """Set the analogue and digital gain.
+    @property
+    def gain(self):
+        """Analogue gain code, 112-960: the gain is 1024 / (1024 - code),
+        so 112 is about 1.12x and 960 is 16x."""
+        return self.read_reg16(_REG_ANALOG_GAIN)
 
-        Parameters
-        ----------
-        analog : int
-            Analogue gain code, 112-960. The gain is 1024 / (1024 - code),
-            so 112 is about 1.12x and 960 is 16x.
-        digital : int
-            Digital gain in 1/256ths, 0x0100 (1x) to 0xFFFF.
-        """
+    @gain.setter
+    def gain(self, code):
         self.write_reg16(_REG_ANALOG_GAIN,
-                         max(_ANA_GAIN_MIN, min(analog, _ANA_GAIN_MAX)))
+                         max(_ANA_GAIN_MIN, min(code, _ANA_GAIN_MAX)))
+
+    @property
+    def digital_gain(self):
+        """Digital gain in 1/256ths, 0x0100 (1x) to 0xFFFF."""
+        return self.read_reg16(_REG_DIGITAL_GAIN)
+
+    @digital_gain.setter
+    def digital_gain(self, value):
         self.write_reg16(_REG_DIGITAL_GAIN,
-                         max(_DGTL_GAIN_MIN, min(digital, _DGTL_GAIN_MAX)))
+                         max(_DGTL_GAIN_MIN, min(value, _DGTL_GAIN_MAX)))
 

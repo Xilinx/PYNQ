@@ -175,6 +175,16 @@ _MODE_CONFIGS = {
 # From IMX219_EXPOSURE_OFFSET in imx219.c; exposure must leave room for
 # the frame's blanking.
 _EXPOSURE_OFFSET = 4
+# IMX219_EXPOSURE_MIN
+_EXPOSURE_MIN = 4
+
+# From IMX219_ANA_GAIN_* / IMX219_DGTL_GAIN_* in imx219.c
+_ANA_GAIN_MAX = 232
+_DGTL_GAIN_MIN = 0x0100
+_DGTL_GAIN_MAX = 0x0FFF
+
+# 6.4x, from 256 / (256 - 216).
+_DEFAULT_GAIN = 216
 
 
 class IMX219(SonySensor):
@@ -182,7 +192,7 @@ class IMX219(SonySensor):
 
     There is no auto-exposure loop: exposure and gain are set to fixed
     defaults sized for the selected mode and can be adjusted afterwards
-    with :meth:`set_exposure` and :meth:`set_gain`.
+    with :attr:`exposure` and :attr:`gain`.
 
     Parameters
     ----------
@@ -200,20 +210,14 @@ class IMX219(SonySensor):
     HS_SETTLE_NS = 124
     # imx219_mbus_formats[0] (no flip) is SRGGB10.
     BAYER_PHASE = 0x0
-    # Normalised so the largest gain is 1.0: the pipeline has no auto
-    # exposure, so a gain above unity clips highlights that were within
-    # range in the raw frame. Attenuating costs brightness, which gamma
-    # recovers without clipping. Ratios are what matter, and these came
-    # from two grey-world measurements at different exposures agreeing
-    # to 1.2%. Indoor illuminant, no grey card: a starting point for
-    # colour-critical work, not a calibration.
+    # Grey-world measurement under one indoor illuminant, no grey card:
+    # a starting point, not a calibration. Normalised so the largest is
+    # 1.0, as there is no AE loop to pull back a gain that clips.
     WB_GAINS = (0.799, 0.541, 1.0)
-    # Raw sensor output is scene-linear; 2.2 approximates sRGB so
-    # the image looks right on a display without hand tuning.
+    # Raw output is scene-linear; 2.2 approximates sRGB for display.
     GAMMA = 2.2
-    # 4096/65535 in libcamera's imx219.json, i.e. 64 in the sensor's
-    # native 10 bits. Confirmed by fitting mean against analogue gain
-    # across four gain codes.
+    # 4096/65535 in libcamera's imx219.json, i.e. 64 in the native 10
+    # bits. Confirmed by fitting mean against analogue gain.
     BLACK_LEVEL = 16
     MODES = {
         (1280, 720, 60): 0,
@@ -252,39 +256,42 @@ class IMX219(SonySensor):
         self._write_config(_CFG_RAW10)
         self._write_config(cfg.registers())
 
-        # No AE loop, so pick a starting point that suits a typical indoor
-        # scene. Code 216 is 6.4x: the white balance attenuates green to
-        # about half to keep the gains under unity, and this makes that
-        # back up. Measured indoors it lands the mean around 120 of 255
-        # with nothing clipping.
-        self.set_exposure(int(cfg.frame_length * 0.9) - _EXPOSURE_OFFSET)
-        self.set_gain(216)
+        # No AE loop, so pick a starting point for a typical indoor
+        # scene. Measured indoors this lands the mean near 120 of 255.
+        self.exposure = int(cfg.frame_length * 0.9) - _EXPOSURE_OFFSET
+        self.gain = _DEFAULT_GAIN
+        self.digital_gain = _DGTL_GAIN_MIN
 
-    def set_exposure(self, lines):
-        """Set the exposure time in lines.
+    @property
+    def exposure(self):
+        """Exposure time in lines, clamped to the frame length less
+        the blanking the sensor needs."""
+        return self.read_reg16(_REG_EXPOSURE)
 
-        Parameters
-        ----------
-        lines : int
-            Integration time. Clamped to the frame length less the
-            blanking the sensor needs.
-        """
+    @exposure.setter
+    def exposure(self, lines):
         if self._mode is None:
             raise RuntimeError("configure() the sensor first")
         limit = self._mode.frame_length - _EXPOSURE_OFFSET
-        self.write_reg16(_REG_EXPOSURE, max(4, min(lines, limit)))
+        self.write_reg16(_REG_EXPOSURE, max(_EXPOSURE_MIN, min(lines, limit)))
 
-    def set_gain(self, analog, digital=0x0100):
-        """Set the analogue and digital gain.
+    @property
+    def gain(self):
+        """Analogue gain code, 0-232: the gain is 256 / (256 - code),
+        so 0 is 1x and 232 is about 10.7x."""
+        return self.read_reg(_REG_ANALOG_GAIN)
 
-        Parameters
-        ----------
-        analog : int
-            Analogue gain code, 0-232. The gain is 256 / (256 - code),
-            so 0 is 1x and 232 is about 10.7x.
-        digital : int
-            Digital gain in 1/256ths, 0x0100 (1x) to 0x0FFF.
-        """
-        self.write_reg(_REG_ANALOG_GAIN, max(0, min(analog, 232)))
-        self.write_reg16(_REG_DIGITAL_GAIN, max(0x0100, min(digital, 0x0FFF)))
+    @gain.setter
+    def gain(self, code):
+        self.write_reg(_REG_ANALOG_GAIN, max(0, min(code, _ANA_GAIN_MAX)))
+
+    @property
+    def digital_gain(self):
+        """Digital gain in 1/256ths, 0x0100 (1x) to 0x0FFF."""
+        return self.read_reg16(_REG_DIGITAL_GAIN)
+
+    @digital_gain.setter
+    def digital_gain(self, value):
+        self.write_reg16(_REG_DIGITAL_GAIN,
+                         max(_DGTL_GAIN_MIN, min(value, _DGTL_GAIN_MAX)))
 

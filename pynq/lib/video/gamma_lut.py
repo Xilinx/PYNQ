@@ -81,18 +81,14 @@ class GammaLut(DefaultIP):
             Frame height in lines
         black_level : int
             Black pedestal to subtract, in 8-bit counts. Raw sensors add
-            a constant offset to every pixel that no other stage in the
-            pipeline removes.
+            a constant offset that no other stage removes.
         gains : tuple of float
             Per-channel (red, green, blue) gains, applied after the
-            pedestal is subtracted. Correcting white balance here rather
-            than on the colour space converter keeps the two operations
-            in the right order: scaling before the offset is removed
-            skews the ratios in the shadows.
+            pedestal is subtracted. Scaling before the offset is removed
+            would skew the ratios in the shadows.
         gamma : float
-            Encoding gamma. The default of 1.0 leaves the output
-            scene-linear, matching the sensor; 2.2 approximates sRGB for
-            display.
+            Encoding gamma. 1.0 leaves the output scene-linear; 2.2
+            approximates sRGB for display.
         """
         rmap = self.register_map
         rmap.width = width
@@ -112,13 +108,19 @@ class GammaLut(DefaultIP):
                 f"Expected (red, green, blue) gains, got {len(gains)} values")
         x = np.arange(256, dtype=np.float32)
         span = max(255 - black_level, 1)
-        for (channel, base), gain in zip(_CHANNEL_OFFSETS.items(), gains):
+        for channel, gain in zip(_CHANNEL_OFFSETS, gains):
             y = np.clip((x - black_level) * gain / span, 0.0, 1.0)
             if gamma != 1.0:
                 y = y ** (1.0 / gamma)
-            word_start = base // 4
-            u16 = self.mmio.array[word_start:word_start + 128].view(np.uint16)
-            u16[:] = np.round(y * 255).astype(np.uint16)
+            self._channel_view(channel)[:] = np.round(y * 255)
+
+    def _channel_view(self, channel):
+        """A writable uint16 view of one channel's 256-entry table."""
+        if channel not in _CHANNEL_OFFSETS:
+            raise ValueError(
+                f"channel must be one of {list(_CHANNEL_OFFSETS)}")
+        word_start = _CHANNEL_OFFSETS[channel] // 4
+        return self.mmio.array[word_start:word_start + 128].view(np.uint16)
 
     def set_lut(self, channel, values):
         """Write a custom LUT for a single channel.
@@ -130,13 +132,7 @@ class GammaLut(DefaultIP):
         values : array-like
             256 uint16 values for the lookup table
         """
-        if channel not in _CHANNEL_OFFSETS:
-            raise ValueError(f"channel must be one of {list(_CHANNEL_OFFSETS)}")
         values = np.asarray(values, dtype=np.uint16)
         if values.shape != (256,):
             raise ValueError("values must have exactly 256 entries")
-        base = _CHANNEL_OFFSETS[channel]
-        word_start = base // 4
-        arr = self.mmio.array
-        u16 = arr[word_start:word_start + 128].view(np.uint16)
-        u16[:] = values
+        self._channel_view(channel)[:] = values

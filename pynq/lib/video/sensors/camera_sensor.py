@@ -42,13 +42,17 @@ class CameraSensor(metaclass=abc.ABCMeta):
         Default demosaic Bayer phase (0=RGGB, 1=GRBG, 2=GBRG, 3=BGGR).
     WB_GAINS : tuple of float
         Default (red, green, blue) white balance gains applied by the
-        colour space converter. Sensors with on-chip AWB leave this at
-        unity; raw sensors need it, or the frame comes out green.
+        gamma LUT. Sensors with on-chip AWB leave this at unity; raw
+        sensors need it, or the frame comes out green.
     BLACK_LEVEL : int
         Black pedestal the sensor adds to every pixel, in 8-bit counts.
         Subtracted by the gamma LUT before the white balance gains are
         applied. Left at zero for sensors whose on-chip ISP already
         removes it.
+    GAMMA : float
+        Default encoding gamma. Unity for a sensor whose on-chip ISP has
+        already encoded its output; 2.2 for a raw part, whose
+        scene-linear data looks dark on a display expecting sRGB.
     MODES : dict
         Maps ``(width, height, fps)`` to a sensor mode id. Each sensor is
         the source of truth for the modes it supports.
@@ -76,10 +80,8 @@ class CameraSensor(metaclass=abc.ABCMeta):
     WB_GAINS = (1.0, 1.0, 1.0)
     #: Zero by default: only raw sensors expose their black pedestal.
     BLACK_LEVEL = 0
-    #: Encoding gamma the pipeline applies for this sensor. Unity here,
-    #: since a sensor with an on-chip ISP has already encoded its output;
-    #: raw parts override it, as their scene-linear data looks dark on a
-    #: display that expects roughly sRGB.
+    #: Unity by default: a sensor with an on-chip ISP has already
+    #: encoded its output. Raw parts override it.
     GAMMA = 1.0
     MODES = {}
     #: Delay in seconds after each register write in a configuration table.
@@ -121,6 +123,10 @@ class CameraSensor(metaclass=abc.ABCMeta):
         """
         self.write_reg(addr, (data >> 8) & 0xFF)
         self.write_reg(addr + 1, data & 0xFF)
+
+    def read_reg16(self, addr):
+        """Read a big-endian 16-bit value from ``addr`` and ``addr + 1``."""
+        return (self.read_reg(addr) << 8) | self.read_reg(addr + 1)
 
     def _write_config(self, table):
         """Write a register configuration table with delays."""
