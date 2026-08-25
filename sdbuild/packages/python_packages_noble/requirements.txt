@@ -84,7 +84,7 @@ ptyprocess==0.7.0
 pure_eval==0.2.3
 pybind11==2.11.1
 pycparser==2.23
-pydantic==1.9.1
+pydantic==2.9.2
 Pygments==2.20.0
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0

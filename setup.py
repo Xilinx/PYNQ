@@ -18,7 +18,12 @@ from setuptools.command.build_ext import build_ext
 
 # Requirement
 required = [
-    'pynqmetadata',
+    # PYNQ's Versal support and pynq/metadata's shims both need APIs that
+    # exist only on PYNQ-Metadata's pynq-next branch (0.2.0):
+    # VersalProcSysCore, and pynqmetadata.views.runtime.*. The PyPI release
+    # is 0.1.x, so an unpinned dependency installs a package that makes
+    # `import pynq` fail with ImportError.
+    'pynqmetadata @ git+https://github.com/Xilinx/PYNQ-Metadata@pynq-next',
     'pynqutils',
     "setuptools>=24.2.0",
     "cffi",
