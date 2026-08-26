@@ -2,10 +2,6 @@
 # Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
-ifneq (,$(filter pynqremote,$(MAKECMDGOALS)))
-override PYNQREMOTE = 1
-endif
-
 # Packages enabled in every PYNQ.remote base rootfs. Boards add
 # board-specific remote packages via REMOTE_PACKAGES_<board> in their .spec file.
 REMOTE_PACKAGES ?= grpc pynq-cpp
