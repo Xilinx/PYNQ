@@ -77,7 +77,7 @@ step_init_edf() {
     mkdir -p "${EDF_DIR}"
     cd "${EDF_DIR}"
     if [ ! -d ".repo" ]; then
-        repo init -u "${EDF_MANIFEST_URL}" -b "refs/tags/${EDF_MANIFEST_TAG}" \
+        repo init -q -u "${EDF_MANIFEST_URL}" -b "refs/tags/${EDF_MANIFEST_TAG}" \
             -m "${EDF_MANIFEST_FILE}" --depth=1
     fi
     local sync_jobs; sync_jobs=$(nproc)
