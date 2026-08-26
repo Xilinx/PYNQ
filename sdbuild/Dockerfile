@@ -33,6 +33,9 @@ RUN apt-get update \
     libfontconfig1 libfreetype6 libsm6 libice6 libglib2.0-0t64 libtinfo6 \
  # Locale for Vivado
  && locale-gen en_US.utf8 && update-locale \
+ # Pin tar before USN-8510 openat2 backport (EDF 2025.2 / pseudo 1.9.0)
+ && apt-get install -y --allow-downgrades tar=1.35+dfsg-3build1 \
+ && apt-mark hold tar \
  # Clean up APT
  && rm -rf /var/lib/apt/lists/*
 
