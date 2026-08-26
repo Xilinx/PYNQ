@@ -1,0 +1,58 @@
+#!/bin/bash
+# On-target PYNQ.remote appliance self-test runner.
+# Installed on remote images by the pynq-remote-selftest Yocto recipe.
+# Sources modular checks from /usr/local/share/pynq-remote-selftest/tests/remote/.
+
+ROOT=/usr/local/share/pynq-remote-selftest
+export SELFTEST_ROOT="$ROOT"
+PORT="${PYNQ_REMOTE_PORT:-7967}"
+export PYNQ_REMOTE_PORT="$PORT"
+
+_passed=0
+_failed=0
+_skipped=0
+
+ok()  { _passed=$((_passed + 1)); echo "  [PASS] $1"; }
+bad() { _failed=$((_failed + 1)); echo "  [FAIL] $1"; }
+
+run_remote() {
+    local label=$1
+    local script=$2
+    echo "$label"
+    local p f s
+    read -r p f s < <(bash -c "
+source '$ROOT/lib/results.sh'
+ok()  { _passed=\$((_passed + 1)); printf '  [PASS] %s\n' \"\$1\" >&2; }
+bad() { _failed=\$((_failed + 1)); printf '  [FAIL] %s\n' \"\$1\" >&2; }
+skip(){ _skipped=\$((_skipped + 1)); printf '  [SKIP] %s\n' \"\$1\" >&2; }
+source '$script'
+echo \"\$_passed \$_failed \$_skipped\"
+")
+    _passed=$((_passed + p))
+    _failed=$((_failed + f))
+    _skipped=$((_skipped + s))
+}
+
+echo "======================================================"
+echo " PYNQ.remote appliance self-test"
+echo " host: $(hostname)   kernel: $(uname -r)"
+echo "======================================================"
+
+run_remote "[1] pynq-remote service" "$ROOT/tests/remote/pynq_remote_service.sh"
+run_remote "[2] gRPC server listening on :${PORT}" "$ROOT/tests/remote/grpc_listen.sh"
+run_remote "[3] XRT / zocl (PL access)" "$ROOT/tests/remote/xrt_zocl.sh"
+run_remote "[4] FPGA manager (bitstream download)" "$ROOT/tests/remote/fpga_manager.sh"
+echo "[5] Networking"
+netinfo=$(ip -4 -o addr show scope global 2>/dev/null | awk '{print $2" "$4}' | head -1)
+if [[ -n $netinfo ]]; then ok "network up: $netinfo"; else bad "no interface has a global IPv4 address"; fi
+echo "[6] Static MAC from EEPROM (not random/locally-administered)"
+run_remote "" "$ROOT/tests/remote/mac.sh"
+run_remote "[7] Board identity (read by the remote host client)" "$ROOT/tests/remote/board_identity.sh"
+echo "[8] systemd failed units"
+failed=$(systemctl --failed --no-legend --plain 2>/dev/null | awk '{print $1}' | tr '\n' ' ')
+if [[ -z $failed ]]; then ok "no failed units"; else bad "failed units: $failed"; fi
+
+echo "------------------------------------------------------"
+echo " summary: ${_passed} passed, ${_failed} failed, ${_skipped} skipped"
+echo "======================================================"
+[[ "$_failed" -eq 0 ]]
