@@ -444,7 +444,7 @@ console_scripts = [
     "pynq-get-notebooks = pynq._cli.get_notebooks:main",
 ]
 if REMOTE_INSTALL:
-    console_scripts.append("pynq-remote-selftest = pynq.remote.selftest:main")
+    console_scripts.append("pynq-remote-selftest = pynq.remote.selftest.runner:main")
 
 
 setup(
