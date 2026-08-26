@@ -55,7 +55,7 @@ echo "============================================"
 mkdir -p "${EDF_DIR}"
 cd "${EDF_DIR}"
 if [ ! -d ".repo" ]; then
-    repo init -u "${EDF_MANIFEST_URL}" -b "refs/tags/${EDF_MANIFEST_TAG}" \
+    repo init -q -u "${EDF_MANIFEST_URL}" -b "refs/tags/${EDF_MANIFEST_TAG}" \
         -m "${EDF_MANIFEST_FILE}" --depth=1
 fi
 sync_jobs=$(nproc); [ "${sync_jobs}" -gt 8 ] && sync_jobs=8
