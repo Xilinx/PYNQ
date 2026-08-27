@@ -5,11 +5,15 @@ from results import bad, ok, sh, main_entry
 
 
 def run(p=None):
+    # PS GPIO controller label by family: Zynq, ZynqMP, Versal.
+    ps_gpio_labels = ("zynq_gpio", "zynqmp_gpio", "versal_gpio")
     _, labels = sh("cat /sys/class/gpio/gpiochip*/label 2>/dev/null | tr '\\n' ' '")
-    if "zynqmp_gpio" in labels.split():
-        ok("zynqmp_gpio controller exposed (labels: %s)" % labels)
+    found = [l for l in labels.split() if l in ps_gpio_labels]
+    if found:
+        ok("PS GPIO controller exposed: %s (labels: %s)" % (found[0], labels))
     else:
-        bad("no zynqmp_gpio gpiochip label (labels: %s)" % (labels or "none"))
+        bad("no PS GPIO gpiochip label, expected one of %s (labels: %s)"
+            % ("/".join(ps_gpio_labels), labels or "none"))
     try:
         from pynq import GPIO
 

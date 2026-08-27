@@ -244,6 +244,10 @@ class GPIO:
         else:
             valid_labels.append('zynqmp_gpio')
             valid_labels.append('zynq_gpio')
+            # Versal's PS GPIO, the analogue of zynqmp_gpio. The PMC also
+            # exposes a 'pmc_gpio' controller; pass it as target_label if
+            # that is the one you want.
+            valid_labels.append('versal_gpio')
 
         for root, dirs, files in os.walk('/sys/class/gpio'):
             for name in dirs:
