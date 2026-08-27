@@ -14,7 +14,16 @@ cd /home/xilinx
 mkdir -p jupyter_notebooks
 
 # clone and then install extra packages
-python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Metadata.git
+#
+# PYNQ-Metadata must come from pynq-next, not the default branch. main is
+# 0.1.9 and has no VersalProcSysCore, which pynq/metadata/clock_dict_view.py
+# imports, so `import pynq` fails outright on any Versal board:
+#   ImportError: cannot import name 'VersalProcSysCore' from 'pynqmetadata'
+# 0.1.9 also requires pydantic<2 and silently downgrades the 2.x pinned in
+# python_packages_noble/requirements.txt to 1.9.1. The pin in setup.py does
+# not help here: the sdist below is installed with --no-deps, so setup.py's
+# requirements are never resolved in this flow.
+python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Metadata.git@pynq-next
 python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Utils.git
 
 cd pynq_git
