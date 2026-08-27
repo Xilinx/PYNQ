@@ -16,7 +16,6 @@ def run(p=None):
         dma = base.dma
     except AttributeError:
         raise FailError("dma not in overlay")
-    dma.reset()
     n = 1024
     tx = allocate(shape=(n,), dtype=np.uint32)
     rx = allocate(shape=(n,), dtype=np.uint32)
