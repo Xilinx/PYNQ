@@ -1,6 +1,14 @@
 [Unit]
 Description = PYNQ X11 Server
 After = systemd-user-sessions.service network.target sound.target
+# Only start X where a display actually exists. The presence of a DRM device
+# is not enough: zocl, XRT's accelerator DRM driver, registers /dev/dri/card0
+# on every PYNQ image and has no CRTC at all. xorg.conf names no BusID, so
+# armsoc opens card0 blindly, finds no usable screen and X exits 1 --
+# leaving a failed unit on any board without a display output. DRM connector
+# directories (card0-DP-1, card0-HDMI-A-1, ...) exist only for a card with
+# real outputs, so this starts X exactly where there is something to draw on.
+ConditionPathExistsGlob = /sys/class/drm/card*-*
 
 [Service]
 Type = simple
