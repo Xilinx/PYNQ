@@ -16,7 +16,9 @@ def run(p=None):
         dma = base.dma
     except AttributeError:
         raise FailError("dma not in overlay")
-    dma.reset()
+    # No dma.reset() here: pynq.lib.dma.DMA has no such method, and needs
+    # none -- DMA.__init__ runs set_up_tx_channel()/set_up_rx_channel(), so
+    # the channels are configured by the overlay download just above.
     n = 1024
     tx = allocate(shape=(n,), dtype=np.uint32)
     rx = allocate(shape=(n,), dtype=np.uint32)
