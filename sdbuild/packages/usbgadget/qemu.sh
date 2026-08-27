@@ -29,5 +29,9 @@ subnet 192.168.3.0 netmask 255.255.255.0 {
 EOT
 
 systemctl disable isc-dhcp-server6
+# create_rootfs.sh disables both units in the base image; this package has
+# just written INTERFACES="usb0" into /etc/default/isc-dhcp-server, so the
+# v4 one is wanted here.
+systemctl enable isc-dhcp-server
 systemctl enable usbgadget
 systemctl enable serial-getty@ttyGS0

@@ -27,5 +27,8 @@ iface wlan0 inet dhcp
 	wpa-conf /etc/wpa_supplicant.conf
 EOT
 
-# Uncomment the following line to enable wireless access point by default
+# Uncomment the following lines to enable wireless access point by default.
+# isc-dhcp-server is disabled in the base image by create_rootfs.sh, and the
+# access point needs it to hand out leases on wlan1.
 # systemctl enable wpa_ap.service
+# systemctl enable isc-dhcp-server

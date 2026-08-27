@@ -100,6 +100,13 @@ systemctl mask ua-auto-attach.service
 # Disable apport crash reporter (unused on the appliance; its oneshot fails)
 systemctl mask apport.service
 
+# Disable the DHCP server. multistrap pulls isc-dhcp-server in as a dependency
+# and Ubuntu's postinst leaves both units enabled, but nothing writes
+# /etc/default/isc-dhcp-server unless the usbgadget or wpa_ap package is in the
+# board's package list -- so on every other board they just fail at boot.
+# usbgadget re-enables the v4 unit after configuring it for usb0.
+systemctl disable isc-dhcp-server isc-dhcp-server6
+
 # Disable default graphical environment
 systemctl set-default multi-user
 
