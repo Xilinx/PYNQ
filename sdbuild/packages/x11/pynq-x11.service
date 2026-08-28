@@ -1,6 +1,6 @@
 [Unit]
 Description = PYNQ X11 Server
-After = systemd-user-sessions.service network.target sound.target
+After = bootpy.service systemd-user-sessions.service network.target sound.target
 
 [Service]
 Type = simple
