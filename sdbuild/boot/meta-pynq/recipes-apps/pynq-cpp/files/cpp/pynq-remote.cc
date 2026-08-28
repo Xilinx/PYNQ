@@ -26,14 +26,20 @@
 #include <mmio.grpc.pb.h>
 #include <buffer.grpc.pb.h>
 #include <gpio.grpc.pb.h>
+#ifdef RFSOC
+#include <xrfclk.grpc.pb.h>
+#include <xrfdc.grpc.pb.h>
+#endif
 
 #include "buffer.cc"
 #include "mmio.h"
 #include "device.h"
 #include "gpio.h"
+#ifdef RFSOC
+#include "xrfclk.h"
+#include "xrfdc.h"
+#endif
 
-#include <xrt/xclhal2.h>
-#include <xrt/xrt.h>
 #include <xrt/xrt_bo.h>
 #include <xrt/xrt_device.h>
 
@@ -98,6 +104,32 @@ using gpio::GetGpioBasePathResponse;
 using gpio::GetGpioNPinsRequest;
 using gpio::GetGpioNPinsResponse;
 using gpio::Gpio;
+#ifdef RFSOC
+using xrfclk::FindDevicesRequest;
+using xrfclk::FindDevicesResponse;
+using xrfclk::WriteLmkRegsRequest;
+using xrfclk::WriteLmkRegsResponse;
+using xrfclk::WriteLmxRegsRequest;
+using xrfclk::WriteLmxRegsResponse;
+using xrfclk::Xrfclk;
+using xrfdc::CfgInitializeRequest;
+using xrfdc::CfgInitializeResponse;
+using xrfdc::GetIPStatusRequest;
+using xrfdc::GetIPStatusResponse;
+using xrfdc::TileControlRequest;
+using xrfdc::TileControlResponse;
+using xrfdc::SetupFIFORequest;
+using xrfdc::DynamicPLLConfigRequest;
+using xrfdc::GetFabRdVldWordsResponse;
+using xrfdc::GetFabWrVldWordsResponse;
+using xrfdc::GetDitherResponse;
+using xrfdc::GetDecoderModeResponse;
+using xrfdc::GetOutputCurrResponse;
+using xrfdc::GetInvSincFIRResponse;
+using xrfdc::GetDataPathModeResponse;
+using xrfdc::GetIMRPassModeResponse;
+using xrfdc::GetDACCompModeResponse;
+#endif
 
 #define DEBUG
 
@@ -863,6 +895,10 @@ class RemoteDeviceImpl final : public RemoteDevice::Service
 private:
     const std::string FIRMWARE = "/lib/firmware/";                               ///< Directory for bitstream files
     Device remote_device_;
+#ifdef RFSOC
+    XrfdcImpl* xrfdc_service_ = nullptr;   ///< Notified on bitstream download so it can drop its stale RFDC mapping.
+    XrfclkImpl* xrfclk_service_ = nullptr; ///< Notified on bitstream download so it can drop its cached clock-device state.
+#endif
 
 public:
     std::string device_name = "";
@@ -878,6 +914,19 @@ public:
             std::cout << "Created directory: " << FIRMWARE << std::endl;
         }
     }
+
+#ifdef RFSOC
+    /**
+     * @brief Register the xrfdc/xrfclk service impls so download() can invalidate
+     * their cached state after the PL is reprogrammed. Both pointers are non-owning;
+     * the services outlive this object (they live in RunServer's stack frame).
+     */
+    void set_rfsoc_services(XrfdcImpl* xrfdc, XrfclkImpl* xrfclk)
+    {
+        xrfdc_service_ = xrfdc;
+        xrfclk_service_ = xrfclk;
+    }
+#endif
 
     /**
      * @brief Handles the SetBitstreamAttrs gRPC request.
@@ -913,6 +962,19 @@ public:
         }
         file.close();
         remote_device_.download(remote_device_.get_bitstream_attrs().first);
+
+#ifdef RFSOC
+        // The PL has been reprogrammed, so any cached RFDC/clock state on the
+        // server now points at the old overlay. Tell the dependent services to
+        // drop it; the client is expected to re-run xrfdc.CfgInitialize and
+        // xrfclk programming against the new bitstream.
+        if (xrfdc_service_) {
+            xrfdc_service_->invalidate();
+        }
+        if (xrfclk_service_) {
+            xrfclk_service_->invalidate();
+        }
+#endif
 
         return grpc::Status::OK;
     }
@@ -1018,6 +1080,11 @@ void RunServer(uint16_t port)
     MMIOImpl mmio_service;                  // Create MMIO rpc handler
     BufferImpl buffer_service;              // Create Buffer rpc handler
     GPIOImpl gpio_service;                  // Create Gpio rpc handler
+#ifdef RFSOC
+    XrfclkImpl xrfclk_service;              // Create Xrfclk rpc handler
+    XrfdcImpl xrfdc_service;                // Create Xrfdc rpc handler
+    remote_device_service.set_rfsoc_services(&xrfdc_service, &xrfclk_service);
+#endif
     remote_device_service.device_name = buffer_service.device_name;
 
     grpc::EnableDefaultHealthCheckService(true);
@@ -1028,6 +1095,10 @@ void RunServer(uint16_t port)
     builder.RegisterService(&mmio_service);
     builder.RegisterService(&buffer_service);
     builder.RegisterService(&gpio_service);
+#ifdef RFSOC
+    builder.RegisterService(&xrfclk_service);
+    builder.RegisterService(&xrfdc_service);
+#endif
 
     std::unique_ptr<Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << std::endl;

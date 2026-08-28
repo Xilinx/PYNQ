@@ -1,4 +1,5 @@
-#   Copyright (c) 2021, Xilinx, Inc.
+#   Copyright (c) 2021-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import abc
@@ -7,7 +8,13 @@ import re
 from copy import deepcopy
 from xml.etree import ElementTree
 
-from pynq.ps import CPU_ARCH, CPU_ARCH_IS_SUPPORTED, ZU_ARCH, ZYNQ_ARCH
+from pynq.ps import (
+    CPU_ARCH,
+    CPU_ARCH_IS_SUPPORTED,
+    ZU_ARCH,
+    ZYNQ_ARCH,
+    _is_versal_host,
+)
 
 
 
@@ -654,8 +661,106 @@ class _HWHUltrascale(_HWHABC):
         )
 
 
+class _HWHVersal(_HWHABC):
+    """Helper Class to extract information from a HWH configuration file
+
+    This class works for the Versal devices.
+
+    Versal's CIPS packs most of its settings into a single space-delimited
+    `KEY VALUE` string parameter, `PS_PMC_CONFIG`, rather than exposing
+    each one as its own XML parameter. Versal exposes sixteen individual
+    one-bit PL-to-PS interrupt ports rather than wide buses; `pl_ps_irq<n>`
+    is hwirq 116 + n.
+
+    """
+
+    family_ps = "versal_cips"
+    family_irq = {
+        "pl_ps_irq{}".format(i): ((116 + i, 1),) for i in range(16)
+    }
+    family_gpio = "GPIO_0"
+
+    @staticmethod
+    def _find_ps_pmc_config(mod, key):
+        """Return a value from the CIPS compound configuration parameter.
+
+        Parameters
+        ----------
+        mod : Element
+            The current XML element under parsing.
+        key : str
+            The key to look up inside the compound parameter.
+
+        Returns
+        -------
+        str
+            The value for `key`, or None when it is not present.
+
+        """
+        for name in ("PS_PMC_CONFIG", "PS_PMC_CONFIG_INTERNAL"):
+            element = mod.find("./PARAMETERS/*[@NAME='{0}']".format(name))
+            if element is None:
+                continue
+            config = element.get("VALUE")
+            if config is None:
+                continue
+            match = re.search(
+                r"(?:^|\s){0}\s+(\S+)".format(re.escape(key)), config
+            )
+            if match:
+                return match.group(1)
+        return None
+
+    def find_clock_divisor(self, mod, clk_id, div_id):
+        """Return the clock divisor for the given clock ID.
+
+        The CIPS configuration records which PL clocks are in use but not
+        their divisors, so this always reports 1. The PL clock frequencies
+        are fixed by the boot PDI; read `Clocks.fclk<n>_mhz` for the rate
+        the hardware is running at.
+
+        Parameters
+        ----------
+        mod : Element
+            The current XML element under parsing.
+        clk_id : int
+            The ID of the PL clock, can be 0 - 3.
+        div_id : int
+            The ID of the clock divisor, can be 0 - 1.
+
+        Returns
+        -------
+        int
+            The clock divisor value in decimal.
+
+        """
+        return 1
+
+    def find_clock_enable(self, mod, clk_id):
+        """Return the clock enable for the given clock ID.
+
+        Parameters
+        ----------
+        mod : Element
+            The current XML element under parsing.
+        clk_id : int
+            The ID of the PL clock, can be 0 - 3.
+
+        Returns
+        -------
+        int
+            The clock enable value in decimal (1 means enabled).
+
+        """
+        enable = self._find_ps_pmc_config(
+            mod, "PS_USE_PMCPL_CLK{0}".format(clk_id)
+        )
+        return int(enable) if enable is not None else 0
+
+
 if CPU_ARCH == ZU_ARCH:
-    HWH = _HWHUltrascale
+    # Versal is also aarch64, so pick the parser from the device tree.
+    HWH = _HWHVersal if _is_versal_host() else _HWHUltrascale
 elif CPU_ARCH == ZYNQ_ARCH:
     HWH = _HWHZynq
 else:

@@ -4,3 +4,5 @@ rootfs.img
 build
 output
 ccache
+edf-cache
+prebuilt/*

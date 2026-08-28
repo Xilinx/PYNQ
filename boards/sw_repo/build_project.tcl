@@ -53,7 +53,7 @@ if {[file exists [pwd]/$hw_proj]} {
 }
 setws .
 repo -set [pwd]
-platform create -name $hw_proj -hw $xsa -proc ps7_cortexa9_0 -os standalone
+platform create -name $hw_proj -hw $xsa -proc psu_cortexa53_0 -os standalone
 
 set processors \
 [hsi::get_cells -filter {IP_TYPE == PROCESSOR && IP_NAME == microblaze}]

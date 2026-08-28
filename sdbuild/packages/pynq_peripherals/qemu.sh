@@ -13,6 +13,7 @@ pip install git+https://github.com/Xilinx/PYNQ_peripherals.git
 # TODO pynq CLI depends on XRT, XRT not working in QEMU when `xbutil dump` called
 # pynq get-notebooks pynq_peripherals -p $PYNQ_JUPYTER_NOTEBOOKS
 mkdir -p $PYNQ_JUPYTER_NOTEBOOKS/pynq_peripherals
-cp -r /usr/local/share/pynq-venv/lib/python3.10/site-packages/pynq_peripherals/notebooks/* \
+pyver="$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])')"
+cp -r /usr/local/share/pynq-venv/lib/python${pyver}/site-packages/pynq_peripherals/notebooks/* \
   $PYNQ_JUPYTER_NOTEBOOKS/pynq_peripherals
   

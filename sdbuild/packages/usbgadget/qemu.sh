@@ -28,5 +28,6 @@ subnet 192.168.3.0 netmask 255.255.255.0 {
 }
 EOT
 
+systemctl disable isc-dhcp-server6
 systemctl enable usbgadget
 systemctl enable serial-getty@ttyGS0

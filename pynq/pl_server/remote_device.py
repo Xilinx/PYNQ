@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 
 import pynq._3rdparty.tinynumpy as tnp
-from ..metadata.runtime_metadata_parser import RuntimeMetadataParser
+from pynqmetadata.views.runtime import RuntimeMetadataParser
 from pynqmetadata.frontends import Metadata
 from .device import Device
 from .embedded_device import (
@@ -1050,7 +1050,7 @@ class RemoteBuffer(np.ndarray):
             self.coherent = obj.coherent
             self.stub = obj.stub
             self.buffer_id = obj.buffer_id
-            obj.device = obj.device
+            self.device = obj.device
         else:
             self.stub = None
             self.buffer_id = None

@@ -1,0 +1,50 @@
+{
+  "board": "ZCU104",
+  "defaults": { "hardware": false, "timeout": 30 },
+  "tests": [
+    { "id": "bash/resize", "name": "Root filesystem auto-resize" },
+    { "id": "bash/networking", "name": "Networking (global IPv4)" },
+    { "id": "python/cma", "name": "CMA pool" },
+    { "id": "python/jupyter", "name": "Jupyter server" },
+    { "id": "python/xrt", "name": "XRT runtime" },
+    { "id": "bash/systemd_units", "name": "systemd failed units" },
+    { "id": "python/image_identity", "name": "Image identity (PynqLinux; version read from image)" },
+    { "id": "python/user_groups", "name": "xilinx user + groups" },
+    { "id": "python/notebooks", "name": "Notebook delivery" },
+    { "id": "bash/serial_autologin", "name": "Serial console autologin" },
+    { "id": "bash/merged_usr", "name": "merged-/usr layout" },
+    { "id": "python/baseconfig", "name": "base-config patches" },
+    { "id": "python/sysfs_gpio", "name": "sysfs GPIO interface" },
+    { "id": "python/dropped_libs", "name": "Dropped libs (arduino/rpi/logictools removed)" },
+    { "id": "python/pmod_firmware", "name": "Pmod/Grove MicroBlaze firmware installed" },
+    { "id": "python/pybind11", "name": "pybind11 C++ compile + import", "timeout": 120 },
+    { "id": "python/overlay_allocate", "name": "PYNQ overlay + DMA buffer", "timeout": 90,
+      "params": { "bitstream": "base.bit" } },
+    { "id": "python/leds", "name": "LEDs (AXI GPIO out)", "timeout": 20, "hardware": true,
+      "params": { "bitstream": "base.bit", "expected_count": 4 } },
+    { "id": "python/buttons_switches", "name": "Buttons + DIP switches (AXI GPIO in)", "timeout": 20, "hardware": true,
+      "params": { "bitstream": "base.bit", "expected_buttons": 4, "expected_switches": 4 } },
+    { "id": "python/register_map", "name": "register_map read/write", "timeout": 20, "hardware": true,
+      "params": { "bitstream": "base.bit", "led_ip": "gpio_leds", "button_ip": "gpio_btns" } },
+    { "id": "python/pmod_oled_grove", "name": "Pmod OLED + Grove temperature", "timeout": 60, "hardware": true,
+      "params": {
+        "bitstream": "base.bit",
+        "oled_port": "PMODA",
+        "grove_port": "PMODB",
+        "grove_pin": "G4"
+      } },
+    { "id": "python/pmod_microblaze", "name": "PMODA MicroBlaze IOP (compile + run)", "timeout": 90, "hardware": true,
+      "params": { "bitstream": "base.bit", "port": "PMODA" } },
+    { "id": "python/hdmi", "name": "HDMI Tx->Rx loopback", "timeout": 120, "hardware": true,
+      "params": { "bitstream": "base.bit" } },
+    { "id": "python/webcam", "name": "USB webcam (/dev/video0)", "timeout": 35, "hardware": true },
+    { "id": "bash/mac", "name": "Static MAC from EEPROM (not random)" },
+    { "id": "python/internet", "name": "Internet connectivity", "timeout": 45 },
+    { "id": "python/deb_src", "name": "deb-src source availability (apt-get source)", "timeout": 40 },
+    { "id": "python/overlay_download", "name": "Overlay download + install (pynq-helloworld)", "timeout": 300,
+      "params": {
+        "package": "pynq-helloworld",
+        "nb_dir": "/tmp/pynq-helloworld-nb"
+      } }
+  ]
+}

@@ -22,6 +22,8 @@ required = [
     'pynqutils',
     "setuptools>=24.2.0",
     "cffi",
+    # pycparser 3.0 removed the plyparser module that pynqmetadata still imports.
+    "pycparser<3",
     "numpy<2.0",
     "nest_asyncio",
     'grpcio==1.64.0',
@@ -68,7 +70,10 @@ def find_overlays(path):
             f
             for f in os.listdir(path)
             if os.path.isdir(os.path.join(path, f))
-            and len(glob.glob(os.path.join(path, f, "*.bit"))) > 0
+            and (
+                glob.glob(os.path.join(path, f, "*.bit"))
+                or glob.glob(os.path.join(path, f, "*.pdi"))
+            )
         ]
     else:
         return []
@@ -100,10 +105,7 @@ pynq_package_files = []
 extend_pynq_package(
     [
         "pynq/lib/pynqmicroblaze",
-        "pynq/lib/arduino",
         "pynq/lib/pmod",
-        "pynq/lib/rpi",
-        "pynq/lib/logictools",
         "pynq/pl_server/default.xclbin",
     ]
 )
@@ -437,6 +439,14 @@ else:
         ext_modules = []
 
 
+console_scripts = [
+    "pynq = pynq._cli.cmd:main",
+    "pynq-get-notebooks = pynq._cli.get_notebooks:main",
+]
+if REMOTE_INSTALL:
+    console_scripts.append("pynq-remote-selftest = pynq.remote.selftest.runner:main")
+
+
 setup(
     name="pynq",
     version=pynq_version,
@@ -458,10 +468,7 @@ setup(
         "pynq": pynq_package_files,
     },
     entry_points={
-        "console_scripts": [
-            "pynq = pynq._cli.cmd:main",
-            "pynq-get-notebooks = pynq._cli.get_notebooks:main",
-        ],
+        "console_scripts": console_scripts,
         "distutils.commands": [
             "download_overlays = pynqutils.setup_utils:du_download_overlays"
         ],

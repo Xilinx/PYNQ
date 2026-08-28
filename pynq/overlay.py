@@ -1,4 +1,5 @@
 #   Copyright (c) 2016-2021, Xilinx, Inc.
+#   Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -14,7 +15,7 @@ import pynqutils
 from pynqmetadata.frontends import Metadata
 
 from .bitstream import Bitstream
-from .metadata.append_drivers_pass import bind_drivers_to_metadata
+from pynqmetadata.views.runtime.append_drivers_pass import bind_drivers_to_metadata
 from .mmio import MMIO
 from .ps import Clocks
 from .registers import RegisterMap
@@ -421,12 +422,13 @@ class Overlay(Bitstream):
         for i in self.clock_dict:
             if "enable" in self.clock_dict[i]:
                 enable = self.clock_dict[i]["enable"]
-                div0 = self.clock_dict[i]["divisor0"]
-                div1 = self.clock_dict[i]["divisor1"]
-                if enable:
-                    Clocks.set_pl_clk(i, div0, div1)
-                else:
-                    Clocks.set_pl_clk(i)
+                if "divisor0" in self.clock_dict[i]:
+                    div0 = self.clock_dict[i]["divisor0"]
+                    div1 = self.clock_dict[i]["divisor1"]
+                    if enable:
+                        Clocks.set_pl_clk(i, div0, div1)
+                    else:
+                        Clocks.set_pl_clk(i)
 
         super().download(self.parser)
         if dtbo:

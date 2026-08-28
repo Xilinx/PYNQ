@@ -1,0 +1,20 @@
+/* VCK190 board-specific device-tree nodes (appended to the machine's SDT base
+ * dts at bitbake time via PYNQ_BOARD_DTSI). */
+
+/ {
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0x20000000>;
+			alignment = <0x0 0x2000>;
+			/* Pin the cma pool to the low 2 GB DDR bank so the FPGA-manager
+			 * PDI DMA gets DMA-reachable contiguous memory. */
+			alloc-ranges = <0x0 0x0 0x0 0x80000000>;
+			linux,cma-default;
+		};
+	};
+};
