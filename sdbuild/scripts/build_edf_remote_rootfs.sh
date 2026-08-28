@@ -56,10 +56,15 @@ mkdir -p "${EDF_DIR}"
 cd "${EDF_DIR}"
 if [ ! -d ".repo" ]; then
     repo init -q -u "${EDF_MANIFEST_URL}" -b "refs/tags/${EDF_MANIFEST_TAG}" \
-        -m "${EDF_MANIFEST_FILE}" --depth=1
+        -m "${EDF_MANIFEST_FILE}" --depth=1 </dev/null
+    if [ ! -d ".repo" ]; then
+        echo "ERROR: repo init did not create ${EDF_DIR}/.repo." >&2
+        echo "       Remove any stray .repo directory in a parent of EDF_DIR." >&2
+        exit 1
+    fi
 fi
 sync_jobs=$(nproc); [ "${sync_jobs}" -gt 8 ] && sync_jobs=8
-repo sync -j"${sync_jobs}" --force-sync
+repo sync -q -j"${sync_jobs}" --force-sync
 
 # Step 2: source the EDF build env, configure caches, add the meta-pynq layer.
 set +u
