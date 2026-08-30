@@ -141,6 +141,65 @@ ZU_CRF_REGISTERS = {
                   'fields': ZU_ARM_FIELDS}
 }
 
+VERSAL_CLK_FIELDS = {
+    'CLKACT': {'access': 'read-write', 'bit_offset': 24, 'bit_width': 1,
+               'description': 'Enable the clock output'},
+    'DIVISOR0': {'access': 'read-write', 'bit_offset': 8, 'bit_width': 10,
+                 'description': 'Divisor of the clock source'},
+    'SRCSEL': {'access': 'read-write', 'bit_offset': 0, 'bit_width': 3,
+               'description': 'Clock generator input source'}
+}
+
+VERSAL_PLL_FIELDS = {
+    'POST_SRC': {'access': 'read-write', 'bit_offset': 24, 'bit_width': 3,
+                 'description': 'Select the clock source after the PLL'},
+    'PRE_SRC': {'access': 'read-write', 'bit_offset': 20, 'bit_width': 3,
+                'description': 'Select the clock source for the PLL input'},
+    'CLKOUTDIV': {'access': 'read-write', 'bit_offset': 16, 'bit_width': 2,
+                  'description': 'Divide the VCO by 1, 2, 4 or 8'},
+    'FBDIV': {'access': 'read-write', 'bit_offset': 8, 'bit_width': 8,
+              'description': 'Feedback divisor for the PLL'}
+}
+
+VERSAL_ACPU_FIELDS = {
+    'CLKACT': {'access': 'read-write', 'bit_offset': 25, 'bit_width': 1,
+               'description': 'Enable the clock output'},
+    'DIVISOR0': {'access': 'read-write', 'bit_offset': 8, 'bit_width': 10,
+                 'description': 'Divisor of the clock source'},
+    'SRCSEL': {'access': 'read-write', 'bit_offset': 0, 'bit_width': 3,
+               'description': 'Clock generator input source'}
+}
+
+VERSAL_CRP_REGISTERS = {
+    'PMCPLL_CTRL': {'address_offset': 0x040, 'access': 'read-write',
+                    'size': 32, 'description': 'PMC PLL Control',
+                    'fields': VERSAL_PLL_FIELDS},
+    'NOCPLL_CTRL': {'address_offset': 0x050, 'access': 'read-write',
+                    'size': 32, 'description': 'NOC PLL Control',
+                    'fields': VERSAL_PLL_FIELDS},
+    'PL0_REF_CTRL': {'address_offset': 0x5c0, 'access': 'read-write',
+                     'size': 32, 'description': 'PL Clock 0 Control',
+                     'fields': VERSAL_CLK_FIELDS},
+    'PL1_REF_CTRL': {'address_offset': 0x5c4, 'access': 'read-write',
+                     'size': 32, 'description': 'PL Clock 1 Control',
+                     'fields': VERSAL_CLK_FIELDS},
+    'PL2_REF_CTRL': {'address_offset': 0x5c8, 'access': 'read-write',
+                     'size': 32, 'description': 'PL Clock 2 Control',
+                     'fields': VERSAL_CLK_FIELDS},
+    'PL3_REF_CTRL': {'address_offset': 0x5cc, 'access': 'read-write',
+                     'size': 32, 'description': 'PL Clock 3 Control',
+                     'fields': VERSAL_CLK_FIELDS}
+}
+
+VERSAL_CRF_REGISTERS = {
+    'APLL_CTRL': {'address_offset': 0x040, 'access': 'read-write',
+                  'size': 32, 'description': 'APU PLL Control',
+                  'fields': VERSAL_PLL_FIELDS},
+    'APU_CTRL': {'address_offset': 0x10c, 'access': 'read-write',
+                 'size': 32, 'description': 'APU Reference Clock Control',
+                 'fields': VERSAL_ACPU_FIELDS}
+}
+
 
 class _ClocksMeta(type):
     """Meta class for all the PS and PL clocks not exposed to users.
@@ -283,7 +342,7 @@ class _ClocksMeta(type):
             The index of the PL clock to be changed, from 0 to 3.
 
         """
-        cls._instance.get_pl_clk(clk_idx)
+        return cls._instance.get_pl_clk(clk_idx)
 
     def set_pl_clk(cls, clk_idx, div0=None, div1=None,
                    clk_mhz=DEFAULT_PL_CLK_MHZ):
@@ -476,10 +535,10 @@ class _ClocksUltrascale(_ClocksBase):
     CRF_APB_ADDRESS = 0xFD1A0000
     CRX_APB_SRC_DEFAULT = 0
     PLX_CTRL_SRC_DEFAULT = 0
-
+    
     VALID_CLOCK_DIV_PRODUCTS = {i*j: (i, j)
-                                for i in range(1 << 6)
-                                for j in range(1 << 6)}
+                                for i in range(1, 1 << 6)
+                                for j in range(1, 1 << 6)}
 
     def __init__(self, src_clk_mhz=DEFAULT_SRC_CLK_MHZ, device=None):
         self._ref_clk_mhz = src_clk_mhz
@@ -594,10 +653,10 @@ class _ClocksZynq(_ClocksBase):
     """
     DEFAULT_SRC_CLK_MHZ = 50.0
     SLCR_BASE_ADDRESS = 0xF8000000
-
+    
     VALID_CLOCK_DIV_PRODUCTS = {i*j: (i, j)
-                                for i in range(1 << 6)
-                                for j in range(1 << 6)}
+                                for i in range(1, 1 << 6)
+                                for j in range(1, 1 << 6)}
 
     def __init__(self, ref_clk_mhz=DEFAULT_SRC_CLK_MHZ, device=None):
         self._ref_clk_mhz = ref_clk_mhz
@@ -701,69 +760,140 @@ class _ClocksVersal(_ClocksBase):
     """Implementation class for all Versal PS and PL clocks
     not exposed to users.
 
-    Versal clocks belong to the Platform Management Controller, which has
-    no userspace register interface equivalent to the ZynqMP CRL_APB and
-    CRF_APB banks, so the rates are read from the kernel's clock
-    framework under `SYSFS_CLK_BASE`.
-
-    Users should use the class `Clocks` instead.
+    Since this is the abstract base class for all Versal clocks, no
+    attributes or methods are exposed to users. Users should use the class
+    `Clocks` instead.
 
     """
-    SYSFS_CLK_BASE = '/sys/kernel/debug/clk'
-    PL_CLK_NAMES = ('pmc_pl0_ref', 'pmc_pl1_ref',
-                    'pmc_pl2_ref', 'pmc_pl3_ref')
-    CPU_CLK_NAME = 'apu_pll_out'
+    DEFAULT_SRC_CLK_MHZ = 33.3333
+    CRP_ADDRESS = 0xF1260000
+    CRF_ADDRESS = 0xFD1A0000
 
-    def __init__(self, device=None):
-        self.device = device
+    def __init__(self, src_clk_mhz=DEFAULT_SRC_CLK_MHZ, device=None):
+        self._ref_clk_mhz = src_clk_mhz
 
-    def _get_clk_mhz(self, name):
-        """Return the rate the Common Clock Framework reports for `name`.
+        from .mmio import MMIO
+        self._crp_mmio = MMIO(self.CRP_ADDRESS, 0x1000, device=device)
+        self._crf_mmio = MMIO(self.CRF_ADDRESS, 0x1000, device=device)
+
+        from .registers import RegisterMap
+        CrpRegisterMap = RegisterMap.create_subclass('CRP', VERSAL_CRP_REGISTERS)
+        CrfRegisterMap = RegisterMap.create_subclass('CRF', VERSAL_CRF_REGISTERS)
+
+        self._crp_registers = CrpRegisterMap(self._crp_mmio.array)
+        self._crf_registers = CrfRegisterMap(self._crf_mmio.array)
+
+        self.PL_CLK_CTRLS = [
+            self._crp_registers.PL0_REF_CTRL, self._crp_registers.PL1_REF_CTRL,
+            self._crp_registers.PL2_REF_CTRL, self._crp_registers.PL3_REF_CTRL
+        ]
+
+        self.PL_SRC_PLL_CTRLS = [
+            self._crp_registers.PMCPLL_CTRL, None,
+            None, self._crp_registers.NOCPLL_CTRL
+        ]
+
+        self.ACPU_SRC_PLL_CTRLS = [
+            self._crp_registers.PMCPLL_CTRL, None,
+            self._crf_registers.APLL_CTRL, self._crp_registers.NOCPLL_CTRL
+        ]
+
+    def set_pl_clk(self, clk_idx, div0=None, div1=None,
+                   clk_mhz=DEFAULT_PL_CLK_MHZ):
+        """This method sets a PL clock frequency.
+
+        Versal PL clocks have a single divisor, so `div1` is accepted for
+        signature compatibility and ignored.
+
+        The CPU, and other source clocks, by default, should not get changed.
+
+        Users have two options:
+        1. specify the frequency divider value directly (div0), or
+        2. specify the clock rate, in which case the divider value will be
+        calculated.
+
+        Note
+        ----
+        In case `div0` is specified, the parameter `clk_mhz` will be ignored.
 
         Parameters
         ----------
-        name : str
-            The clock name as it appears under `SYSFS_CLK_BASE`.
+        clk_idx : int
+            The index of the PL clock to be changed, from 0 to 3.
+        div0 : int
+            The frequency divider value.
+        div1 : int
+            Unused, the clock has a single divisor.
+        clk_mhz : float
+            The clock rate in MHz.
+
+        """
+        if clk_idx not in range(4):
+            raise ValueError("Valid PL clock index is 0 - 3.")
+
+        pl_clk_reg = self.PL_CLK_CTRLS[clk_idx]
+        div0_width = 10
+
+        if div0 is None:
+            src_clk_mhz = self._get_src_clk_mhz(pl_clk_reg.SRCSEL)
+            div0 = min(max(round(src_clk_mhz / clk_mhz), 1),
+                       (1 << div0_width) - 1)
+            if abs(clk_mhz - src_clk_mhz / div0) > 0.01 * clk_mhz:
+                warnings.warn(
+                    "Setting frequency to the closest possible value "
+                    "{}MHz.".format(round(src_clk_mhz / div0, 5)))
+
+        if div0 <= 0 or div0 > ((1 << div0_width) - 1):
+            raise ValueError("Frequency divider 0 value out of range.")
+
+        pl_clk_reg.CLKACT = 1
+        pl_clk_reg.DIVISOR0 = div0
+
+    def get_pll_mhz(self, pll_reg):
+        """The getter method for PLL output clocks.
+
+        Parameters
+        ----------
+        pll_reg : Register
+            The control register for a PLL
 
         Returns
         -------
         float
-            The clock rate in MHz.
+            The PLL output clock rate measured in MHz.
 
         """
-        rate_path = '{}/{}/clk_rate'.format(self.SYSFS_CLK_BASE, name)
-        try:
-            with open(rate_path, 'r') as f:
-                rate_hz = int(f.read().strip())
-        except (OSError, ValueError) as e:
-            raise RuntimeError('Cannot read the {} clock rate from {}: '
-                               '{}'.format(name, rate_path, e))
-        return round(rate_hz / 1e6, 6)
+        pll_fbdiv = pll_reg.FBDIV
+        pll_odiv = 1 << pll_reg.CLKOUTDIV
+
+        return round(self._ref_clk_mhz * pll_fbdiv / pll_odiv, 6)
 
     def get_pl_clk(self, clk_idx):
-        if clk_idx not in range(4):
-            raise ValueError('Valid PL clock index is 0 - 3.')
-        return self._get_clk_mhz(self.PL_CLK_NAMES[clk_idx])
+        """The getter method for PL clocks, which have a single divisor.
 
-    def set_pl_clk(self, clk_idx, div0=None, div1=None,
-                   clk_mhz=DEFAULT_PL_CLK_MHZ):
-        """Warn that Versal PL clocks cannot be set from PYNQ.
-
-        The PL clock frequencies are fixed by the boot PDI and changing
-        them requires a PMC EEMI call that PYNQ does not implement. An
-        overlay download sets every enabled PL clock, so warn rather than
-        raise, and change the frequency in the CIPS configuration of the
-        reference design instead.
+        The returned clock rate is measured in MHz.
 
         """
         if clk_idx not in range(4):
-            raise ValueError('Valid PL clock index is 0 - 3.')
-        warnings.warn('PL clocks cannot be set at runtime on Versal; set '
-                      'them in the CIPS configuration of the reference '
-                      'design instead.', UserWarning)
+            raise ValueError("Valid PL clock index is 0 - 3.")
+
+        pl_clk_reg = self.PL_CLK_CTRLS[clk_idx]
+        src_clk_idx = pl_clk_reg.SRCSEL
+        src_clk_mhz = self._get_src_clk_mhz(src_clk_idx)
+        pl_clk_odiv0 = pl_clk_reg.DIVISOR0
+        return round(src_clk_mhz / pl_clk_odiv0, 6)
 
     def get_cpu_mhz(self):
-        return self._get_clk_mhz(self.CPU_CLK_NAME)
+        """The getter method for CPU clock.
+
+        The returned clock rate is measured in MHz.
+
+        """
+        acpu_reg = self._crf_registers.APU_CTRL
+        arm_src_pll_idx = acpu_reg.SRCSEL
+        arm_clk_odiv = acpu_reg.DIVISOR0
+        src_pll_reg = self.ACPU_SRC_PLL_CTRLS[arm_src_pll_idx]
+        return round(self.get_pll_mhz(src_pll_reg) / arm_clk_odiv, 6)
 
 
 class Clocks(metaclass=_ClocksMeta):
