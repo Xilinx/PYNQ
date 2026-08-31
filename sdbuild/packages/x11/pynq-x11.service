@@ -1,6 +1,8 @@
 [Unit]
 Description = PYNQ X11 Server
 After = bootpy.service systemd-user-sessions.service network.target sound.target
+# Only start X where a DRM connector exists (zocl registers a card with none)
+ConditionPathExistsGlob = /sys/class/drm/card*-*
 
 [Service]
 Type = simple
