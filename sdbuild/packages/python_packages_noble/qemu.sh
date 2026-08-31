@@ -5,6 +5,9 @@ set -e
 
 cd /root
 
+# Ubuntu's matplotlib 3.6.3 leaks mpl_toolkits into the venv
+DEBIAN_FRONTEND=noninteractive apt-get purge -y python3-matplotlib
+
 export PYNQ_VENV=/usr/local/share/pynq-venv
 
 # --system-site-packages lets the venv see apt-installed python3 modules
