@@ -10,8 +10,7 @@ interrupts received from the subsystem.
 
 Each PYNQ MicroBlaze subsystem is contained within an IO Processor (IOP). An IOP
 defines a set of communication and behavioral controllers that are controlled by
-Python. There are currently three IOPs provided with PYNQ: Arduino, PMOD, and
-Logictools.
+Python. PYNQ provides a PMOD IOP.
 
 Block Diagram
 -------------
@@ -43,8 +42,8 @@ transfer large data segments between the PS (Python) and the Subsystem.
 Examples
 --------  
 
-In the :ref:`pynqz1-base-overlay`, three IOP instances with PYNQ Microblaze Subsystems
-are available: iop1 (PMODA), iop2 (PMODB), and iop3 (Arduino). After the overlay
+In the :ref:`zcu104-base-overlay`, Pmod instances with PYNQ Microblaze Subsystems
+are available. After the overlay
 is loaded these can be accessed as follows:
 
 .. code-block:: Python
@@ -61,9 +60,8 @@ is loaded these can be accessed as follows:
 More information about the PynqMicroblaze class, and its API can be found in the
 :ref:`pynq-lib-pynqmicroblaze` section.
 
-:ref:`pmod`, :ref:`Arduino`, and :ref:`Grove` classes are subclasses of the
-PynqMicroBlaze class, and further example notebooks can be found in those
-sections.
+:ref:`pmod` is a subclass of the PynqMicroBlaze class, and further example
+notebooks can be found in that section.
 
 Creating a New PYNQ Microblaze
 ------------------------------
