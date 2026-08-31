@@ -131,6 +131,7 @@ PyAudio
 gTTS
 SpeechRecognition
 imutils
+scikit-image
 pycairo
 pycurl
 nbwavedrom
