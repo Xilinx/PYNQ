@@ -100,6 +100,9 @@ systemctl mask ua-auto-attach.service
 # Disable apport crash reporter (unused on the appliance; its oneshot fails)
 systemctl mask apport.service
 
+# Disable the DHCP servers; dhcpd exits unless a board configures a subnet
+systemctl disable isc-dhcp-server isc-dhcp-server6
+
 # Disable default graphical environment
 systemctl set-default multi-user
 
