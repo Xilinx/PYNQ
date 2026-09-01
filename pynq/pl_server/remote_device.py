@@ -1,4 +1,5 @@
 import os
+import asyncio
 from pathlib import Path
 import pickle
 import datetime
@@ -25,6 +26,7 @@ from pynq.remote import (
     mmio_pb2_grpc, mmio_pb2,
     buffer_pb2_grpc, buffer_pb2,
     gpio_pb2_grpc, gpio_pb2,
+    interrupt_pb2_grpc, interrupt_pb2,
 )
 
 import grpc
@@ -187,6 +189,7 @@ class RemoteDevice(Device):
             'mmio': mmio_pb2_grpc.MmioStub(self.client.channel),
             'buffer': buffer_pb2_grpc.RemoteBufferStub(self.client.channel),
             'gpio': gpio_pb2_grpc.GpioStub(self.client.channel),
+            'interrupt': interrupt_pb2_grpc.RemoteInterruptStub(self.client.channel),
         }
 
         self.arch = self.get_arch()
@@ -194,6 +197,7 @@ class RemoteDevice(Device):
 
         self.capabilities = {
             "REMOTE": True,
+            "INTERRUPT": True,
         }
 
     def get_board_name(self):
@@ -808,43 +812,126 @@ class RemoteGPIO:
         
 
 class RemoteInterrupt:
-    """Remote Interrupt placeholder class
-    
-    Placeholder implementation for interrupt handling on remote devices.
-    Interrupt functionality is not yet implemented for remote PYNQ devices.
-    
-    Parameters
-    ----------
-    fullpath : str, optional
-        Full path to interrupt device
+    """Remote interrupt support over gRPC.
+
+    Registers an interrupt on the remote server and waits for hardware
+    events via a unary gRPC call wrapped with asyncio.wrap_future().
+
+    If the Overlay is changed or re-downloaded this object is invalidated
+    and waiting raises a RuntimeError, mirroring the local Interrupt class.
     """
-    
-    def __init__(self, fullpath=None):
+
+    def __init__(self, fullpath):
+        """Initialise an Interrupt object attached to the specified pin
+
+        Parameters
+        ----------
+        fullpath : str
+            Fully qualified interrupt pin name in the block diagram of the
+            form ${cell}/${pin} (e.g. "axi_dma_0/mm2s_introut"). Raises an
+            exception if the pin cannot be found in the currently active
+            Overlay.
+        """
         self.fullpath = fullpath
-        warnings.warn(f"Interrupts are not yet implemented for remote devices")
+        self._interrupt_id = None
+        self._stub = None
+        self._timestamp = None
+        self._ensure_registered()
+
+    def _ensure_registered(self):
+        device = Device.active_device
+        if not device.has_capability("REMOTE") or not device.has_capability("INTERRUPT"):
+            raise RuntimeError("Active device does not support remote interrupts")
+        self._stub = device._stub['interrupt']
+        from ..pl import PL
+        if self.fullpath not in PL.interrupt_pins:
+            raise ValueError("No Pin of name {} found".format(self.fullpath))
+
+        pin_info = PL.interrupt_pins[self.fullpath]
+        controller_name = pin_info.get('controller', pin_info.get('parent', ''))
+        pin_index = pin_info['index']
+
+        raw_irq = 0
+        controller_phys_addr = 0
+        if controller_name:
+            ctrl_info = PL.interrupt_controllers.get(controller_name, {})
+            raw_irq = ctrl_info.get('raw_irq', 0)
+            controller_phys_addr = PL.ip_dict.get(
+                ctrl_info.get('name', controller_name), {}
+            ).get('phys_addr', 0)
+
+        try:
+            resp = self._stub.register_interrupt(
+                interrupt_pb2.RegisterRequest(
+                    pin_name=self.fullpath,
+                    pin_index=pin_index,
+                    raw_irq=raw_irq,
+                    controller_phys_addr=controller_phys_addr,
+                ))
+        except grpc.RpcError as e:
+            raise RuntimeError("Interrupt registration RPC failed: {}".format(e))
+        if not resp.interrupt_id:
+            raise RuntimeError(
+                "Interrupt registration failed: {}".format(resp.msg))
+        self._interrupt_id = resp.interrupt_id
+        self._timestamp = PL.timestamp
+    
+    async def wait(self):
+        """Wait for the interrupt to fire on the remote board.
         
-    def wait(self, timeout=None):
-        raise RuntimeError("Interrupts are not yet implemented for remote devices")
+        Uses gRPC's .future() variant so that asyncio cancellation
+        propagates to the server: cancelling the awaiting task calls
+        call.cancel(), which signals the RPC to terminate and lets
+        the server's IsCancelled() check release the waiter.
+        """
+        from ..pl import PL
+        if PL.timestamp != self._timestamp:
+            raise RuntimeError("Interrupt invalidated by Overlay change")
+        call = self._stub.wait_for_interrupt.future(
+            interrupt_pb2.WaitRequest(interrupt_id=self._interrupt_id))
+        try:
+            resp = await asyncio.wrap_future(call)
+        except asyncio.CancelledError:
+            call.cancel()
+            raise
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.CANCELLED:
+                raise RuntimeError(e.details() or "Interrupt invalidated by Overlay change")
+            raise
+        if resp.status == interrupt_pb2.WaitResponse.FIRED:
+            return
+        elif resp.status == interrupt_pb2.WaitResponse.TIMEOUT:
+            raise TimeoutError("Interrupt wait timed out")
+        elif resp.status == interrupt_pb2.WaitResponse.ERROR:
+            raise RuntimeError(f"Interrupt error: {resp.msg}")
+    
+    def __del__(self):
+        if self._interrupt_id and self._stub:
+            try:
+                self._stub.release_interrupt(
+                    interrupt_pb2.ReleaseRequest(
+                        interrupt_id=self._interrupt_id))
+            except Exception:
+                pass
 
 
 class RemoteUioController:
-    """Remote UIO Controller placeholder class
+    """Stub for remote UIO controller.
     
-    Placeholder implementation for UIO (Userspace I/O) operations on remote devices.
-    UIO functionality is not yet implemented for remote PYNQ devices.
-    
-    Parameters
-    ----------
-    device : Device, optional
-        Device object for UIO operations
+    The server handles UIO internally, so this class is not used
+    in remote mode. Kept for API compatibility.
     """
     
     def __init__(self, device=None):
+        warnings.warn(
+            "RemoteUioController is a no-op stub. Use pynq.Interrupt "
+            "for interrupt handling on remote devices.",
+            stacklevel=2,
+        )
         self.device = device
-        warnings.warn("UIO operations are not yet implemented for remote devices")
     
     def add_event(self, event, number):
-        raise RuntimeError("UIO operations are not yet implemented for remote devices")
+        pass
     
     def __del__(self):
         pass

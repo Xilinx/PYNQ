@@ -21,9 +21,12 @@ SRC_URI = "file://cpp/CMakeLists.txt \
            file://cpp/buffer.h \
            file://cpp/gpio.cc \
            file://cpp/gpio.h \
+           file://cpp/interrupt.cc \
+           file://cpp/interrupt.h \
            file://protos/buffer.proto \
            file://protos/gpio.proto \
            file://protos/mmio.proto \
+           file://protos/interrupt.proto \
            file://protos/remote_device.proto \
            file://cmake/common.cmake \
            file://pynq-remote.service"
