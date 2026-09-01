@@ -81,6 +81,44 @@ typedef struct {
 } XRFdc_Distribution_Settings;
 
 /**
+ * MTS DTC Settings.
+ */
+typedef struct {
+	u32 RefTile;
+	u32 IsPLL;
+	int Target[4];
+	int Scan_Mode;
+	int DTC_Code[4];
+	int Num_Windows[4];
+	int Max_Gap[4];
+	int Min_Gap[4];
+	int Max_Overlap[4];
+} XRFdc_MTS_DTC_Settings;
+
+/**
+ * MTS Sync Settings.
+ */
+typedef struct {
+	u32 RefTile;
+	u32 Tiles;
+	int Target_Latency;
+	int Offset[4];
+	int Latency[4];
+	int Marker_Delay;
+	int SysRef_Enable;
+	XRFdc_MTS_DTC_Settings DTC_Set_PLL;
+	XRFdc_MTS_DTC_Settings DTC_Set_T1;
+} XRFdc_MultiConverter_Sync_Config;
+
+/**
+ * MTS Marker Struct.
+ */
+typedef struct {
+	u32 Count[4];
+	u32 Loc[4];
+} XRFdc_MTS_Marker;
+
+/**
  * ADC Signal Detect Settings.
  */
 typedef struct {
@@ -412,6 +450,8 @@ typedef struct {
 } XRFdc;
 
 
+
+
 /***************** Macros (Inline Functions) Definitions *********************/
 #define XRFDC_ADC_TILE 0U
 #define XRFDC_DAC_TILE 1U
@@ -518,3 +558,5 @@ u32 XRFdc_SetPwrMode(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id, XR
 u32 XRFdc_GetPwrMode(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id, XRFdc_Pwr_Mode_Settings *SettingsPtr);
 u32 XRFdc_ResetInternalFIFOWidth(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
 u32 XRFdc_ResetInternalFIFOWidthObs(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_MultiConverter_Sync(XRFdc *InstancePtr, u32 Type, XRFdc_MultiConverter_Sync_Config *ConfigPtr);
+void XRFdc_MultiConverter_Init(XRFdc_MultiConverter_Sync_Config *ConfigPtr, int *PLL_CodesPtr, int *T1_CodesPtr);
