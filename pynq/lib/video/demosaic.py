@@ -49,7 +49,7 @@ _registers = {
             "value": {
                 "access": "read-write",
                 "bit_offset": 0,
-                "bit_width": 4,
+                "bit_width": 2,
                 "description": "Bayer pattern phase (0=RGGB, 1=GRBG, 2=GBRG, 3=BGGR)",
             },
         },

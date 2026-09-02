@@ -30,7 +30,7 @@ ALL_SRC := $(SRC) $(COMMON_SRC) $(COMMON_SRC_$(PYNQ_BUILD_ARCH)) $(ESW_SRC)
 ALL_INC := $(INC) $(COMMON_INC) $(COMMON_INC_$(PYNQ_BUILD_ARCH)) $(ESW_INC) $(OS_INC) $(OS_INC_$(PYNQ_BUILD_ARCH))
 
 # Per-library object directory (so _xhdmi's .o files never collide with
-# _pcam5c's when both libraries live alongside each other).
+# _xvideo's when both libraries live alongside each other).
 OBJ_DIR := $(LIB_NAME:.so=).objs
 ALL_OBJ := $(patsubst %.c,$(OBJ_DIR)/%.o,$(ALL_SRC))
 

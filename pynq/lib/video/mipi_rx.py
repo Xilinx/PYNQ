@@ -2,6 +2,7 @@
 #   Copyright (C) 2023-2025 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
+import math
 import time
 
 from pynq import DefaultIP
@@ -72,13 +73,13 @@ _registers = {
                 "bit_width": 1,
                 "description": "Stream Line buffer Full: indicates the current status of line buffer full condition",
             },
-            "shot_packet_fifo_not_empty": {
+            "short_packet_fifo_not_empty": {
                 "access": "read-only",
                 "bit_offset": 2,
                 "bit_width": 1,
                 "description": "Short packet FIFO not empty: Indicates the current status of short packet FIFO not empty condition",
             },
-            "shot_packet_fifo_full": {
+            "short_packet_fifo_full": {
                 "access": "read-only",
                 "bit_offset": 3,
                 "bit_width": 1,
@@ -206,7 +207,7 @@ _registers = {
                 "bit_width": 1,
                 "description": "Active-High signal indicates that the lane module is currently in Stop state",
             },
-            "stream line buffer full ": {
+            "stream line buffer full": {
                 "access": "read-write",
                 "bit_offset": 18,
                 "bit_width": 1,
@@ -360,7 +361,7 @@ _registers = {
                 "bit_width": 1,
                 "description": "Set bits in this register to 1 to generate the required interrupts",
             },
-            "stream line buffer full ": {
+            "stream line buffer full": {
                 "access": "read-write",
                 "bit_offset": 18,
                 "bit_width": 1,
@@ -416,7 +417,7 @@ _registers = {
             },
         },
     },
-    "vs_selection": {
+    "vc_selection": {
         "address_offset": 0x2C,
         "access": "read-write;",
         "size": 32,
@@ -468,145 +469,145 @@ _registers = {
         "description": "The VCX Frame Error register",
         "type": "uint",
         "fields": {
-            "Fame level error for VC4": {
+            "Frame level error for VC4": {
                 "access": "read-write",
                 "bit_offset": 0,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC4": {
+            "Frame synchronization error for VC4": {
                 "access": "read-write",
                 "bit_offset": 1,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC5": {
+            "Frame level error for VC5": {
                 "access": "read-write",
                 "bit_offset": 2,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC5": {
+            "Frame synchronization error for VC5": {
                 "access": "read-write",
                 "bit_offset": 3,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC6": {
+            "Frame level error for VC6": {
                 "access": "read-write",
                 "bit_offset": 4,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC6": {
+            "Frame synchronization error for VC6": {
                 "access": "read-write",
                 "bit_offset": 5,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC7": {
+            "Frame level error for VC7": {
                 "access": "read-write",
                 "bit_offset": 6,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC7": {
+            "Frame synchronization error for VC7": {
                 "access": "read-write",
                 "bit_offset": 7,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC8": {
+            "Frame level error for VC8": {
                 "access": "read-write",
                 "bit_offset": 8,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC8": {
+            "Frame synchronization error for VC8": {
                 "access": "read-write",
                 "bit_offset": 9,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC9": {
+            "Frame level error for VC9": {
                 "access": "read-write",
                 "bit_offset": 10,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC9": {
+            "Frame synchronization error for VC9": {
                 "access": "read-write",
                 "bit_offset": 11,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC10": {
+            "Frame level error for VC10": {
                 "access": "read-write",
                 "bit_offset": 12,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC10": {
+            "Frame synchronization error for VC10": {
                 "access": "read-write",
                 "bit_offset": 13,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC11": {
+            "Frame level error for VC11": {
                 "access": "read-write",
                 "bit_offset": 14,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC11": {
+            "Frame synchronization error for VC11": {
                 "access": "read-write",
                 "bit_offset": 15,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC12": {
+            "Frame level error for VC12": {
                 "access": "read-write",
                 "bit_offset": 16,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC12": {
+            "Frame synchronization error for VC12": {
                 "access": "read-write",
                 "bit_offset": 17,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC13": {
+            "Frame level error for VC13": {
                 "access": "read-write",
                 "bit_offset": 18,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC13": {
+            "Frame synchronization error for VC13": {
                 "access": "read-write",
                 "bit_offset": 19,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC14": {
+            "Frame level error for VC14": {
                 "access": "read-write",
                 "bit_offset": 20,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC14": {
+            "Frame synchronization error for VC14": {
                 "access": "read-write",
                 "bit_offset": 21,
                 "bit_width": 1,
                 "description": "Asserted when an FE is not paired with a Frame Start (FS) on the same virtual channel",
             },
-            "Fame level error for VC15": {
+            "Frame level error for VC15": {
                 "access": "read-write",
                 "bit_offset": 22,
                 "bit_width": 1,
                 "description": "Asserted after an FE when the data payload received between FS and FE contains errors",
             },
-            "Fame synchronization error for VC15": {
+            "Frame synchronization error for VC15": {
                 "access": "read-write",
                 "bit_offset": 23,
                 "bit_width": 1,
@@ -660,7 +661,7 @@ _registers = {
                 "access": "read-only",
                 "bit_offset": 5,
                 "bit_width": 1,
-                "description": "etection of stop state",
+                "description": "Detection of stop state",
             },
         },
     },
@@ -694,7 +695,7 @@ _registers = {
                 "access": "read-only",
                 "bit_offset": 5,
                 "bit_width": 1,
-                "description": "etection of stop state",
+                "description": "Detection of stop state",
             },
         },
     },
@@ -728,7 +729,7 @@ _registers = {
                 "access": "read-only",
                 "bit_offset": 5,
                 "bit_width": 1,
-                "description": "etection of stop state",
+                "description": "Detection of stop state",
             },
         },
     },
@@ -762,7 +763,7 @@ _registers = {
                 "access": "read-only",
                 "bit_offset": 5,
                 "bit_width": 1,
-                "description": "etection of stop state",
+                "description": "Detection of stop state",
             },
         },
     },
@@ -1282,8 +1283,7 @@ class MipiRx(DefaultIP):
         description["registers"] = _registers
         super().__init__(description)
 
-    def configure(self, active_lanes=2, timeout=1.0, hs_settle_ns=None,
-                  core_clk_mhz=200):
+    def configure(self, active_lanes=2, timeout=1.0):
         """Reset and (re-)enable the CSI-2 RX controller then the D-PHY.
 
         Follows the PG232 programming order (controller first, then
@@ -1297,35 +1297,34 @@ class MipiRx(DefaultIP):
             register field encodes lanes-1.
         timeout : float
             Maximum seconds to wait for the soft reset to complete.
-        hs_settle_ns : int or None
-            HS_SETTLE time in ns, applied to every active lane. If None
-            (default) the build-time value is left untouched. The value
-            is converted to core_clk cycles (ns * core_clk_mhz / 1000)
-            per PG202/PG435; the field name is ns but the hardware wants
-            a cycle count.
-        core_clk_mhz : int
-            D-PHY core clock in MHz for the ns->cycles conversion.
         """
         rmap = self.register_map
+        if not isinstance(active_lanes, int):
+            raise TypeError("active_lanes must be an integer")
+        maximum_lanes = int(rmap.protocol_configuration.maximum_lanes) + 1
+        if not 1 <= active_lanes <= maximum_lanes:
+            raise ValueError(
+                f"active_lanes must be between 1 and {maximum_lanes}")
+        try:
+            timeout = float(timeout)
+        except (TypeError, ValueError) as error:
+            raise TypeError("timeout must be numeric") from error
+        if not math.isfinite(timeout) or timeout <= 0:
+            raise ValueError("timeout must be finite and greater than zero")
+
         # --- CSI-2 RX controller ---
-        rmap.core_configuration.soft_reset = 1
+        rmap.core_configuration = 0x02
         deadline = time.monotonic() + timeout
         while rmap.core_status.soft_reset:
             if time.monotonic() > deadline:
                 raise TimeoutError(
                     "MIPI CSI-2 RX soft reset did not complete within "
                     f"{timeout}s")
-        rmap.core_configuration.soft_reset = 0
+        rmap.core_configuration = 0x00
         rmap.protocol_configuration.active_lanes = active_lanes - 1
-        rmap.core_configuration.core_enabled = 1
+        rmap.core_configuration = 0x01
 
         # --- D-PHY ---
-        if hs_settle_ns is not None:
-            cycles = round(hs_settle_ns * core_clk_mhz / 1000)
-            settle_regs = (rmap.dphy_hs_settle0, rmap.dphy_hs_settle1,
-                           rmap.dphy_hs_settle2, rmap.dphy_hs_settle3)
-            for reg in settle_regs[:active_lanes]:
-                reg.hs_settle_ns = cycles
-        rmap.dphy_control.srst = 1
-        rmap.dphy_control.srst = 0
-        rmap.dphy_control.dphy_en = 1
+        rmap.dphy_control = 0x01
+        rmap.dphy_control = 0x00
+        rmap.dphy_control = 0x02
