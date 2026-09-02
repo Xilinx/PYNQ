@@ -103,16 +103,33 @@ class GammaLut(DefaultIP):
         Entries are stored as uint16 but the value range is 8-bit, the
         same as the input.
         """
-        if len(gains) != 3:
+        try:
+            gains = np.asarray(tuple(gains), dtype=np.float32)
+            black_level = float(black_level)
+            gamma = float(gamma)
+        except (TypeError, ValueError) as error:
             raise ValueError(
-                f"Expected (red, green, blue) gains, got {len(gains)} values")
+                "black_level, gains and gamma must be numeric") from error
+        if gains.shape != (3,):
+            raise ValueError(
+                "gains must contain exactly three values")
+        if not np.all(np.isfinite(gains)) or np.any(gains < 0):
+            raise ValueError("gains must be finite and non-negative")
+        if not np.isfinite(black_level) or not 0 <= black_level <= 255:
+            raise ValueError("black_level must be between 0 and 255")
+        if not np.isfinite(gamma) or gamma <= 0:
+            raise ValueError("gamma must be finite and greater than zero")
+
         x = np.arange(256, dtype=np.float32)
         span = max(255 - black_level, 1)
-        for channel, gain in zip(_CHANNEL_OFFSETS, gains):
+        curves = []
+        for gain in gains:
             y = np.clip((x - black_level) * gain / span, 0.0, 1.0)
             if gamma != 1.0:
                 y = y ** (1.0 / gamma)
-            self._channel_view(channel)[:] = np.round(y * 255)
+            curves.append(np.round(y * 255).astype(np.uint16))
+        for channel, values in zip(_CHANNEL_OFFSETS, curves):
+            self._channel_view(channel)[:] = values
 
     def _channel_view(self, channel):
         """A writable uint16 view of one channel's 256-entry table."""

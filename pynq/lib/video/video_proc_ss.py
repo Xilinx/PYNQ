@@ -512,17 +512,6 @@ _registers = {
     },
 }
 
-_UNITY_COEFF = 0x1000
-
-
-def _gain_to_coeff(gain):
-    """Convert a floating point gain to a 16-bit matrix coefficient."""
-    return max(0, min(round(gain * _UNITY_COEFF), 0xFFFF))
-
-
-_DIAGONAL_REGS = ("k11", "k22", "k33")
-
-
 _COEFF_REGS = ["k11", "k12", "k13",
                "k21", "k22", "k23",
                "k31", "k32", "k33",
@@ -546,8 +535,8 @@ class VideoProcessingCSC(DefaultIP):
         description["registers"] = _registers
         super().__init__(description)
 
-    def configure(self, width, height, gains=(1.0, 1.0, 1.0)):
-        """Configure the colour matrix and enable.
+    def configure(self, width, height):
+        """Configure with identity color matrix and enable.
 
         Parameters
         ----------
@@ -555,44 +544,27 @@ class VideoProcessingCSC(DefaultIP):
             Frame width in pixels
         height : int
             Frame height in lines
-        gains : tuple of float
-            Per-channel (red, green, blue) gains written to the matrix
-            diagonal. The default applies no correction.
         """
         rmap = self.register_map
         rmap.in_video_format = 0x0
         rmap.out_video_format = 0x0
-        self.gains = gains
+        self._set_identity()
         rmap.width = width
         rmap.height = height
         rmap.ap_ctrl = 0x81  # ap_start=1, auto_restart=1 in a single write
 
-    @property
-    def gains(self):
-        """Per-channel (red, green, blue) gains on the matrix diagonal."""
+    def _set_identity(self):
+        """Write identity (passthrough) color matrix."""
         rmap = self.register_map
-        return tuple(int(getattr(rmap, name)) / _UNITY_COEFF
-                     for name in _DIAGONAL_REGS)
-
-    @gains.setter
-    def gains(self, gains):
-        """Write a diagonal matrix, scaling each channel without mixing.
-
-        Gains of 1.0 give the identity (passthrough) matrix.
-        """
-        gains = tuple(gains)
-        if len(gains) != 3:
-            raise ValueError(
-                f"Expected (red, green, blue) gains, got {len(gains)} values")
-        rmap = self.register_map
-        for name, gain in zip(_DIAGONAL_REGS, gains):
-            setattr(rmap, name, _gain_to_coeff(gain))
+        rmap.k11 = 0x1000
         rmap.k12 = 0x0
         rmap.k13 = 0x0
         rmap.k21 = 0x0
+        rmap.k22 = 0x1000
         rmap.k23 = 0x0
         rmap.k31 = 0x0
         rmap.k32 = 0x0
+        rmap.k33 = 0x1000
         rmap.r_offset = 0x0
         rmap.g_offset = 0x0
         rmap.b_offset = 0x0

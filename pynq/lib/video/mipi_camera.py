@@ -25,14 +25,24 @@ class MIPIMode(Enum):
     r1920x1080_15 = (1920, 1080, 15)
 
 
-class MipiCamera(DefaultHierarchy):
+def _validate_awb_counts(frames, discard):
+    if not isinstance(frames, int):
+        raise TypeError("frames must be an integer")
+    if frames <= 0:
+        raise ValueError("frames must be greater than zero")
+    if not isinstance(discard, int):
+        raise TypeError("discard must be an integer")
+    if discard < 0:
+        raise ValueError("discard must be non-negative")
+
+
+class MIPICamera(DefaultHierarchy):
     """Driver for a MIPI CSI-2 camera on the base overlay.
 
     Supports every sensor in :data:`pynq.lib.video.sensors.SENSORS`. The
     attached camera is identified over I2C the first time
     :meth:`configure` is called, and its driver then programs the sensor
-    while its metadata programs the rest of the pipeline (D-PHY HS_SETTLE,
-    demosaic Bayer phase).
+    while its metadata supplies the demosaic Bayer phase.
 
     Construction performs no hardware access, so loading the overlay
     always succeeds whether or not a camera is attached.
@@ -46,7 +56,8 @@ class MipiCamera(DefaultHierarchy):
     @staticmethod
     def checkhierarchy(description):
         return (
-            "gpio_ip_reset" in description["ip"]
+            "axi_vdma" in description["ip"]
+            and "gpio_ip_reset" in description["ip"]
             and "mipi_csi2_rx_subsyst" in description["ip"]
             and "demosaic" in description["ip"]
             and "gamma_lut" in description["ip"]
@@ -60,6 +71,7 @@ class MipiCamera(DefaultHierarchy):
         # Resolved on the first configure(): no I2C here, so overlay load
         # cannot fail when no camera is attached.
         self._sensor = None
+        self._configured = False
         self._bayer_phase = None
         self._wb_gains = None
         self._gamma = None
@@ -96,6 +108,11 @@ class MipiCamera(DefaultHierarchy):
         context manager
             Closes the camera at the end of the block.
         """
+        if videomode.bits_per_pixel not in (8, 16, 24, 32):
+            raise ValueError(
+                "Bits per pixel must be 8, 16, 24 or 32")
+
+        self._configured = False
         if self._vdma.readchannel.running:
             self._vdma.readchannel.stop()
 
@@ -123,18 +140,15 @@ class MipiCamera(DefaultHierarchy):
 
         if wb_gains is None:
             wb_gains = self._sensor.WB_GAINS
-        self._wb_gains = tuple(wb_gains)
+        wb_gains = tuple(wb_gains)
 
         if gamma is None:
             gamma = self._sensor.GAMMA
-        self._gamma = gamma
 
         self._sensor.configure(mode_id, self.gpio_ip_reset,
                                power_cycle=False)
 
-        # HS_SETTLE is deliberately not written: the build-time 124 ns is
-        # in spec for every supported sensor, and overriding it stalls the
-        # link. See MipiCsi2RxSubsystem.configure.
+        # Use the D-PHY's build-time HS_SETTLE setting for every sensor.
         self.mipi_csi2_rx_subsyst.configure(
             active_lanes=self._sensor.LANE_COUNT)
 
@@ -144,13 +158,16 @@ class MipiCamera(DefaultHierarchy):
         # before the gains, and the CSC's offsets act after its matrix.
         self.gamma_lut.configure(videomode.width, videomode.height,
                                  black_level=self._sensor.BLACK_LEVEL,
-                                 gains=self._wb_gains, gamma=self._gamma)
+                                 gains=wb_gains, gamma=gamma)
         self.v_proc_sys.configure(videomode.width, videomode.height)
 
         self.pixel_pack.bits_per_pixel = videomode.bits_per_pixel
         self._vdma.readchannel.mode = videomode
 
         self._sensor.start()
+        self._wb_gains = wb_gains
+        self._gamma = gamma
+        self._configured = True
         return self._closecontextmanager()
 
     def _open_sensor(self, sensor=None):
@@ -184,11 +201,14 @@ class MipiCamera(DefaultHierarchy):
         """
         width, height, fps = mode.value
         return self.configure(
-            VideoMode(width, height, bits_per_pixel, fps=fps))
+            VideoMode(width, height, bits_per_pixel, fps=fps),
+            bayer_phase=self._bayer_phase,
+            wb_gains=self._wb_gains,
+            gamma=self._gamma)
 
     def start(self):
         """Start the pipeline"""
-        if self._sensor is None:
+        if not self._configured:
             raise RuntimeError(
                 "Camera not configured; call configure() first")
         self._vdma.readchannel.start()
@@ -212,10 +232,14 @@ class MipiCamera(DefaultHierarchy):
 
     def close(self):
         """Uninitialise the drivers, stopping the pipeline beforehand"""
+        self._configured = False
         self.stop()
         if self._sensor is not None:
-            self._sensor.close()
-            self._sensor = None
+            try:
+                self._sensor.stop()
+            finally:
+                self._sensor.close()
+                self._sensor = None
 
     @property
     def sensor(self):
@@ -229,21 +253,12 @@ class MipiCamera(DefaultHierarchy):
 
     @property
     def cacheable_frames(self):
-        """Whether frames should be cacheable or non-cacheable
-
-        Only valid if a VDMA has been specified
-        """
-        if self._vdma:
-            return self._vdma.readchannel.cacheable_frames
-        else:
-            raise RuntimeError("No VDMA specified")
+        """Whether frames should be cacheable or non-cacheable"""
+        return self._vdma.readchannel.cacheable_frames
 
     @cacheable_frames.setter
     def cacheable_frames(self, value):
-        if self._vdma:
-            self._vdma.readchannel.cacheable_frames = value
-        else:
-            raise RuntimeError("No VDMA specified")
+        self._vdma.readchannel.cacheable_frames = value
 
     @property
     def bayer_phase(self):
@@ -255,7 +270,7 @@ class MipiCamera(DefaultHierarchy):
 
     @bayer_phase.setter
     def bayer_phase(self, value):
-        self._bayer_phase = value
+        self._bayer_phase = value & 0x3
         self.demosaic.register_map.bayer_phase = value & 0x3
 
     @property
@@ -271,8 +286,10 @@ class MipiCamera(DefaultHierarchy):
 
     @wb_gains.setter
     def wb_gains(self, value):
-        self._wb_gains = tuple(value)
-        self._rebuild_curve()
+        value = tuple(value)
+        self.gamma_lut._set_curve(
+            self._require_sensor().BLACK_LEVEL, value, self._gamma)
+        self._wb_gains = value
 
     @property
     def gamma(self):
@@ -285,8 +302,9 @@ class MipiCamera(DefaultHierarchy):
 
     @gamma.setter
     def gamma(self, value):
+        self.gamma_lut._set_curve(
+            self._require_sensor().BLACK_LEVEL, self._wb_gains, value)
         self._gamma = value
-        self._rebuild_curve()
 
     def _rebuild_curve(self):
         """Reload the gamma LUT from the current pedestal, gains and gamma."""
@@ -326,7 +344,15 @@ class MipiCamera(DefaultHierarchy):
             If a channel carries no signal above the black level, which
             means the scene is too dark to balance.
         """
+        _validate_awb_counts(frames, discard)
+        if not self._vdma.readchannel.running:
+            raise RuntimeError(
+                "Pipeline not started; call start() before "
+                "auto_white_balance()")
         black = self._require_sensor().BLACK_LEVEL
+        if self.mode.bits_per_pixel != 24:
+            raise RuntimeError(
+                "auto_white_balance requires 24-bit (RGB) pixel format")
         saved = self._wb_gains
         self.gamma_lut._set_curve(0, (1.0, 1.0, 1.0), 1.0)
         try:
@@ -334,29 +360,21 @@ class MipiCamera(DefaultHierarchy):
                 self.readframe()
             total = np.zeros(3)
             for _ in range(frames):
-                # A view of a PynqBuffer inherits its pointer and frees
-                # it again when collected, so freebuffer() here would
-                # double free. The frame cache recycles them anyway.
                 frame = self.readframe()
                 total += np.asarray(frame).reshape(-1, 3).mean(
                     axis=0, dtype=np.float64)
-        except Exception:
-            self._wb_gains = saved
-            self._rebuild_curve()
+            signal = total / frames - black
+            if np.any(signal <= 0):
+                raise RuntimeError(
+                    f"Scene too dark to white balance: channel means "
+                    f"{np.round(total / frames, 1)} against a black level of "
+                    f"{black}. Raise exposure or gain and retry.")
+            gains = signal[1] / signal
+            self.wb_gains = tuple(gains / gains.min())
+            return self._wb_gains
+        except BaseException:
+            self.gamma_lut._set_curve(black, saved, self._gamma)
             raise
-        signal = total / frames - black
-        if np.any(signal <= 0):
-            self._wb_gains = saved
-            self._rebuild_curve()
-            raise RuntimeError(
-                f"Scene too dark to white balance: channel means "
-                f"{np.round(total / frames, 1)} against a black level of "
-                f"{black}. Raise exposure or gain and retry.")
-        gains = signal[1] / signal
-        # Normalise so the largest gain is 1.0: only the ratios carry
-        # colour, and there is no AE loop to pull back a gain that clips.
-        self.wb_gains = tuple(gains / gains.max())
-        return self._wb_gains
 
     def _require_sensor(self):
         if self._sensor is None:
@@ -390,20 +408,6 @@ class MipiCamera(DefaultHierarchy):
     def diagnostics(self):
         """Return CSI-2 RX + D-PHY status to help triage a stalled capture.
 
-        Reads the CSI-2 RX controller status and the D-PHY clock/data-lane
-        status registers. Rough narrowing:
-
-        - all lanes in stop state, packet_count 0 => no HS burst reaching
-          the D-PHY (sensor silent, gated clock, or wrong HS_SETTLE).
-        - dphy_cl_init_done 0 => D-PHY never initialized (clock/reset/PLL).
-        - dphy_dl0_pkt_count > 0 but packet_count 0 => data dropped before
-          the line buffer (lane map or filtered data type).
-        - packet_count > 0 but readframe hangs => downstream (VDMA/format).
-        - one lane counting, the other stuck at 0 => physical-layer fault.
-          Both lanes come from one sensor register, so no configuration
-          produces this; reseat the cable and try a known-good module. A
-          lane that never recovers is usually damage from hot-swapping.
-
         Returns
         -------
         dict
@@ -420,8 +424,8 @@ class MipiCamera(DefaultHierarchy):
             "packet_count": int(status.packet_count),
             "stream_line_buffer_full": bool(status.stream_full),
             "short_packet_fifo_not_empty":
-                bool(status.shot_packet_fifo_not_empty),
-            "short_packet_fifo_full": bool(status.shot_packet_fifo_full),
+                bool(status.short_packet_fifo_not_empty),
+            "short_packet_fifo_full": bool(status.short_packet_fifo_full),
             "active_lanes": int(proto.active_lanes) + 1,
             "maximum_lanes": int(proto.maximum_lanes) + 1,
             "dphy_enabled": bool(csi.dphy_control.dphy_en),

@@ -9,17 +9,11 @@ the pipeline (D-PHY HS_SETTLE, Bayer phase, supported modes).
 """
 
 from .camera_sensor import CameraSensor
-from .sony_sensor import SonySensor
-from .imx219 import IMX219
-from .imx708 import IMX708
 from .ov5640 import OV5640
 
-#: Sensors probed by :func:`detect_sensor`. All sit at distinct I2C
-#: addresses, so the order only fixes the failure message.
-SENSORS = (OV5640, IMX219, IMX708)
+SENSORS = (OV5640,)
 
-__all__ = ["CameraSensor", "SonySensor", "OV5640", "IMX219", "IMX708",
-           "SENSORS", "detect_sensor"]
+__all__ = ["CameraSensor", "OV5640", "SENSORS", "detect_sensor"]
 
 
 def detect_sensor(i2c_bus=None):

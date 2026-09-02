@@ -13,9 +13,9 @@ if pynq.ps.CPU_ARCH == pynq.ps.ZYNQ_ARCH:
 elif pynq.ps.CPU_ARCH == pynq.ps.ZU_ARCH:
     from . import xilinx_hdmi
     from . import mipi_rx
-    from .mipi_camera import MipiCamera, MIPIMode
+    from .mipi_camera import MIPICamera, MIPIMode
     from .sensors import CameraSensor, SENSORS, detect_sensor
-    from .sensors import OV5640, IMX219, IMX708
+    from .sensors import OV5640
     from .demosaic import Demosaic
     from .gamma_lut import GammaLut
     from .video_proc_ss import VideoProcessingCSC

@@ -5,6 +5,7 @@ import abc
 import glob
 import os
 import time
+import warnings
 import fcntl
 
 _I2C_SLAVE = 0x0703
@@ -32,12 +33,6 @@ class CameraSensor(metaclass=abc.ABCMeta):
         Address of the first byte of the chip ID.
     ID_VALUE : int
         Expected chip ID, big-endian across ``ID_NBYTES`` registers.
-    HS_SETTLE_NS : int
-        D-PHY HS_SETTLE time for this sensor's line rate. Recorded for
-        reference only -- it is **not** written at runtime. The
-        build-time ``C_HS_SETTLE_NS`` already falls inside the spec
-        window for every supported sensor, and overriding it stalled the
-        link (see the warning on ``MipiCsi2RxSubsystem.configure``).
     BAYER_PHASE : int
         Default demosaic Bayer phase (0=RGGB, 1=GRBG, 2=GBRG, 3=BGGR).
     WB_GAINS : tuple of float
@@ -74,7 +69,6 @@ class CameraSensor(metaclass=abc.ABCMeta):
     #: CSI-2 RX subsystem is built with ``C_CSI_EN_ACTIVELANES = false``,
     #: so the lane count is fixed in hardware and cannot be changed here.
     LANE_COUNT = 2
-    HS_SETTLE_NS = None
     BAYER_PHASE = 0x0
     #: Unity by default: only raw sensors without on-chip AWB need this.
     WB_GAINS = (1.0, 1.0, 1.0)
@@ -107,13 +101,26 @@ class CameraSensor(metaclass=abc.ABCMeta):
     def write_reg(self, addr, data):
         """Write a single byte to a 16-bit register address."""
         buf = bytes([addr >> 8, addr & 0xFF, data])
-        os.write(self._fd, buf)
+        for attempt in range(3):
+            try:
+                os.write(self._fd, buf)
+                return
+            except OSError:
+                if attempt == 2:
+                    raise
+                time.sleep(0.001)
 
     def read_reg(self, addr):
         """Read a single byte from a 16-bit register address."""
         buf = bytes([addr >> 8, addr & 0xFF])
-        os.write(self._fd, buf)
-        return os.read(self._fd, 1)[0]
+        for attempt in range(3):
+            try:
+                os.write(self._fd, buf)
+                return os.read(self._fd, 1)[0]
+            except OSError:
+                if attempt == 2:
+                    raise
+                time.sleep(0.001)
 
     def write_reg16(self, addr, data):
         """Write a big-endian 16-bit value to ``addr`` and ``addr + 1``.
@@ -244,6 +251,8 @@ class CameraSensor(metaclass=abc.ABCMeta):
                         return int(adapter_number)
             except FileNotFoundError:
                 continue
+        warnings.warn("RPICAM I2C label not found, falling back to bus 6",
+                      stacklevel=2)
         return 6
 
     @abc.abstractmethod
@@ -298,5 +307,5 @@ class CameraSensor(metaclass=abc.ABCMeta):
             GPIO IP for camera power control
         """
         self.stop()
-        self.configure(mode, gpio_ip)
+        self.configure(mode, gpio_ip, power_cycle=False)
         self.start()

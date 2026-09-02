@@ -268,7 +268,6 @@ class OV5640(CameraSensor):
     I2C_ADDR = 0x3C
     ID_REG = 0x300A
     ID_VALUE = 0x5640
-    HS_SETTLE_NS = 149
     # BGGR: _CFG_INIT sets the flip bits in 0x3820, shifting the Bayer
     # grid by a row. Confirmed by a phase sweep.
     BAYER_PHASE = 0x3
