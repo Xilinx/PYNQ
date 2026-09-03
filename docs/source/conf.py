@@ -92,7 +92,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PYNQ: Python productivity for Adaptive Computing platforms'
-copyright = '2025, Advanced Micro Devices, Inc.'
+copyright = '2026, Advanced Micro Devices, Inc.'
 author = 'AMD'
 
 # The version info for the project you're documenting, acts as replacement for
