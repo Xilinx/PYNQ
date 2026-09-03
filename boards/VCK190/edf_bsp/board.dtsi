@@ -2,6 +2,10 @@
  * dts at bitbake time via PYNQ_BOARD_DTSI). */
 
 / {
+	aliases {
+		nvmem0 = &eeprom;
+	};
+
 	reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -15,6 +19,27 @@
 			 * PDI DMA gets DMA-reachable contiguous memory. */
 			alloc-ranges = <0x0 0x0 0x0 0x80000000>;
 			linux,cma-default;
+		};
+	};
+};
+
+&i2c1 {
+	i2c-mux@74 {
+		compatible = "nxp,pca9548";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x74>;
+		i2c-mux-idle-disconnect;
+
+		i2c@0 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+
+			eeprom: eeprom@54 {
+				compatible = "st,24c128", "atmel,24c128";
+				reg = <0x54>;
+			};
 		};
 	};
 };
