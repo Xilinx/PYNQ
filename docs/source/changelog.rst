@@ -13,23 +13,30 @@ Updates to PYNQ in this release:
 
 * Image releases:
    * zcu104_v4.0.0
+   * vck190_v4.0.0
 
 * Upgraded Software
    * Xilinx tools upgraded to **2025.2**
-   * Build moved from Petalinux to AMD **EDF (Yocto / bitbake)**.
+   * Build moved from Petalinux to AMD **EDF (Yocto / bitbake)** on an
+     **Ubuntu 24.04 (Noble)** root filesystem.
      Petalinux is no longer required on the host; only Vivado and
      Docker are.
    * Yocto version compatibility: Scarthgap
 
 * New Backends
    * ``pynq.pl_server.VersalDevice`` adds support for Versal Adaptive
-     SoCs, including ``.pdi`` bitstreams.
+     SoCs, including ``.pdi`` overlays.
+   * **VCK190** board support with segmented ``.pdi`` configuration.
 
 * Deprecations
+   * Removed ``pynq.lib.arduino``, ``pynq.lib.logictools``, and
+     ``pynq.lib.rpi``.
    * Support for **Pynq-Z1** and **Pynq-Z2** boards is removed.
      Their board directories, Petalinux BSP wiring, and board-only
      documentation are gone.
-   * Petalinux build flow removed from ``sdbuild/`` 
+   * Petalinux build flow removed from ``sdbuild/``
+   * Metadata and utilities functionality moved to the ``pynqmetadata``
+     and ``pynqutils`` packages.
 
 Version 3.1.0
 ============================

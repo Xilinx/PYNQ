@@ -27,6 +27,7 @@ Subpackages:
 
     pynq.lib/pynq.lib.audio
     pynq.lib/pynq.lib.axigpio
+    pynq.lib/pynq.lib.axiswitch
     pynq.lib/pynq.lib.button
     pynq.lib/pynq.lib.cmac
     pynq.lib/pynq.lib.dma
