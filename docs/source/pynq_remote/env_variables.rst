@@ -3,51 +3,77 @@
 Setting Environment Variables
 =============================
 
-PYNQ.remote uses the ``PYNQ_REMOTE_DEVICES`` environment variable to identify and configure remote devices. Windows, Linux, and macOS all use different methods to set environment variables. This document aims to provide a brief overview of how to set this variable across different platforms. For more details, refer to the documentation for your specific operating system.
+PYNQ.remote uses two environment variables on the host.
 
-Setting an Environment Variable in Python
------------------------------------------
+``PYNQ_REMOTE``
+   Set to ``1`` when installing the ``pynq`` package with pip. This selects the
+   remote client install path and skips native board binaries and overlays.
 
-You can set environment variables in Python using the ``os`` module. This is useful if you want to set the variable programmatically before importing the ``pynq`` package. This is the preferred method, as it works across all operating systems and does not require any additional setup in your shell.
+``PYNQ_REMOTE_DEVICES``
+   Set before ``import pynq`` to identify target boards. The value is a
+   comma-separated list of IP addresses. When multiple addresses are listed,
+   each becomes a separate ``RemoteDevice`` instance.
+
+Installing for PYNQ.remote
+--------------------------
+
+**Linux/macOS:**
+
+.. code-block:: bash
+
+   PYNQ_REMOTE=1 pip install pynq
+
+**Windows (PowerShell):**
+
+.. code-block:: powershell
+
+   $env:PYNQ_REMOTE="1"; pip install pynq
+
+Runtime device selection
+------------------------
+
+Setting ``PYNQ_REMOTE_DEVICES`` at runtime
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can set environment variables in Python using the ``os`` module. This works
+across all operating systems and does not require shell configuration. Set the
+variable before importing ``pynq``.
 
 .. code-block:: python
 
     import os
     os.environ['PYNQ_REMOTE_DEVICES'] = "192.168.2.99"
 
-Setting an Environment Variable in Linux and macOS
---------------------------------------------------
-
-In Linux and macOS shells, you can set environment variables using the ``export`` command. Make sure there are no spaces around the ``=`` sign.
+Linux and macOS shells
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     export PYNQ_REMOTE_DEVICES="192.168.2.99"
 
-The code above sets the environment variable for the current shell session. If you use a new terminal or restart your computer you will need to set it again. 
+The variable applies to the current shell session only.
 
-Setting an Environment Variable in Windows
-------------------------------------------
+Windows
+~~~~~~~
 
-In Windows, there are several ways to set environment variables, depending on which shell you are using. For Command Prompt (`cmd.exe`), you can use the ``set`` command:
+Command Prompt:
 
 .. code-block:: powershell
 
     set PYNQ_REMOTE_DEVICES=192.168.2.99
 
-For Powershell, you can use the ``$env:`` syntax:
+PowerShell:
 
 .. code-block:: powershell
 
     $env:PYNQ_REMOTE_DEVICES="192.168.2.99"
 
-Setting an Environment Variable in a Python Virtual Environment
----------------------------------------------------------------
+Python virtual environments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are using a Python virtual environment, you can set the environment variable in the ``activate`` script of your virtual environment. This way, the variable will be set automatically each time you activate the virtual environment.
+To set ``PYNQ_REMOTE_DEVICES`` automatically when a virtual environment is
+activated, add the appropriate line to the environment's activate script:
 
-For example, if you are using a virtual environment named ``venv``, you can add the code above in the following directories:
-
-* For Linux/macOS: Add the code above to the ``venv/bin/activate`` 
-* For Windows: If using Command Prompt, add the code to ``venv/Scripts/activate.bat``
-* For Windows: If using PowerShell, add the following line to ``venv/Scripts/Activate.ps1``
+* Linux/macOS: ``venv/bin/activate``
+* Windows Command Prompt: ``venv/Scripts/activate.bat``
+* Windows PowerShell: ``venv/Scripts/Activate.ps1``

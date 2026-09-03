@@ -7,11 +7,13 @@ Requirements for building PYNQ.cpp
 - XRT (2025.2)
 - C++17 or later  
 
-Requirements for using PYNQ.cpp on SoC devices.
------------------------------------------------
-- Compatible Petalinux image with FPGA Manager support enabled.
-- Root access on device (for device & filesystem operations).
-- Embedded XRT 2.17 installed on the device.
+Requirements for using PYNQ.cpp on SoC devices
+----------------------------------------------
+
+- PYNQ.remote image built with EDF/Yocto (see :doc:`../image_build`)
+- FPGA Manager support enabled on the target
+- Root access on the device (for device and filesystem operations)
+- Embedded XRT installed on the device
 
 Build Instructions
 ------------------
