@@ -20,13 +20,20 @@ python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Utils.git
 cd pynq_git
 # setuptools>=68 (Python 3.12), <=80 (pynqutils).
 python3 -m pip install --upgrade 'setuptools>=68,<=80'
-BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${PYNQ_JUPYTER_NOTEBOOKS} \
+
+pynq_setup_notebooks=${PYNQ_JUPYTER_NOTEBOOKS}
+if [ "${PYNQ_BOARD}" = "VCK190" ]; then
+    find "${PYNQ_JUPYTER_NOTEBOOKS}" -mindepth 1 -delete
+    pynq_setup_notebooks=
+fi
+
+BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${pynq_setup_notebooks} \
      python3 -m pip install dist/*.tar.gz --upgrade --no-deps --no-build-isolation
 
 # v3.1 - if using prebuilt SDIST, allow current pynq_git contents to
 #        override the SDIST python files with current contents (--ignore-installed)
 if [ -z "$REBUILD_PYNQ_SDIST" ]; then
-    BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${PYNQ_JUPYTER_NOTEBOOKS} \
+    BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${pynq_setup_notebooks} \
      python3 -m pip install . --upgrade --no-deps --no-build-isolation --ignore-installed
 fi
 
