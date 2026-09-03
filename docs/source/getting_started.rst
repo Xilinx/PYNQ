@@ -10,13 +10,14 @@ SoMs, you can install PYNQ onto your host Operating System.
 If you have one of the following boards, you can follow the quick start guide.
 Go to the `PYNQ support forum <https://discuss.pynq.io/>`_ for help.
 
-Zynq, Zynq Ultrascale+ and Zynq RFSoC
-=====================================
+Zynq Ultrascale+ and Versal
+===========================
 
 .. toctree::
     :maxdepth: 1
        
     getting_started/zcu104_setup.rst
+    getting_started/vck190_setup.rst
 
 * `AUP-ZU3 <https://xilinx.github.io/AUP-ZU3/getting_started.html>`_
 

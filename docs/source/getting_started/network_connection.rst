@@ -37,7 +37,7 @@ Connect to a Router/Network (DHCP):
 
   1. Connect the Ethernet port on your board to a router/switch
   2. Connect your computer to Ethernet or WiFi on the router/switch
-  3. Browse to http://<board IP address>
+  3. Browse to ``http://<board IP address>``
   4. Jump to the :ref:`connecting-to-jupyter` section.
   5. Optional: see *Change the Hostname* below
   6. Optional: see *Configure Proxy Settings* below

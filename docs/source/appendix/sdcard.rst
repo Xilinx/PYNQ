@@ -15,7 +15,7 @@ Windows
 * Extract the *Win32DiskImager* executable from the zip file and run the
   Win32DiskImager utility as administrator. (Right-click on the file, and select
   Run as administrator.)
-* Select the PYNQ-Z1 image file (.img).
+* Select the downloaded PYNQ image file (.img).
 * Select the drive letter of the SD card. Be careful to select the correct
   drive. If you select the wrong drive you can overwrite data on that
   drive. This could be another USB stick, or memory card connected to your
@@ -32,7 +32,7 @@ Micro SD card.
 
    .. code-block:: console
 
-      unzip pynq_z1_image_2016_09_14.zip -d ./
+      unzip <pynq-image>.zip -d ./
       
 ImageWriter
 -----------
@@ -94,8 +94,11 @@ Command Line
    
       sudo dd bs=1m if=image.img of=/dev/rdisk<disk# from diskutil>
 
-   where disk is your BSD name e.g. sudo dd bs=1m
-   if=pynq_z1_image_2016_09_07.img of=/dev/rdisk4
+   where disk is your BSD name, for example:
+
+   .. code-block:: console
+
+      sudo dd bs=1m if=pynq_image.img of=/dev/rdisk4
 
 This may result in a dd: invalid number '1m' error if you have GNU coreutils
 installed. In that case, you need to use a block size of 1M in the bs= section,
@@ -112,7 +115,7 @@ If this command still fails, try using disk instead of rdisk, for example:
 
    .. code-block:: console
       
-      sudo dd bs=1m if=pynq_z1_image_2016_09_07.img of=/dev/disk4
+      sudo dd bs=1m if=pynq_image.img of=/dev/disk4
 
 
 Linux

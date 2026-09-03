@@ -32,7 +32,8 @@ The PYNQ MicroBlaze data memory, either in local memory, or in DDR memory,
 can be used as a mailbox for communication and data exchanges between the 
 ARM processor and the PYNQ MicroBlaze.
 
-DDR memory is managed by the Linux kernel running on the Cortex-A9s.  Therefore,
+DDR memory is managed by the Linux kernel running on the application processor.
+Therefore,
 the PYNQ MicroBlaze must first be allocated memory regions to access DRAM. The 
 PYNQ  ``allocate`` function is used to allocate memory in Linux. It also provides
 the  physical address of the memory. A PYNQ applications can send the physical 
@@ -94,8 +95,6 @@ The corresponding Python constants are defined here:
 .. code-block:: console
 
    <PYNQ repository>/pynq/lib/pmod/constants.py
-   <PYNQ repository>/pynq/lib/arduino/constants.py
-   <PYNQ repository>/pynq/lib/rpi/constants.py
 
 The following example explains how Python could initiate a read from a 
 peripheral connected to a PYNQ MicroBlaze. 
@@ -167,21 +166,21 @@ MicroBlaze Processors
 
 As described in the previous section, a PYNQ MicroBlaze can be used as a 
 flexible controller for different types of external peripherals. The 
-ARM® Cortex®-A9 is an application processor, which runs PYNQ and Jupyter 
-notebook on a Linux OS. This scenario is not well suited to real-time 
+The ARM® application processor runs PYNQ and Jupyter notebooks on Linux. This
+scenario is not well suited to real-time
 applications, which is a common requirement for an embedded systems. 
-In the base overlay there are three PYNQ MicroBlazes. As well as acting as a 
-flexible controller, a PYNQ MicroBlaze can be used as dedicated real-time 
-controller.
+The ZCU104 base overlay contains two Pmod PYNQ MicroBlazes. As well as acting
+as a flexible controller, a PYNQ MicroBlaze can be used as a dedicated
+real-time controller.
+
+The VCK190 base overlay does not include a PYNQ MicroBlaze subsystem.
 
 PYNQ MicroBlazes can also be used standalone to offload some processing from 
 the main processor. However, note that the MicroBlaze processor inside a PYNQ 
-MicroBlaze in the base overlay is running at 100 MHz, compared to the Dual-Core 
-ARM Cortex-A9 running at 650 MHz. The clock speed, and different processor 
-architectures and features should be taken into account when offloading pure 
-application code. e.g. Vector processing on the ARM Cortex-A9 Neon processing 
-unit will be much more efficient than running on the MicroBlaze. The MicroBlaze 
-is most appropriate for low-level, background, or real-time applications.
+MicroBlaze in the base overlay runs at 100 MHz. The clock speed and different
+processor architectures and features should be taken into account when
+offloading application code. The MicroBlaze is most appropriate for low-level,
+background, or real-time applications.
 
      
 Software Requirements
@@ -253,15 +252,8 @@ project.
 Board Support Package
 ^^^^^^^^^^^^^^^^^^^^^
 
-A Board Support Package (BSP) includes software libraries for peripherals in 
-the system. For example, the Vitis projects for Pmod and Arduino peripherals 
-require the following 2 BSPs:
-
-BSP for the Arduino PYNQ MicroBlaze:
-
-    ``<PYNQ repository>/pynq/lib/arduino/bsp_iop_arduino/``
-    
-BSP for the Pmod PYNQ MicroBlaze:
+A Board Support Package (BSP) includes software libraries for peripherals in
+the system. The BSP for the Pmod PYNQ MicroBlaze is:
 
     ``<PYNQ repository>/pynq/lib/pmod/bsp_iop_pmod``
 
@@ -274,21 +266,16 @@ An application for the Pmod PYNQ MicroBlaze will be linked to the Pmod PYNQ
 MicroBlaze BSP. As the two Pmod PYNQ MicroBlazes are identical, an application 
 written for one Pmod PYNQ MicroBlaze can run on the other Pmod PYNQ MicroBlaze. 
 
-An Arduino application will be linked to the Arduino PYNQ MicroBlaze BSP.
-
 Building the Projects
 ^^^^^^^^^^^^^^^^^^^^^
 
 To build all the software projects, for example,
 you can run the corresponding makefile:
 
-    ``<PYNQ repository>/pynq/lib/arduino/makefile``
-    
     ``<PYNQ repository>/pynq/lib/pmod/makefile``
 
-Application projects for peripherals that ship with PYNQ (e.g. Pmod and Arduino
-peripherals) can also be found in the same location. Each project is contained
-in a separate folder.
+Application projects for Pmod peripherals can also be found in the same
+location. Each project is contained in a separate folder.
    
 The makefile compiles the application projects based on the BSP provided 
 in the correct location.
@@ -330,9 +317,6 @@ If you want to add your own custom project to the build process, you need to
 add the project name to the *BIN_PMOD* variable, and save the project in the 
 same location as the other application projects.
 
-Similarly, you have to follow the same steps to build Arduino application 
-projects.
-
 In addition, individual projects can be built by navigating to the 
 ``<project_directory>/Debug`` and running ``make``.
 
@@ -365,15 +349,15 @@ For example, if your C code is ``my_peripheral.c``, the generated .elf and .bin
 will be ``my_peripheral.elf`` and ``my_peripheral.bin``.
 
 The naming convention recommended for peripheral applications is
-``<pmod|arduino>_<peripheral>``.
+``pmod_<peripheral>``.
 
 You will need to update references from the old project name to your new 
 project name in ``<project_directory>/Debug/makefile`` and 
 ``<project_directory>/Debug/src/subdir.mk``.
 
 If you want your project to build in the main makefile, you should also append
-the .bin name of your project to the *BIN_PMOD* (or *BIN_ARDUINO*) variable at 
-the top of the makefile.
+the .bin name of your project to the *BIN_PMOD* variable at the top of the
+makefile.
 
 If you are using the Vitis GUI, you can import the fixed Hardware Platform, BSP, and 
 any application projects into your Vitis workspace. Select MicroBlaze as the target 
@@ -534,10 +518,9 @@ IO Switch Modes and Pin Mapping
 -------------------------------
 Note that the IO switch IP is a customizable IP can be configured by users 
 inside a Vivado project (by double clicking the IP icon of the IO switch). 
-There are 4 pre-defined modes (`pmod`, `dual pmod`, `arduino`, `raspberrypi`) 
-and 1 fully-customizable mode (`custom`) for users to choose. 
-In the base overlay, we have only used `pmod` and `arduino` as the IO switch 
-modes.
+There are 4 pre-defined modes (`pmod`, `dual pmod`, `arduino`, `raspberrypi`)
+and 1 fully-customizable mode (`custom`) for users to choose. The ZCU104 base
+overlay uses the `pmod` mode.
 
 Switch mappings used for Pmod:
 

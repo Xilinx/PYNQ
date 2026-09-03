@@ -99,9 +99,7 @@ After installation, the notebooks will be available in the current folder under 
 Modifying the Notebook for PYNQ.remote
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When you open the ``resizer_pl.ipynb`` notebook, you need to make two changes to make it compatible with PYNQ.remote:
-
-**1. Add the environment variable setting**
+When you open the ``resizer_pl.ipynb`` notebook, you need to make one change to make it compatible with PYNQ.remote.
 
 Find the cell with the imports and modify it to include the ``PYNQ_REMOTE_DEVICES`` environment variable:
 
@@ -127,24 +125,7 @@ Change it to:
    os.environ['PYNQ_REMOTE_DEVICES'] = "192.168.2.99"  # Replace with your board's IP
    from pynq import allocate, Overlay
 
-**2. Fix the image display for RemoteBuffer**
+The rest of the notebook runs unmodified. ``RemoteBuffer`` is a ``numpy.ndarray``
+subclass, so ``Image.fromarray(out_buffer)`` reads the resized image directly.
 
-Find the cell that creates the PIL Image from the output buffer and modify it to work with PYNQ.remote's RemoteBuffer:
-
-.. code-block:: python
-
-   # Original cell:
-   run_kernel()
-   resized_image = Image.fromarray(out_buffer)
-
-Change it to:
-
-.. code-block:: python
-
-   # Modified cell:
-   run_kernel()
-   resized_image = Image.fromarray(out_buffer[:])
-
-The ``[:]`` slice is necessary because PYNQ.remote's RemoteBuffer works slightly differently than PYNQ's PynqBuffer, and PIL won't be able to read the data correctly otherwise.
-
-Once these changes are made, you should be able to run through the entire notebook and resize images completely remotely using PYNQ.remote!
+Once this change is made, you should be able to run through the entire notebook and resize images completely remotely using PYNQ.remote!

@@ -105,6 +105,8 @@ Examples
 In the :ref:`zcu104-base-overlay`, two Pmod instances are available: PMODA and
 PMODB. After the overlay is loaded these instances can be accessed as follows:
 
+The VCK190 base overlay does not include Pmod interfaces.
+
 .. code-block:: Python
 
    from pynq.overlays.base import BaseOverlay
