@@ -18,7 +18,7 @@ if [ -f /home/xilinx/Welcome\ to\ Pynq.ipynb ]; then
 	rm -f /home/xilinx/Welcome\ to\ Pynq.ipynb
 fi
 
-systemctl enable pynq-x11.service
+systemctl disable pynq-x11.service
 systemctl set-default multi-user
 
 echo startfluxbox > /root/.xinitrc
