@@ -2,22 +2,29 @@
 
 ![python](https://github.com/Xilinx/PYNQ/workflows/Python/badge.svg)
 
-PYNQ is an open-source project from Xilinx that makes it easy to design embedded systems with Zynq All Programmable Systems on Chips (APSoCs). Using the Python language and libraries, designers can exploit the benefits of programmable logic and microprocessors in Zynq to build more capable and exciting embedded systems.
-PYNQ users can now create high performance embedded applications with
--	parallel hardware execution
--	high frame-rate video processing
--	hardware accelerated algorithms
--	real-time signal processing
--	high bandwidth IO
--	low latency control
+PYNQ is an open-source project from AMD that makes it easy to design embedded
+systems with AMD adaptive SoCs. Using the Python language and libraries,
+designers can exploit the benefits of programmable logic and processors to
+build more capable embedded systems.
 
-See the <a href="http://www.pynq.io/" target="_blank">PYNQ webpage</a> for an overview of the project, and find <a href="http://pynq.readthedocs.io" target="_blank">documentation on ReadTheDocs</a> to get started. 
+PYNQ users can create high performance embedded applications with
+- parallel hardware execution
+- high frame-rate video processing
+- hardware accelerated algorithms
+- real-time signal processing
+- high bandwidth IO
+- low latency control
+
+See the <a href="http://www.pynq.io/" target="_blank">PYNQ webpage</a> for an
+overview of the project, and find
+<a href="http://pynq.readthedocs.io" target="_blank">documentation on ReadTheDocs</a>
+to get started.
 
 ## Precompiled Image
 
-The project currently supports <a href="https://www.pynq.io/boards.html" target="_blank">multiple boards</a>. 
+The project currently supports <a href="https://www.pynq.io/boards.html" target="_blank">multiple boards</a>.
 
-You can download a precompiled image, write the image to a micro SD card, and boot the board from the micro SD card. 
+You can download a precompiled image, write the image to a micro SD card, and boot the board from the micro SD card.
 
 ## Quick Start
 
@@ -43,6 +50,14 @@ All board related files including Vivado projects, bitstreams, and example noteb
 
 In Linux, you can rebuild the overlay by running *make* in the corresponding overlay folder (e.g. `/boards/ZCU104/base`). In Windows, you need to source the appropriate tcl files in the corresponding overlay folder.
 
+## Building SD Card Images
+
+SD card images are built from `sdbuild/` using Docker. See
+[sdbuild/README.md](sdbuild/README.md) and
+[sdbuild/BUILD_SYSTEM.md](sdbuild/BUILD_SYSTEM.md) for the image and board
+porting flows, and the
+<a href="http://pynq.readthedocs.io/en/latest/pynq_sd_card.html" target="_blank">PYNQ SD card documentation</a>.
+
 ## Contribute
 
 Contributions to this repository are welcomed. Please refer to <a href="https://github.com/Xilinx/PYNQ/blob/master/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> 
@@ -66,6 +81,6 @@ If you use PYNQ in your research, please cite this GitHub repository by using th
 
 ## SDBuild Open Source Components
 
-**License and Copyrights Info** [TAR/GZIP](https://www.xilinx.com/bin/public/openDownload?filename=pynq-v3.0-license.tar.gz)
+**License and Copyrights Info** [TAR/GZIP](https://www.xilinx.com/bin/public/openDownload?filename=pynq-v4.0.0-license.tar.gz)
 
-**Open Components Source Code** [TAR/GZIP](https://www.xilinx.com/bin/public/openDownload?filename=pynq-v3.0-open_components.tar.gz)
+**Open Components Source Code** [TAR/GZIP](https://www.xilinx.com/bin/public/openDownload?filename=pynq-v4.0.0-open_components.tar.gz)
