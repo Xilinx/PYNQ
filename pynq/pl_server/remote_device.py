@@ -132,6 +132,9 @@ class RemoteBinfileHandler(RemoteBitstreamHandler):
     def get_bin_data(self):
         return self._filepath.read_bytes()
 
+class RemotePdifileHandler(RemoteBinfileHandler):
+    pass
+
 class RemoteXsafileHandler(RemoteBitstreamHandler):
     def get_bin_data(self):
         if self._xsa_bitstream_file is None:
@@ -143,6 +146,7 @@ _bitstream_handlers = {
     ".bit": RemoteBitfileHandler,
     ".bin": RemoteBinfileHandler,
     ".xsa": RemoteXsafileHandler,
+    ".pdi": RemotePdifileHandler,
 }
 
 
