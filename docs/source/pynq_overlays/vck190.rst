@@ -1,0 +1,21 @@
+.. _VCK190-overlays:
+
+***************
+VCK190 Overlays
+***************
+
+The VCK190 is based on the Versal AI Core Series. For board details, including
+the reference manual and schematics, see the
+`AMD VCK190 webpage <https://www.amd.com/en/products/adaptive-socs-and-fpgas/evaluation-boards/vck190.html>`_.
+
+The following overlay is included by default in the PYNQ image for the VCK190
+board:
+
+.. toctree::
+    :maxdepth: 1
+
+    vck190/vck190_base_overlay
+
+Other third party overlays may also be available for this board. See the
+`PYNQ community webpage <http://www.pynq.io/community.html>`_ for details of
+third party overlays and other resources.

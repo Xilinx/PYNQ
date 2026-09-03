@@ -92,7 +92,7 @@ and waiting for interrupts can be found in the :ref:`pynq-lib-axigpio`
 sections.
 
 For more examples see the "Buttons and LEDs demonstration" notebook for the
-PYNQ-Z1/PYNQ-Z2 board at:
+ZCU104 board at:
 
 .. code-block:: console
 

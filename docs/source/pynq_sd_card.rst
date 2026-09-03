@@ -4,16 +4,16 @@
 PYNQ SD Card image
 ******************
 
-This page will explain how SD card images can be built for PYNQ
-embedded platforms (Zynq, Zynq Ultrascale+, Zynq RFSoC). 
+This page explains how SD card images can be built for PYNQ embedded
+platforms.
 
 Note: the PYNQ images for supported boards are provided as precompiled 
 `downloadable SD card images <https://www.pynq.io/boards.html>`_ and do 
 not need rebuilt.  The SD card build flow is
 only required to modify SD cards' contents or target a new board.
 
-Specifically, The SD card build flow will create the BOOT.bin, the u-boot
-bootloader, the Linux Device tree blob, the Linux kernel and the
+Specifically, the SD card build flow creates ``BOOT.BIN``, the U-Boot
+bootloader, the Linux device tree blob, the Linux kernel and the
 PYNQ-Linux root filesystem.
 
 The source files for the PYNQ image flow build can be found here:
@@ -22,34 +22,28 @@ The source files for the PYNQ image flow build can be found here:
     
    <PYNQ repository>/sdbuild
 
-More details on configuring the root filesystem can be found in the README file
-in the folder above.
 
 Prepare the Building Environment
 ================================
 
-It is recommended to use a Ubuntu OS to build the image. The currently supported
-Ubuntu OS are listed below:
+The image build runs in a Docker container based on the following Ubuntu
+release:
 
 ================  ==================
 Supported OS      Code name
 ================  ==================   
-Ubuntu 22.04       Jammy
+Ubuntu 24.04       Noble
 ================  ==================
 
 Use Docker to prepare the build environment
 -------------------------------------------
-Starting with the PYNQ v3.1 release, Docker is the recommended way to build PYNQ images. 
-Docker simplifies setup by managing dependencies and environment configuration within an 
-isolated container.
-
-If you do not have a supported Ubuntu machine, you can use Docker to create an isolated 
-build environment on your host OS using the following steps:
+Docker manages the image build dependencies and environment. AMD tools remain
+on the host and are mounted into the container.
 
   1. Install Docker on your host OS by following the 
      `official Docker installation instructions <https://docs.docker.com/engine/install/>`_.
 
-  2. Install the required AMD tools on your host OS (not inside Docker):
+  2. Install the required AMD tools on the host:
      
      * **Vivado** and **Vitis**, version 2025.2 (Petalinux is no longer required)
      * Ensure your host OS is supported by the AMD tools (see 
@@ -58,7 +52,7 @@ build environment on your host OS using the following steps:
      .. note::
         AMD tools must be installed on the host system, not inside the Docker container.
 
-  3. Clone the PYNQ repository and in a bash shell, build the Docker image:
+  3. Clone the PYNQ repository and build the Docker image:
 
      .. code-block:: console
     
@@ -70,135 +64,63 @@ build environment on your host OS using the following steps:
           --build-arg USER_GID=$(id -g) \
           -t pynqdock:latest .
 
-     If you are in a csh-like shell, switch to Bash by typing: ``bash``.
-
      The ``--build-arg`` values ensure that files created inside the container 
      will be owned by your user on the host system, avoiding permission issues.
 
-  4. Run the Docker container, mounting your AMD tools and PYNQ repository:
+  4. From the top of the PYNQ repository, set the paths to the AMD tools and
+     licence, then run the container:
 
      .. code-block:: console
-    
-        docker run \
-          --init \
-          --rm \
-          -it \
-          -v /tools/Xilinx:/tools/Xilinx:ro \
-          -v /home/user/petalinux:/home/user/petalinux:ro \
-          -v $(pwd):/workspace \
-          --name pynq-sdbuild-env \
+
+        export XILINX_TOOLS=/tools/Xilinx/2025.2
+        export XILINXD_LICENSE_FILE="$HOME/.Xilinx"
+
+        docker run --init --rm \
+          --network host \
+          -e XILINX_TOOLS -e XILINXD_LICENSE_FILE \
+          -v "$XILINX_TOOLS:$XILINX_TOOLS:ro" \
+          -v "$XILINXD_LICENSE_FILE:$XILINXD_LICENSE_FILE" \
+          -v "$PWD:/workspace" \
           --privileged \
           pynqdock:latest \
-          /bin/bash
+          bash -lc 'cd /workspace/sdbuild && make BOARDS=ZCU104 REBUILD_PYNQ_SDIST=1 REBUILD_PYNQ_ROOTFS=1'
 
-     Replace ``/tools/Xilinx`` and ``/home/user/petalinux`` with the actual paths 
-     to your Xilinx installations on the host system. The ``:ro`` option mounts 
-     tool directories as read-only, and ``--privileged`` is required for parts of 
-     the build process.
+     Set ``BOARDS=VCK190`` to build a VCK190 image. Multiple board names can be
+     supplied at once.
 
-  5. Inside the container, set up the tool environment:
+Building the Image
+==================
 
-     .. code-block:: console
-    
-        source /tools/Xilinx/Vivado/2025.2/settings64.sh
+The build flow expects a prebuilt board-agnostic root filesystem and PYNQ source
+distribution unless they are rebuilt from source. Place prebuilt files in the
+``sdbuild/prebuilt`` folder:
 
-     Adjust the paths to match your actual Xilinx tool installation paths.
+.. code-block:: console
 
-  6. You are now ready to build PYNQ images inside the Docker container. 
-     Navigate to the sdbuild directory and follow the building instructions 
-     in the next section.
+   cp pynq_rootfs.aarch64.tar.gz <PYNQ repository>/sdbuild/prebuilt/
+   cp pynq-<version>.tar.gz <PYNQ repository>/sdbuild/prebuilt/pynq_sdist.tar.gz
 
+To build one of the supported images using the prebuilt files:
 
-Use an existing Ubuntu OS
--------------------------
-If you're not able to use Docker, you can still build PYNQ images on a supported Ubuntu OS.
+.. code-block:: console
 
-If you already have a Ubuntu OS, and it is listed in the beginning of
-this section, you can simply do the following:
+   cd <PYNQ repository>/sdbuild/
+   make BOARDS=ZCU104
+   make BOARDS=VCK190
 
-  1. Install dependencies using the following script. This is necessary 
-     if you are not using our vagrant file to prepare the environment.
+To build the PYNQ source distribution and root filesystem from source:
 
-     .. code-block:: console
-    
-        <PYNQ repository>/sdbuild/scripts/setup_host.sh
+.. code-block:: console
 
-  2. Install correct version of the Xilinx tools, including 
-     PetaLinux, Vivado, and Vitis. See the table below for the correct version 
-     of each release.
+   make BOARDS=ZCU104 REBUILD_PYNQ_SDIST=1 REBUILD_PYNQ_ROOTFS=1
 
-     Starting from image v2.5, SDx is no longer needed.
-
-     ================  ================
-     Release version    Xilinx Tool Version
-     ================  ================
-     v1.4               2015.4
-     v2.0               2016.1
-     v2.1               2017.4
-     v2.2               2017.4
-     v2.3               2018.2
-     v2.4               2018.3
-     v2.5               2019.1
-     v2.6               2020.1
-     v2.7               2020.2
-     v3.0               2022.1
-     v3.1               2024.1
-     v4.0               2025.2
-     ================  ================
-
-Building the Image From Source
-==============================
-
-Once you have the build environment ready, you can build an SD card image 
-following the steps below. You don't have to rerun the `setup_host.sh`.
-
-  1. Source the Vitis settings for Xilinx 2025.2 tools (Petalinux is
-     no longer required — the EDF build container sources Vivado
-     automatically from ``VIVADO_PATH``):
-
-     .. code-block:: console
-
-        source <path-to-vitis>/Vitis/2025.2/settings64.sh
-
-  2. Depending on the overlays being rebuilt, make sure you have the appropriate
-     Vivado licenses to build for your target board, especially the
-     `HDMI IP <https://www.amd.com/en/products/adaptive-socs-and-fpgas/intellectual-property/hdmi.html>`_
-     for the ZCU104 or the `CMAC IP <https://www.amd.com/en/products/adaptive-socs-and-fpgas/intellectual-property/cmac.html>`_
-     for the RFSoC4x2.   
-
-  3. Collect a prebuilt board-agnostic root filesystem tarball and a prebuilt PYNQ
-     source distribution.  Starting in PYNQ v3.0, by default the SD card build
-     flow expects a prebuilt root filesystem and a PYNQ source distribution to
-     speedup and simplify user rebuilds of SD card images.  These binaries can be
-     found at `the PYNQ boards page <https://www.pynq.io/boards.html>`_ and
-     copied into the sdbuild prebuilt folder
-
-     .. code-block:: console
-
-	# For rebuilding all SD cards, both arm and aarch64 root filesystems
-	# may be required depending on boards being targetted.
-        cp pynq_rootfs.<arm|aarch64>.tar.gz <PYNQ repository>/sdbuild/prebuilt/pynq_rootfs.<arm|aarch64>.tar.gz
-	cp pynq-<version>.tar.gz            <PYNQ repository>/sdbuild/prebuilt/pynq_sdist.tar.gz
-        
-
-     
-  4. Navigate to the following directory and run make
-
-     .. code-block:: console
-    
-        cd <PYNQ repository>/sdbuild/
-        make
-
-The build flow can take several hours and will rebuild SD cards for the Pynq-Z1, Pynq-Z2
-and ZCU104 platforms. 
+The image is written to ``sdbuild/output/<BOARD>-4.0.0.img`` and its boot
+artefacts are written to ``sdbuild/output/boot/<BOARD>/``.
 
 Rebuilding the prebuilt board-agnostic image
 --------------------------------------------
-In order to simplify and speed-up the image building process, users should re-use the 
-prebuilt board-agnostic image appropriate to the architecture - arm for Zynq-7000 
-and aarch64 for Zynq UltraScale+, downloadable at the 
-`boards page <https://www.pynq.io/boards.html>`_ of our website. This will allow 
-you to completely skip the board-agnostic stage.
+ZCU104 and VCK190 use the ``aarch64`` root filesystem. Reusing the prebuilt
+root filesystem skips the board-agnostic stage.
 
 You can force a root filesystem build by setting the ``REBUILD_PYNQ_ROOTFS`` variable
 when invoking make:
@@ -206,13 +128,12 @@ when invoking make:
 .. code-block:: console
     
    cd <PYNQ repository>/sdbuild/
-   make REBUILD_PYNQ_ROOTFS=True BOARDS=<board>
+   make REBUILD_PYNQ_ROOTFS=1 BOARDS=<board>
 
 Rebuilding the PYNQ source distribution tarball
 -----------------------------------------------
-To avoid rebuilding the PYNQ source distribution package, and consequently bypass
-the need to build bitstreams for the PYNQ-Z1, PYNQ-Z2 and the
-ZCU104, a prebuilt PYNQ sdist tarball should be reused as described in steps listed above.
+Reuse the prebuilt PYNQ source distribution package unless the package or
+included overlays have changed.
 
 You can force a PYNQ source distribution rebuild by setting the ``REBUILD_PYNQ_SDIST`` variable
 when invoking make
@@ -220,118 +141,172 @@ when invoking make
 .. code-block:: console
     
    cd <PYNQ repository>/sdbuild/
-   make REBUILD_PYNQ_SDIST=True
+   make REBUILD_PYNQ_SDIST=1 BOARDS=<board>
 
+Cleaning image build output
+---------------------------
 
-Please also refer to the 
-`sdbuild readme <https://github.com/Xilinx/PYNQ/blob/master/sdbuild/README.md>`_
-on our GitHub repository for more info regarding the image-build flow.
-
-Unmount images before building again
-------------------------------------
-Sometimes the SD image building process can error out, leaving mounted images
-in your host OS. You need to unmount these images before trying the make
-process again. Starting from image v2.6, users can do the following to
-unmount the images.
-
-.. code-block:: console
-    
-   cd <PYNQ repository>/sdbuild/
-   make delete
-
-The above command not only unmounts all the images, but also deletes the
-failed images. This makes sure the users do not use the failed images when
-continuing the SD build process.
-
-To unmount images but not delete them, use the following command instead.
-
-.. code-block:: console
-    
-   cd <PYNQ repository>/sdbuild/
-   make unmount
-
-If you want to ignore all the previous staged or cached SD build
-artifacts and start from scratch again, you can use the following command.
-This will unmount and delete the failed images, and remove all the previously
-built images at different stages.
+To remove the build and output directories while retaining the EDF cache:
 
 .. code-block:: console
     
    cd <PYNQ repository>/sdbuild/
    make clean
 
+The first EDF build creates an ``sdbuild/edf-cache`` directory of approximately
+30 GB. Set ``EDF_CACHE=/path/to/edf-cache`` to share it between checkouts or
+store it on another filesystem.
+
 
 Retargeting to a Different Board
 ================================
 
-Additional boards are supported through external *board repositories*. A board
-repository consists of a directory for each board consisting of a spec file and
-any other files. The board repository is treated the same way as the ``<PYNQ
-repository>/boards`` directory.
+Additional boards can be supplied through an external board directory. Each
+board is a directory containing a ``<BOARD>.spec`` file and an ``edf.env`` file.
+Those two are the only required files; everything else is added as the board
+needs it. The external directory is treated like the
+``<PYNQ repository>/boards`` directory.
+
+Board directory layout
+----------------------
+
+.. code-block:: console
+
+   Myboard/
+   ├── Myboard.spec          # required: make variables for the board
+   ├── edf.env               # required: boot artefact configuration
+   ├── edf_bsp/              # optional
+   │   ├── board.dtsi        # optional: device tree nodes for the board
+   │   ├── kernel.cfg        # optional: kernel config fragment
+   │   └── u-boot/           # optional: u-boot patches and config fragments
+   ├── base/                 # required if BITSTREAM_<BOARD> is set: overlay
+   │                         # sources and a Makefile that builds them
+   ├── notebooks/            # optional: notebooks, delivered to the image
+   └── packages/             # optional: extra packages for the root filesystem
+
+The directory name is the board name. It must match the ``.spec`` file name and
+the ``<BOARD>`` suffix of the variables inside it, and it becomes the ``BOARD``
+environment variable in the image.
 
 Elements of the specification file
 ----------------------------------
 
-The specification file should be name ``<BOARD>.spec`` where BOARD is the name
-of the board directory. A minimal spec file contains the following information
+The specification file should be named ``<BOARD>.spec``, where BOARD is the name
+of the board directory. All paths in it are relative to the board directory.
+
+=========================== ============ ======================================
+Variable                                 Meaning
+=========================== ============ ======================================
+``ARCH_<BOARD>``            required     ``aarch64``
+``BITSTREAM_<BOARD>``       optional     Overlay loaded at boot, for example
+                                         ``base/base.bit`` or ``base/base.pdi``.
+                                         Leave unset for a board with no boot
+                                         overlay
+``FPGA_MANAGER_<BOARD>``    optional     ``1`` to program the PL through the
+                                         FPGA manager. Defaults to ``1``, and
+                                         selects which zocl device tree nodes
+                                         are used
+``STAGE4_PACKAGES_<BOARD>`` optional     Packages installed into the board's
+                                         root filesystem. Without ``pynq`` here
+                                         the image has no PYNQ in it
+``REMOTE_PACKAGES_<BOARD>`` optional     Extra packages for a PYNQ.remote root
+                                         filesystem
+=========================== ============ ======================================
 
 .. code-block:: makefile
 
-   ARCH_${BOARD} := arm
-   BSP_${BOARD} := mybsp.bsp
-   BITSTREAM_${BOARD} := mybitstream.bsp
-   FPGA_MANAGER_${BOARD} := 1
+   ARCH_Myboard := aarch64
+   BITSTREAM_Myboard := base/base.bit
+   FPGA_MANAGER_Myboard := 1
+   STAGE4_PACKAGES_Myboard := xrt pynq ethernet selftest
 
-where ``${BOARD}`` is also the name of the board. The ARCH should be *arm* for
-Zynq-7000 or *aarch64* for Zynq UltraScale+. If no bitstream is provided then the
-one included in the BSP will be used by default. All paths in this file
-should be relative to the board directory.
+Boot artefacts: ``edf.env``
+---------------------------
 
-To customise the BSP a ``petalinux_bsp`` folder can be included in the board
-directory the contents of which will be added to the provided BSP before the
-project is created. See the ZCU104 for an example of this in action. This is
-designed to allow for additional drivers, kernel or boot-file patches and
-device tree configuration that are helpful to support elements of PYNQ to be
-added to a pre-existing BSP.
+``BOOT.BIN``, the kernel ``Image``, ``system.dtb``, the kernel modules and
+``zocl.ko`` are built with AMD's EDF (Yocto/bitbake) flow. ``edf.env`` selects
+the Yocto machine to build them for.
 
-If a suitable PetaLinux BSP is unavailable for the board then ``BSP_${BOARD}``
-can be left blank; in this case, users have two options:
+========================== ============ =======================================
+Key                                     Meaning
+========================== ============ =======================================
+``EDF_BOOT_MACHINE``       required     Machine used for ``BOOT.BIN`` and the
+                                        device tree
+``EDF_MODE``               optional     ``prebuilt`` to use a machine from
+                                        AMD's layers, ``custom`` to generate
+                                        one from an XSA. Defaults to
+                                        ``prebuilt``
+``EDF_LINUX_MACHINE``      optional     Machine used for the kernel. Defaults
+                                        to ``EDF_BOOT_MACHINE``
+``EDF_MANIFEST_TAG``       optional     EDF manifest tag to sync. Defaults to
+                                        the tag used by the build scripts
+``BSP_XSA_PATH``           custom mode  The XSA to generate the machine from.
+                                        Without it, ``base/base.xsa`` is used
+                                        if present
+``EDF_BOARD_DTS``          optional     Custom mode only: board DTS to pass to
+                                        ``sdtgen``. Omit to use the generic SoC
+                                        device tree and put everything
+                                        board-specific in ``board.dtsi``
+``EDF_DDR_HIGH_BANK_REG``  optional     ``reg`` value trimming the high DDR
+                                        bank to the board's real size
+========================== ============ =======================================
 
- 1. Place a *<design_name>.xsa* file in the ``petalinux_bsp/hardware_project``
-    folder. As part of the build flow, a new BSP will be created from
-    this XSA file.
- 2. Place a makefile along with tcl files which can generate the hardware
-    design in the ``petalinux_bsp/hardware_project`` folder.
-    As part of the build flow, the hardware design along with the XSA file
-    will be generated, then a new BSP will be created from this XSA file.
+Use prebuilt mode when AMD's layers already contain a machine for the board, as
+for the ZCU104:
 
-Starting from image v2.6, we allow users to disable FPGA manager by setting
-``FPGA_MANAGER_${BOARD}`` to 0. This may have many use cases. For example,
-users may want the bitstream to be downloaded at boot to enable some
-board components as early as possible. Another use case is that users want
-to enable interrupt for XRT. The side effect of this, is that users
-may not be able to reload a bitstream after boot.
+.. code-block:: shell
 
-If ``FPGA_MANAGER_${BOARD}`` is set to 1 or ``FPGA_MANAGER_${BOARD}`` is
-not defined at all, FPGA manager will be enabled. In this case, the bitstream
-will be downloaded later in user applications; and users can only use XRT
-in polling mode. This is the default behavior of PYNQ since we want users
-to be able to download any bitstream after boot.
+   EDF_MANIFEST_TAG=amd-edf-rel-v25.11.1
+   EDF_MODE=prebuilt
+   EDF_BOOT_MACHINE=zynqmp-zcu104-sdt-full
+   EDF_LINUX_MACHINE=zynqmp-zcu104-sdt-full
+
+Use custom mode when the boot image has to match a design built here, as on
+Versal, where ``BOOT.BIN`` carries the golden reference design that runtime
+overlays are segmented children of. The build runs ``sdtgen`` on
+``BSP_XSA_PATH`` to produce a system device tree, then ``gen-machine-conf`` to
+turn that into a machine layer, so Vivado must be available. The VCK190:
+
+.. code-block:: shell
+
+   EDF_MANIFEST_TAG=amd-edf-rel-v25.11.1
+   EDF_MODE=custom
+   EDF_BOOT_MACHINE=versal-vck190-pynq-seg
+   EDF_LINUX_MACHINE=amd-cortexa72-common
+   EDF_BOARD_DTS=versal-vck190-reva
+   BSP_XSA_PATH=golden/golden.xsa
+
+In custom mode ``EDF_BOOT_MACHINE`` must not match a machine name in AMD's
+layers, or bitbake resolves theirs and ignores the generated one.
+
+Kernel, device tree and U-Boot: ``edf_bsp``
+-------------------------------------------
+
+All three are optional, and a board that needs none of them can omit
+``edf_bsp`` entirely.
+
+ 1. ``board.dtsi`` is appended to the machine's device tree. Board-specific
+    nodes belong here: memory, PHYs, I2C devices, pin settings.
+ 2. ``kernel.cfg`` is added to the kernel's sources as a config fragment when
+    present, and merged into its ``.config``.
+ 3. ``u-boot/`` is added to U-Boot's sources when present. ``.patch`` and
+    ``.diff`` files are applied, and ``.cfg`` fragments are merged into U-Boot's
+    ``.config``.
+
+Editing ``board.dtsi`` invalidates the device tree's shared state, so the change
+is picked up on the next build.
 
 Board-specific packages
 -----------------------
 
-A ``packages`` directory can be included in board directory with the same
-layout as the ``<PYNQ repository>/sdbuild/packages`` directory. Each
-subdirectory is a package that can optionally be installed as part of image
-creation. See ``<PYNQ repository>/sdbuild/packages/README.md`` for a
-description of the format of a PYNQ sdbuild package.
-
-To add a package to the image you must also define a
-``STAGE4_PACKAGE_${BOARD}`` variable in your spec file. These can either
-packages in the standard sdbuild library or ones contained within the board
-package. It is often useful to add the ``pynq`` package to this list which will
-ensure that a customised PYNQ installation is included in your final image.
+A ``packages`` directory can be included in the board directory with the same
+layout as the ``<PYNQ repository>/sdbuild/packages`` directory. A directory
+under it becomes installable by naming it in ``STAGE4_PACKAGES_<BOARD>``, and
+packages from the standard sdbuild library can be named there too. A package
+consists of up to four optional files: a ``Makefile`` for work done on the host,
+``pre.sh`` and ``post.sh`` which run outside the target root filesystem and are
+passed its path, and ``qemu.sh`` which runs inside it under QEMU. Scripts should
+write temporary files to ``$BUILD_ROOT``.
 
 Leveraging ``boot.py`` to modify SD card boot behavior
 ------------------------------------------------------
@@ -349,9 +324,9 @@ boot partition of the board and no other files should be modified.
 
 If you see some existing code running inside the boot.py file, it probably came
 from a PYNQ sdbuild package that modified that file.  To see an example of an
-sdbuild package writing the boot.py file see the ZCU104's `boot_leds package 
-<https://github.com/Xilinx/PYNQ/tree/image_v2.6.0/boards/ZCU104/packages/boot_leds>`_
-which simply flashes the boards LEDs to signify Linux has booted on the board.
+sdbuild package writing the boot.py file see the ZCU104's ``boot_leds`` package
+in ``<PYNQ repository>/boards/ZCU104/packages/boot_leds``, which simply flashes
+the boards LEDs to signify Linux has booted on the board.
 
 Using the PYNQ package
 ----------------------
@@ -362,7 +337,7 @@ officially supported boards. This means, in particular, that:
  1. A ``notebooks`` folder, if it exists, will be copied into the
     ``jupyter_notebooks`` folder in the image. Notebooks here will overwrite any of
     the default ones.
- 2. Any directory containing a bitstream will be treated as an overlay and
+ 2. Any directory containing a ``.bit`` or ``.pdi`` file will be treated as an overlay and
     copied into the overlays folder of the PYNQ installation. Any notebooks will
     likewise by installed in an overlay-specific subdirectory.
 

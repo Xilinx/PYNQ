@@ -4,12 +4,10 @@
 PYNQ Overlays
 *************
 
-The AMD-Xilinx® Zynq® All Programmable device is an SOC based on a dual-core ARM®
-Cortex®-A9 processor (referred to as the *Processing System* or **PS**),
-integrated with FPGA fabric (referred to as *Programmable Logic* or **PL**). The
-*PS* subsystem includes a number of dedicated peripherals (memory controllers,
-USB, Uart, IIC, SPI etc) and can be extended with additional hardware IP in a
-*PL* Overlay.
+AMD adaptive SoCs combine an application processor (referred to as the
+*Processing System* or **PS**) with programmable logic (**PL**). The *PS*
+subsystem includes dedicated peripherals and can be extended with additional
+hardware IP in a *PL* overlay.
 
 .. image:: images/zynq_block_diagram.jpg
    :align: center
@@ -42,3 +40,4 @@ by many other software developers working at the application level.
    
     pynq_overlays/loading_an_overlay.ipynb
     pynq_overlays/zcu104
+    pynq_overlays/vck190
