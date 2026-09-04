@@ -244,14 +244,17 @@ class GPIO:
         else:
             valid_labels.append('zynqmp_gpio')
             valid_labels.append('zynq_gpio')
+            valid_labels.append('versal_gpio')
+            valid_labels.append('pmc_gpio')
 
-        for root, dirs, files in os.walk('/sys/class/gpio'):
-            for name in dirs:
-                if 'gpiochip' in name:
-                    with open(os.path.join(root, name, "label")) as fd:
-                        label = fd.read().rstrip()
-                    if label in valid_labels:
-                        return os.path.join(root, name)
+        for wanted in valid_labels:
+            for root, dirs, files in os.walk('/sys/class/gpio'):
+                for name in dirs:
+                    if 'gpiochip' in name:
+                        with open(os.path.join(root, name, "label")) as fd:
+                            label = fd.read().rstrip()
+                        if label == wanted:
+                            return os.path.join(root, name)
 
     @staticmethod
     def get_gpio_base(target_label=None):
