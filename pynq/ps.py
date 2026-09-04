@@ -16,6 +16,15 @@ ON_TARGET = os.path.isfile('/proc/device-tree/chosen/pynq_board')
 DEFAULT_PL_CLK_MHZ = 100.0
 
 
+# Ordered most to least reliable.
+_VERSAL_DT_MARKERS = (
+    ('/proc/device-tree/firmware/versal-firmware/compatible',
+     b'xlnx,versal-firmware'),
+    ('/proc/device-tree/compatible', b'xlnx,versal'),
+    ('/proc/device-tree/family', b'Versal'),
+)
+
+
 def _is_versal_host():
     """Return True when the device tree identifies the SoC as Versal.
 
@@ -23,11 +32,14 @@ def _is_versal_host():
     them apart.
 
     """
-    try:
-        with open('/proc/device-tree/compatible', 'rb') as f:
-            return b'xlnx,versal' in f.read()
-    except OSError:
-        return False
+    for path, marker in _VERSAL_DT_MARKERS:
+        try:
+            with open(path, 'rb') as f:
+                if marker in f.read():
+                    return True
+        except OSError:
+            continue
+    return False
 
 
 ZYNQ_PLL_FIELDS = {
