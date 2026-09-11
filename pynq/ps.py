@@ -25,18 +25,26 @@ _VERSAL_DT_MARKERS = (
 )
 
 
-def _is_versal_host():
+def _is_versal(device=None):
     """Return True when the device tree identifies the SoC as Versal.
 
     ZynqMP and Versal both report `aarch64`, so `CPU_ARCH` cannot tell
-    them apart.
+    them apart. A remote device is a different machine from the one running
+    this code, so its device tree is read over the connection instead.
 
     """
+    remote = device is not None and device.has_capability('REMOTE')
     for path, marker in _VERSAL_DT_MARKERS:
         try:
-            with open(path, 'rb') as f:
-                if marker in f.read():
+            if remote:
+                if not device.exists_file(path).exists:
+                    continue
+                if marker in device.read_file(path):
                     return True
+            else:
+                with open(path, 'rb') as f:
+                    if marker in f.read():
+                        return True
         except OSError:
             continue
     return False
@@ -401,7 +409,7 @@ class _ClocksMeta(type):
                 cls._real_instance = _ClocksZynq(device=cls.device)
             elif cls.device.arch == ZU_ARCH:
                 # Versal is also aarch64, but has no CRL_APB/CRF_APB.
-                if _is_versal_host():
+                if _is_versal(cls.device):
                     cls._real_instance = _ClocksVersal(device=cls.device)
                 else:
                     cls._real_instance = _ClocksUltrascale(device=cls.device)
