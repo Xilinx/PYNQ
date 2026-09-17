@@ -21,33 +21,23 @@
 			linux,cma-default;
 		};
 
-		/* For LPDDR, allocate(target=<LPDDR>) silently returns a DDR4
-		 * buffer unless included in device tree. Each controller owns
-		 * two 2 GB windows; the width is fixed by the Versal address map,
-		 * so a LPDDRx 4 GB part needs both entries.*/
-
-		lpddr1_ch1@50000000000 {
-			compatible = "shared-dma-pool";
-			no-map;
-			reg = <0x500 0x00000000 0x0 0x80000000>;
-		};
-
-		lpddr1_ch1_1@58080000000 {
-			compatible = "shared-dma-pool";
-			no-map;
-			reg = <0x580 0x80000000 0x0 0x80000000>;
-		};
-
+		/* 4 GB of LPDDR0: reachable from both the PL and PS in the current
+		 * golden reference design shipped with PYNQ */
 		lpddr0_ch2@60000000000 {
 			compatible = "shared-dma-pool";
 			no-map;
-			reg = <0x600 0x00000000 0x0 0x80000000>;
+			reg = <0x600 0x00000000 0x1 0x00000000>;
 		};
 
-		lpddr0_ch2_1@68080000000 {
+		/* 4 GB of LPDDR1: reachable only from the PL in the current golden
+		 * reference design shipped with PYNQ. so not visible to the PS. This
+		 * pool is kept so a design that does need more PS-visible memory does
+		 * not have to change the device tree; this requires a change of
+		 * BOOT.BIN. */
+		lpddr1_ch1@50000000000 {
 			compatible = "shared-dma-pool";
 			no-map;
-			reg = <0x680 0x80000000 0x0 0x80000000>;
+			reg = <0x500 0x00000000 0x1 0x00000000>;
 		};
 	};
 };
