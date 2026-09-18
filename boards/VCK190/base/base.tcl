@@ -50,7 +50,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 set overlay_name base
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project ${overlay_name} ${overlay_name} -part xcvc1902-vsva2197-2MP-e>
+   create_project ${overlay_name} ${overlay_name} -part xcvc1902-vsva2197-2MP-e-S
    set_property BOARD_PART xilinx.com:vck190:part0:3.4 [current_project]
 }
 
