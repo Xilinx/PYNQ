@@ -21,19 +21,14 @@
 			linux,cma-default;
 		};
 
-		/* 4 GB of LPDDR0: reachable from both the PL and PS in the current
-		 * golden reference design shipped with PYNQ */
+		/* LPDDR0 -- 4GB */
 		lpddr0_ch2@60000000000 {
 			compatible = "shared-dma-pool";
 			no-map;
 			reg = <0x600 0x00000000 0x1 0x00000000>;
 		};
 
-		/* 4 GB of LPDDR1: reachable only from the PL in the current golden
-		 * reference design shipped with PYNQ. so not visible to the PS. This
-		 * pool is kept so a design that does need more PS-visible memory does
-		 * not have to change the device tree; this requires a change of
-		 * BOOT.BIN. */
+		/* LPDDR1 -- 4GB */
 		lpddr1_ch1@50000000000 {
 			compatible = "shared-dma-pool";
 			no-map;
