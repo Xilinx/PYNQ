@@ -115,7 +115,7 @@ class RemoteBitstreamHandler(BitstreamHandler):
             xclbin_parser = XclBin(xclbin_data=xclbin_data)
             _unify_dictionaries(parser, xclbin_parser)
             parser.refresh_hierarchy_dict()
-            self._xsa_bitstream_file = parser.xsa.bitstreamPaths[0]
+            self._xsa_bitstream_file = parser.xsa._primaryProgrammableImagePath()
         else:
             return None
         parser.bin_data = self.get_bin_data()
@@ -140,7 +140,7 @@ class RemoteXsafileHandler(RemoteBitstreamHandler):
         if self._xsa_bitstream_file is None:
             raise RuntimeError("Could not find bitstream file in XSA")
         else:
-            return bit2bin(Path(self._xsa_bitstream_file).read_bytes())
+            return _get_bitstream_handler(self._xsa_bitstream_file).get_bin_data()
 
 _bitstream_handlers = {
     ".bit": RemoteBitfileHandler,
