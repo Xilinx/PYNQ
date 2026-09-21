@@ -7,6 +7,7 @@ Python bindings from source and installs them into the PYNQ image.
 
 - clones XRT at tag `202520.2.20.197` (Xilinx 2025.2 / XRT 2.20),
 - builds the embedded (`-edge`) variant for the zocl/DRM device path,
+- enables the ARM64 AIE runtime used by Versal devices,
 - installs `libxrt_*` under `/opt/xilinx/xrt/` and registers it with
   `ldconfig`,
 - stages `pyxrt` into the PYNQ venv (`/usr/local/share/pynq-venv`).

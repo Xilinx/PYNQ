@@ -16,6 +16,7 @@ fi
 # sdbuild/boot/meta-pynq/recipes-xrt/zocl/zocl_git.bb. Userspace and
 # kernel-side ABIs need to match.
 XRT_TAG="202520.2.20.197"
+AIE_RT_REV="bbfd450f191bed02e0f380f536770d375f1fdcea"
 
 # pyxrt is installed into the PYNQ venv, so it must already exist
 # (python_packages_noble creates it in STAGE2).
@@ -53,8 +54,31 @@ git checkout "tags/${XRT_TAG}" -b temp
 git submodule init
 git submodule update
 
-# Force pyxrt to be built in the embedded variant; embedded_system.cmake
-# otherwise skips python/.
+cd /root
+git clone https://github.com/Xilinx/aie-rt aie-rt-git
+cd aie-rt-git
+git checkout "${AIE_RT_REV}" -b temp
+cd /root/xrt-git
+
+make -C /root/aie-rt-git/driver/src -f Makefile.Linux -j1 \
+    CFLAGS="-Wall -Wextra -D__AIELINUX__"
+install -d /usr/include/xaiengine /usr/lib
+install -m 0644 /root/aie-rt-git/driver/include/*.h \
+    /usr/include/
+install -m 0644 /root/aie-rt-git/driver/include/xaiengine/*.h \
+    /usr/include/xaiengine/
+cp -a /root/aie-rt-git/driver/src/libxaiengine.so* /usr/lib/
+ldconfig
+
+cmake -S /root/aie-rt-git/fal -B aiefal-build \
+    -DWITH_TESTS=OFF -DWITH_EXAMPLES=OFF -DFAL_LINUX=ON \
+    -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build aiefal-build
+cmake --install aiefal-build
+
+sed -i '/^add_subdirectory(runtime_src)$/i set (XRT_AIE_BUILD ON)' src/CMake/embedded_system.cmake
+
+# Build pyxrt in embedded builds.
 echo "" >> src/CMake/embedded_system.cmake
 echo "set (XRT_INSTALL_PYTHON_DIR \"\${XRT_INSTALL_DIR}/python\")" >> src/CMake/embedded_system.cmake
 echo "add_subdirectory(python)" >> src/CMake/embedded_system.cmake
@@ -65,16 +89,10 @@ sed -i 's/^if (NOT WIN32)$/if (FALSE)/' \
 sed -i 's|^add_subdirectory(device_offload/hw_emu)$|# skipped: no xrt_hwemu in embedded build|' \
     src/runtime_src/xdp/profile/plugin/CMakeLists.txt
 
-# Stub {get,set}_aie_freq: ZynqMP has no AIE and XRT 2.20 misses the
-# #ifdef XRT_ENABLE_AIE guard on these call sites (only on the decls).
-sed -i 's|return m_shim->get_aie_freq(this);|throw xrt_core::error(std::errc::not_supported, __func__);|' \
-    src/runtime_src/core/edge/user/hwctx_object.cpp
-sed -i 's|return m_shim->set_aie_freq(this, freq_hz);|throw xrt_core::error(std::errc::not_supported, __func__);|' \
-    src/runtime_src/core/edge/user/hwctx_object.cpp
-
 cd build
 # -edge builds the embedded (zocl) shim; see XRT-install-location.md.
-XRT_NATIVE_BUILD=no ./build.sh -dbg -edge -noctest -noinit -noert
+CXXFLAGS="-DXRT_ENABLE_AIE -DFAL_LINUX=on" \
+    XRT_NATIVE_BUILD=no ./build.sh -dbg -edge -noctest -noinit -noert
 cd Debug
 make install
 
