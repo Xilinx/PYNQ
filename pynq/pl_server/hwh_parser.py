@@ -13,7 +13,7 @@ from pynq.ps import (
     CPU_ARCH_IS_SUPPORTED,
     ZU_ARCH,
     ZYNQ_ARCH,
-    _is_versal_host,
+    _is_versal,
 )
 
 
@@ -760,7 +760,7 @@ class _HWHVersal(_HWHABC):
 
 if CPU_ARCH == ZU_ARCH:
     # Versal is also aarch64, so pick the parser from the device tree.
-    HWH = _HWHVersal if _is_versal_host() else _HWHUltrascale
+    HWH = _HWHVersal if _is_versal() else _HWHUltrascale
 elif CPU_ARCH == ZYNQ_ARCH:
     HWH = _HWHZynq
 else:

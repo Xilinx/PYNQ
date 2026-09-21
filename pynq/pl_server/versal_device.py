@@ -3,7 +3,7 @@
 
 import os
 
-from pynq.ps import _is_versal_host
+from pynq.ps import _is_versal
 
 from .embedded_device import EmbeddedDevice
 
@@ -25,7 +25,7 @@ class VersalDevice(EmbeddedDevice):
 
     @classmethod
     def _probe_(cls):
-        if _is_versal_host():
+        if _is_versal():
             return [VersalDevice()]
         else:
             return []
