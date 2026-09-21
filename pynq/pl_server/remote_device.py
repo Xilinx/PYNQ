@@ -29,6 +29,8 @@ from pynq.remote import (
 
 import grpc
 
+from pynq.ps import _is_versal
+
 PYNQ_PORT = 7967
 BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
 BS_FPGA_MAN_FLAGS = "/sys/class/fpga_manager/fpga0/flags"
@@ -534,6 +536,8 @@ class RemoteGPIO:
     direction : str
         Input/output direction of the GPIO.
     """
+
+    _GPIO_MIN_USER_PIN = {'versal_gpio': 26, 'pmc_gpio': 52}
     
     def __init__(self, gpio_index, direction, device=None):
         """Return a new RemoteGPIO object.
@@ -681,6 +685,11 @@ class RemoteGPIO:
         """
         if device is None:
             raise RuntimeError("get_gpio_base_path requires a RemoteDevice instance.")
+        if target_label is None and _is_versal(device):
+            raise ValueError(
+                "target_label must be specified on Versal; use "
+                "'versal_gpio' or 'pmc_gpio'."
+            )
         stub = device._stub['gpio']
 
         response = stub.get_gpio_base_path(
@@ -760,7 +769,14 @@ class RemoteGPIO:
         if device is None:
             raise RuntimeError("get_gpio_pin requires a RemoteDevice instance.")
         
-        if target_label is not None:
+        if _is_versal(device):
+            if target_label not in RemoteGPIO._GPIO_MIN_USER_PIN:
+                raise ValueError(
+                    "target_label must be specified on Versal; use "
+                    "'versal_gpio' or 'pmc_gpio'."
+                )
+            GPIO_OFFSET = RemoteGPIO._GPIO_MIN_USER_PIN[target_label]
+        elif target_label is not None:
             GPIO_OFFSET = 0
         else:
             if device.arch == "aarch64":
