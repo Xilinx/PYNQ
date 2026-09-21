@@ -1,3 +1,7 @@
+#
+# Copyright (c) 2026, Advanced Micro Devices, Inc.
+# SPDX-License-Identifier: BSD-3-Clause
+#
 
 ################################################################
 # This is a generated script based on design: vck190_pynq
@@ -135,6 +139,7 @@ xilinx.com:ip:versal_cips:3.4\
 xilinx.com:ip:ai_engine:2.0\
 xilinx.com:ip:proc_sys_reset:5.0\
 xilinx.com:ip:axi_vip:1.1\
+xilinx.com:ip:xlconstant:1.1\
 "
 
    set list_ips_missing ""
@@ -533,7 +538,7 @@ proc create_root_design { parentCell } {
   # Create instance: noc_pl, and set properties
   set noc_pl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_noc:1.1 noc_pl ]
   set_property -dict [list \
-    CONFIG.NUM_CLKS {4} \
+    CONFIG.NUM_CLKS {1} \
     CONFIG.NUM_MI {0} \
     CONFIG.NUM_NMI {5} \
     CONFIG.NUM_NSI {0} \
@@ -578,18 +583,6 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {S00_AXI:S01_AXI:S02_AXI:S03_AXI} \
  ] [get_bd_pins $noc_pl/aclk0]
-
-  set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {} \
- ] [get_bd_pins $noc_pl/aclk1]
-
-  set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {} \
- ] [get_bd_pins $noc_pl/aclk2]
-
-  set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {} \
- ] [get_bd_pins $noc_pl/aclk3]
 
   # Create instance: tieoff_lpd, and set properties
   set tieoff_lpd [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vip:1.1 tieoff_lpd ]
@@ -732,6 +725,16 @@ proc create_root_design { parentCell } {
   ] $tieoff_pl1
 
 
+  # Create instance: tieoff_fpd, and set properties
+  set tieoff_fpd [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vip:1.1 tieoff_fpd ]
+  set_property CONFIG.INTERFACE_MODE {SLAVE} $tieoff_fpd
+
+
+  # Create instance: xlconstant_irq, and set properties
+  set xlconstant_irq [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_irq ]
+  set_property CONFIG.CONST_VAL {0} $xlconstant_irq
+
+
   # Create interface connections
   connect_bd_intf_net -intf_net axi_noc_0_CH0_LPDDR4_0 [get_bd_intf_ports ch0_lpddr4_c1] [get_bd_intf_pins noc_lpddr1_pl_only/CH0_LPDDR4_0]
   connect_bd_intf_net -intf_net axi_noc_0_CH1_LPDDR4_0 [get_bd_intf_ports ch1_lpddr4_c1] [get_bd_intf_pins noc_lpddr1_pl_only/CH1_LPDDR4_0]
@@ -764,6 +767,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net versal_cips_0_FPD_CCI_NOC_2 [get_bd_intf_pins versal_cips_0/FPD_CCI_NOC_2] [get_bd_intf_pins noc_master/S02_AXI]
   connect_bd_intf_net -intf_net versal_cips_0_FPD_CCI_NOC_3 [get_bd_intf_pins versal_cips_0/FPD_CCI_NOC_3] [get_bd_intf_pins noc_master/S03_AXI]
   connect_bd_intf_net -intf_net versal_cips_0_LPD_AXI_NOC_0 [get_bd_intf_pins noc_master/S06_AXI] [get_bd_intf_pins versal_cips_0/LPD_AXI_NOC_0]
+  connect_bd_intf_net -intf_net versal_cips_0_M_AXI_FPD [get_bd_intf_pins tieoff_fpd/S_AXI] [get_bd_intf_pins versal_cips_0/M_AXI_FPD]
   connect_bd_intf_net -intf_net versal_cips_0_M_AXI_LPD [get_bd_intf_pins versal_cips_0/M_AXI_LPD] [get_bd_intf_pins tieoff_lpd/S_AXI]
   connect_bd_intf_net -intf_net versal_cips_0_PMC_NOC_AXI_0 [get_bd_intf_pins versal_cips_0/PMC_NOC_AXI_0] [get_bd_intf_pins noc_master/S07_AXI]
 
@@ -775,7 +779,8 @@ proc create_root_design { parentCell } {
   [get_bd_pins tieoff_pl2/aresetn] \
   [get_bd_pins tieoff_pl3/aresetn] \
   [get_bd_pins tieoff_pl0/aresetn] \
-  [get_bd_pins tieoff_pl1/aresetn]
+  [get_bd_pins tieoff_pl1/aresetn] \
+  [get_bd_pins tieoff_fpd/aresetn]
   connect_bd_net -net versal_cips_0_fpd_axi_noc_axi0_clk  [get_bd_pins versal_cips_0/fpd_axi_noc_axi0_clk] \
   [get_bd_pins noc_master/aclk4]
   connect_bd_net -net versal_cips_0_fpd_axi_noc_axi1_clk  [get_bd_pins versal_cips_0/fpd_axi_noc_axi1_clk] \
@@ -794,20 +799,20 @@ proc create_root_design { parentCell } {
   [get_bd_pins versal_cips_0/m_axi_fpd_aclk] \
   [get_bd_pins versal_cips_0/m_axi_lpd_aclk] \
   [get_bd_pins rst_pl0/slowest_sync_clk] \
-  [get_bd_pins noc_pl/aclk1] \
   [get_bd_pins noc_pl/aclk0] \
   [get_bd_pins noc_master/aclk8] \
   [get_bd_pins tieoff_lpd/aclk] \
   [get_bd_pins tieoff_pl3/aclk] \
   [get_bd_pins tieoff_pl2/aclk] \
-  [get_bd_pins noc_pl/aclk2] \
-  [get_bd_pins noc_pl/aclk3] \
   [get_bd_pins tieoff_pl1/aclk] \
-  [get_bd_pins tieoff_pl0/aclk]
+  [get_bd_pins tieoff_pl0/aclk] \
+  [get_bd_pins tieoff_fpd/aclk]
   connect_bd_net -net versal_cips_0_pl0_resetn  [get_bd_pins versal_cips_0/pl0_resetn] \
   [get_bd_pins rst_pl0/ext_reset_in]
   connect_bd_net -net versal_cips_0_pmc_axi_noc_axi0_clk  [get_bd_pins versal_cips_0/pmc_axi_noc_axi0_clk] \
   [get_bd_pins noc_master/aclk7]
+  connect_bd_net -net xlconstant_0_dout  [get_bd_pins xlconstant_irq/dout] \
+  [get_bd_pins versal_cips_0/pl_ps_irq0]
 
   # Create address segments
   assign_bd_address -offset 0x020000000000 -range 0x000100000000 -target_address_space [get_bd_addr_spaces versal_cips_0/FPD_AXI_NOC_0] [get_bd_addr_segs ai_engine_0/S00_AXI/AIE_ARRAY_0] -force
@@ -837,6 +842,7 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces versal_cips_0/LPD_AXI_NOC_0] [get_bd_addr_segs noc_ddr/S00_INI/C0_DDR_LOW0] -force
   assign_bd_address -offset 0x000800000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces versal_cips_0/LPD_AXI_NOC_0] [get_bd_addr_segs noc_ddr/S00_INI/C0_DDR_LOW1] -force
   assign_bd_address -offset 0x060000000000 -range 0x000100000000 -target_address_space [get_bd_addr_spaces versal_cips_0/LPD_AXI_NOC_0] [get_bd_addr_segs noc_lpddr0/S00_INI/C0_DDR_CH2] -force
+  assign_bd_address -offset 0xA4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs tieoff_fpd/S_AXI/Reg] -force
   assign_bd_address -offset 0x80000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_LPD] [get_bd_addr_segs tieoff_lpd/S_AXI/Reg] -force
   assign_bd_address -offset 0x020000000000 -range 0x000100000000 -target_address_space [get_bd_addr_spaces versal_cips_0/PMC_NOC_AXI_0] [get_bd_addr_segs ai_engine_0/S00_AXI/AIE_ARRAY_0] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces versal_cips_0/PMC_NOC_AXI_0] [get_bd_addr_segs noc_ddr/S00_INI/C0_DDR_LOW0] -force

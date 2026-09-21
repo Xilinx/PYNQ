@@ -1,3 +1,7 @@
+#
+# Copyright (c) 2026, Advanced Micro Devices, Inc.
+# SPDX-License-Identifier: BSD-3-Clause
+#
 
 ################################################################
 # This is a generated script based on design: vck190_pynq
@@ -455,8 +459,8 @@ proc create_root_design { parentCell } {
       PS_NUM_FABRIC_RESETS {1} \
       PS_PCIE1_PERIPHERAL_ENABLE {0} \
       PS_PCIE2_PERIPHERAL_ENABLE {0} \
-      PS_PCIE_EP_RESET1_IO {None} \
-      PS_PCIE_EP_RESET2_IO {None} \
+      PS_PCIE_EP_RESET1_IO {PMC_MIO 38} \
+      PS_PCIE_EP_RESET2_IO {PMC_MIO 39} \
       PS_PCIE_RESET {ENABLE 1} \
       PS_PL_CONNECTIVITY_MODE {Custom} \
       PS_UART0_PERIPHERAL {{ENABLE 1} {IO {PMC_MIO 42 .. 43}}} \
@@ -551,7 +555,7 @@ proc create_root_design { parentCell } {
   # Create instance: noc_pl, and set properties
   set noc_pl [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_noc:1.1 noc_pl ]
   set_property -dict [list \
-    CONFIG.NUM_CLKS {2} \
+    CONFIG.NUM_CLKS {1} \
     CONFIG.NUM_MI {0} \
     CONFIG.NUM_NMI {5} \
     CONFIG.NUM_NSI {0} \
@@ -580,10 +584,6 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {S00_AXI:S01_AXI} \
  ] [get_bd_pins $noc_pl/aclk0]
-
-  set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {} \
- ] [get_bd_pins $noc_pl/aclk1]
 
   # Create instance: tieoff_lpd, and set properties
   set tieoff_lpd [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vip:1.1 tieoff_lpd ]
@@ -821,7 +821,6 @@ proc create_root_design { parentCell } {
   [get_bd_pins versal_cips_0/m_axi_fpd_aclk] \
   [get_bd_pins versal_cips_0/m_axi_lpd_aclk] \
   [get_bd_pins rst_pl0/slowest_sync_clk] \
-  [get_bd_pins noc_pl/aclk1] \
   [get_bd_pins noc_pl/aclk0] \
   [get_bd_pins noc_master/aclk8] \
   [get_bd_pins tieoff_lpd/aclk] \
