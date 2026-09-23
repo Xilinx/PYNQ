@@ -389,6 +389,21 @@ class RemoteDevice(Device):
         """
         return RemoteMMIO(self._stub['mmio'], address, length)
 
+    def get_memory(self, description):
+        """Create a memory object for a memory in the overlay
+
+        Parameters
+        ----------
+        description : dict
+            The entry from the overlay mem_dict describing the memory
+
+        Returns
+        -------
+        RemoteMemory
+            Memory object for allocating buffers on the remote device
+        """
+        return RemoteMemory(self, description)
+
     def download(self, bitstream, parser=None):
         """Download bitstream to the remote FPGA device
 
@@ -522,6 +537,46 @@ class RemoteDevice(Device):
         )
         return ar
             
+
+class RemoteMemory:
+    """Remote Memory placeholder class
+
+    Placeholder implementation for the memories of an overlay on remote
+    devices. Allocating into a specific memory is not yet implemented for
+    remote PYNQ devices, so buffers are allocated in the default memory.
+
+    Parameters
+    ----------
+    device : RemoteDevice
+        Device object for memory operations
+    desc : dict
+        The entry from the overlay mem_dict describing the memory
+    """
+
+    def __init__(self, device, desc):
+        self.device = device
+        self.desc = desc or {}
+        self.idx = self.desc.get("idx")
+        self.size = self.desc.get("size", self.desc.get("addr_range"))
+        self.base_address = self.desc.get("base_address", self.desc.get("phys_addr"))
+        warnings.warn(
+            "Allocating into a specific memory is not yet implemented for "
+            "remote devices; using the default memory instead."
+        )
+
+    def allocate(self, shape, dtype, **kwargs):
+        """Create a new buffer in the memory
+
+        Parameters
+        ----------
+        shape : tuple(int)
+            Shape of the array
+        dtype : np.dtype
+            Data type of the array
+
+        """
+        return self.device.allocate(shape, dtype, **kwargs)
+
 
 class RemoteGPIO:
     """Internal Helper class to wrap Linux's GPIO Sysfs API.
