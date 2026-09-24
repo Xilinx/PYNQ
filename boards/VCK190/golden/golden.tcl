@@ -140,6 +140,7 @@ xilinx.com:ip:versal_cips:3.4\
 xilinx.com:ip:proc_sys_reset:5.0\
 xilinx.com:ip:axi_vip:1.1\
 xilinx.com:ip:xlconstant:1.1\
+xilinx.com:ip:axi_dbg_hub:2.0\
 "
 
    set list_ips_missing ""
@@ -274,7 +275,7 @@ proc create_root_design { parentCell } {
   set noc_master [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_noc:1.1 noc_master ]
   set_property -dict [list \
     CONFIG.NUM_CLKS {9} \
-    CONFIG.NUM_MI {0} \
+    CONFIG.NUM_MI {1} \
     CONFIG.NUM_NMI {5} \
     CONFIG.NUM_NSI {0} \
     CONFIG.NUM_SI {8} \
@@ -282,6 +283,11 @@ proc create_root_design { parentCell } {
 
 
   set_property SELECTED_SIM_MODEL tlm  $noc_master
+
+  set_property -dict [ list \
+   CONFIG.APERTURES {{0x201_0000_0000 1G}} \
+   CONFIG.CATEGORY {pl} \
+ ] [get_bd_intf_pins $noc_master/M00_AXI]
 
   set_property -dict [ list \
    CONFIG.REGION {0} \
@@ -339,8 +345,8 @@ proc create_root_design { parentCell } {
  ] [get_bd_intf_pins $noc_master/S06_AXI]
 
   set_property -dict [ list \
-   CONFIG.CONNECTIONS {M04_INI {read_bw {500} write_bw {500} initial_boot {true} } M00_INI {read_bw {500} write_bw {500} initial_boot {true} }} \
-   CONFIG.DEST_IDS {} \
+   CONFIG.CONNECTIONS {M04_INI {read_bw {500} write_bw {500} initial_boot {true} } M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} } M00_INI {read_bw {500} write_bw {500} initial_boot {true} }} \
+   CONFIG.DEST_IDS {M00_AXI:0x100} \
    CONFIG.NOC_PARAMS {} \
    CONFIG.CATEGORY {ps_pmc} \
  ] [get_bd_intf_pins $noc_master/S07_AXI]
@@ -378,7 +384,7 @@ proc create_root_design { parentCell } {
  ] [get_bd_pins $noc_master/aclk7]
 
   set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {} \
+   CONFIG.ASSOCIATED_BUSIF {M00_AXI} \
  ] [get_bd_pins $noc_master/aclk8]
 
   # Create instance: versal_cips_0, and set properties
@@ -704,6 +710,9 @@ proc create_root_design { parentCell } {
   set_property CONFIG.CONST_VAL {0} $xlconstant_irq
 
 
+  # Create instance: axi_dbg_hub, and set properties
+  set axi_dbg_hub [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dbg_hub:2.0 axi_dbg_hub ]
+
   # Create interface connections
   connect_bd_intf_net -intf_net axi_noc_0_CH0_LPDDR4_0 [get_bd_intf_ports ch0_lpddr4_c1] [get_bd_intf_pins noc_lpddr1_pl_only/CH0_LPDDR4_0]
   connect_bd_intf_net -intf_net axi_noc_0_CH1_LPDDR4_0 [get_bd_intf_ports ch1_lpddr4_c1] [get_bd_intf_pins noc_lpddr1_pl_only/CH1_LPDDR4_0]
@@ -717,6 +726,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net master_noc_M03_INI [get_bd_intf_pins noc_master/M03_INI] [get_bd_intf_pins noc_ddr/S03_INI]
   connect_bd_intf_net -intf_net noc_lpddr1_CH0_LPDDR4_0 [get_bd_intf_ports ch0_lpddr4_c0] [get_bd_intf_pins noc_lpddr0/CH0_LPDDR4_0]
   connect_bd_intf_net -intf_net noc_lpddr1_CH1_LPDDR4_0 [get_bd_intf_ports ch1_lpddr4_c0] [get_bd_intf_pins noc_lpddr0/CH1_LPDDR4_0]
+  connect_bd_intf_net -intf_net noc_master_M00_AXI [get_bd_intf_pins axi_dbg_hub/S_AXI] [get_bd_intf_pins noc_master/M00_AXI]
   connect_bd_intf_net -intf_net noc_master_M04_INI [get_bd_intf_pins noc_lpddr0/S00_INI] [get_bd_intf_pins noc_master/M04_INI]
   connect_bd_intf_net -intf_net noc_pl_M00_INI [get_bd_intf_pins noc_pl/M00_INI] [get_bd_intf_pins noc_ddr/S04_INI]
   connect_bd_intf_net -intf_net noc_pl_M01_INI [get_bd_intf_pins noc_pl/M01_INI] [get_bd_intf_pins noc_lpddr0/S01_INI]
@@ -745,7 +755,8 @@ proc create_root_design { parentCell } {
   [get_bd_pins tieoff_pl3/aresetn] \
   [get_bd_pins tieoff_pl0/aresetn] \
   [get_bd_pins tieoff_pl1/aresetn] \
-  [get_bd_pins tieoff_fpd/aresetn]
+  [get_bd_pins tieoff_fpd/aresetn] \
+  [get_bd_pins axi_dbg_hub/aresetn]
   connect_bd_net -net versal_cips_0_fpd_axi_noc_axi0_clk  [get_bd_pins versal_cips_0/fpd_axi_noc_axi0_clk] \
   [get_bd_pins noc_master/aclk4]
   connect_bd_net -net versal_cips_0_fpd_axi_noc_axi1_clk  [get_bd_pins versal_cips_0/fpd_axi_noc_axi1_clk] \
@@ -771,7 +782,8 @@ proc create_root_design { parentCell } {
   [get_bd_pins tieoff_pl2/aclk] \
   [get_bd_pins tieoff_pl1/aclk] \
   [get_bd_pins tieoff_pl0/aclk] \
-  [get_bd_pins tieoff_fpd/aclk]
+  [get_bd_pins tieoff_fpd/aclk] \
+  [get_bd_pins axi_dbg_hub/aclk]
   connect_bd_net -net versal_cips_0_pl0_resetn  [get_bd_pins versal_cips_0/pl0_resetn] \
   [get_bd_pins rst_pl0/ext_reset_in]
   connect_bd_net -net versal_cips_0_pmc_axi_noc_axi0_clk  [get_bd_pins versal_cips_0/pmc_axi_noc_axi0_clk] \
@@ -803,6 +815,7 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x060000000000 -range 0x000100000000 -target_address_space [get_bd_addr_spaces versal_cips_0/LPD_AXI_NOC_0] [get_bd_addr_segs noc_lpddr0/S00_INI/C0_DDR_CH2] -force
   assign_bd_address -offset 0xA4000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_FPD] [get_bd_addr_segs tieoff_fpd/S_AXI/Reg] -force
   assign_bd_address -offset 0x80000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces versal_cips_0/M_AXI_LPD] [get_bd_addr_segs tieoff_lpd/S_AXI/Reg] -force
+  assign_bd_address -offset 0x020100000000 -range 0x00200000 -target_address_space [get_bd_addr_spaces versal_cips_0/PMC_NOC_AXI_0] [get_bd_addr_segs axi_dbg_hub/S_AXI_DBG_HUB/Mem0] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces versal_cips_0/PMC_NOC_AXI_0] [get_bd_addr_segs noc_ddr/S00_INI/C0_DDR_LOW0] -force
   assign_bd_address -offset 0x000800000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces versal_cips_0/PMC_NOC_AXI_0] [get_bd_addr_segs noc_ddr/S00_INI/C0_DDR_LOW1] -force
   assign_bd_address -offset 0x060000000000 -range 0x000100000000 -target_address_space [get_bd_addr_spaces versal_cips_0/PMC_NOC_AXI_0] [get_bd_addr_segs noc_lpddr0/S00_INI/C0_DDR_CH2] -force
