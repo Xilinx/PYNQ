@@ -81,6 +81,6 @@ If you use PYNQ in your research, please cite this GitHub repository by using th
 
 ## SDBuild Open Source Components
 
-**License and Copyrights Info** [TAR/GZIP](https://www.xilinx.com/bin/public/openDownload?filename=pynq-v4.0.0-license.tar.gz)
+**License and Copyrights Info** [TAR/GZIP](https://download.amd.com/opendownload/pynq/pynq-v4.0-license.tar.gz)
 
-**Open Components Source Code** [TAR/GZIP](https://www.xilinx.com/bin/public/openDownload?filename=pynq-v4.0.0-open_components.tar.gz)
+**Open Components Source Code** [TAR/GZIP](https://download.amd.com/opendownload/pynq/pynq-v4.0-open_components.tar.gz)
