@@ -13,6 +13,7 @@ PYNQ.remote
    pynq_remote/cpp_index
    pynq_remote/status
    pynq_remote/env_variables
+   pynq_remote/troubleshooting
 
 PYNQ.remote is an extension to the PYNQ framework that enables remote control of AMD's FPGA-based devices. By moving the Python API to the host and communicating with the target device via gRPC, PYNQ.remote brings powerful new deployment, integration, and scalability features to PYNQ users, while preserving the familiar PYNQ user experience.
 
@@ -20,7 +21,7 @@ PYNQ.remote is an extension to the PYNQ framework that enables remote control of
 
 PYNQ.remote provides two key benefits to PYNQ. First, by moving the Python API to the host machine we create opportunities to integrate PYNQ into host-based hardware and software workflows. This allows users to take full advantage of the Python ecosystem on the host, while still controlling AMD's adaptive SoC devices remotely. This is particularly useful for applications that require high-performance computing, such as AI inference, data processing, or real-time visualisations. This allows the host to handle complex computations, while the FPGA can focus on specialised tasks. 
 
-Second, by using a minimal Petalinux image the target device software requirements are reduced to a PYNQ meta-layer and a minimal root file system. Additionally, we have implemented a PYNQ C++ API called `PYNQ.cpp` that runs on the target device, which provides a low-level interface to the hardware. Together, this provides a greatly reduced image size (small enough to fit on a RAM disk) and allows deployment with a minimal software footprint. This is ideal for when resources are constrained, such as edge computing or IoT applications.
+Second, by using an EDF-built remote root filesystem the target software footprint is reduced to the PYNQ meta-layer, XRT, and a minimal Linux userspace. Additionally, we have implemented a PYNQ C++ API called `PYNQ.cpp` that runs on the target device, which provides a low-level interface to the hardware. Together, this provides a greatly reduced image size compared with a full classic PYNQ SD card image and allows deployment with a minimal software footprint. This is ideal for when resources are constrained, such as edge computing or IoT applications.
 
 The diagram below illustrates the key differences between Classic PYNQ and PYNQ.remote. 
 
@@ -31,7 +32,7 @@ The diagram below illustrates the key differences between Classic PYNQ and PYNQ.
 
 * Offload the Python API to your host machine, reducing on-target resource requirements.
 * Target-side C++ implementation (`PYNQ.cpp`) for boosting on-device performance.
-* Lightweight Petalinux images: shrink SD card images from ~7GB to under 200MB (small enough for a RAM disk).
+* Lightweight Petalinux images: shrink SD card images from ~7GB to around 200MB (small enough for a RAM disk).
 * PYNQ API compatibility: classic PYNQ code and Jupyter notebooks run remotely, with minimal or no changes.
 * Extend with custom remote APIs using Protobuf definitions.
 

@@ -47,20 +47,12 @@ I can't connect to my board
    * If you are using a docking station, when your laptop is docked, the
      Ethernet port on the PC may be disabled.
    
-My Pynq-Z1/Z2 board is not powering on (No Red LED)
----------------------------------------------------
-
-The board can be powered by USB cable, or power adapter (7 - 15V V 2.1mm
-centre-positive barrel jack). Make sure Jumper JP5 is set to USB or REG (for
-power adapter). If powering the board via USB, make sure the USB port is fully
-powered. Laptops in low power mode may reduce the available power to a USB port.
-
-The bitstream is not loading (No Green LED)
--------------------------------------------
+The board is not booting
+------------------------
 
 * Check the Micro-SD card is inserted correctly (the socket is spring loaded, so
   push it in until you feel it click into place).
-* Check jumper JP4 is set to SD (board boots from Micro SD card).
+* Check that the board is configured to boot from the Micro-SD card.
 * Connect a terminal and verify that the Linux boot starts.
 
 If the Linux boot does not start, or fails, you may need to (re)flash the PYNQ
@@ -203,8 +195,8 @@ the WiFi dongle.
 How do I set/change the static IP address on the board?
 -------------------------------------------------------
 
-You can usually modify ``/etc/network/interfaces.d/eth0``.
-For example, on Pynq-Z1/Z2, the default address shown there is
+You can usually modify ``/etc/network/interfaces.d/eth0``. The default static
+address is:
 
    .. code-block:: console
 
@@ -232,9 +224,8 @@ host names.  You can change the hostname by using a script on PYNQ image:
 What is the user account and password?
 --------------------------------------
 
-The username for all Linux, Jupyter and Samba logins is ``xilinx``. 
-The password is ``xilinx``. For vagrant Ubuntu VM, both the username and 
-password are ``vagrant``.
+The username for all Linux, Jupyter and Samba logins is ``xilinx``.
+The password is ``xilinx``.
 
 How do I enable/disable the Jupyter notebook password?
 ------------------------------------------------------

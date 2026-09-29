@@ -19,7 +19,7 @@ If you still want to raise an issue here, please give us as much detail as
 possible to the issue you are seeing - we've listed some helpful fields below.
 
 * PYNQ version (e.g. v2.6):
-* Board name (e.g. Pynq-Z2):
+* Board name (e.g. ZCU104):
 * Pull request type (bug fix / new feature):
 * Pull request number:
 * Description:

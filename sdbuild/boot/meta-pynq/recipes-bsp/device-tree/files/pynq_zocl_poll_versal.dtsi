@@ -1,0 +1,11 @@
+/*
+ * Versal's top-level AXI container is /axi, not /amba as on ZynqMP.
+ * No interrupts property: zocl polls.
+ */
+
+&{/axi} {
+	zyxclmm_drm {
+		compatible = "xlnx,zocl";
+		status = "okay";
+	};
+};

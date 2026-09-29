@@ -1,4 +1,5 @@
 # Copyright (C) 2022 Xilinx, Inc
+# Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 import pynq
@@ -36,8 +37,9 @@ class BaseOverlay(pynq.Overlay):
         time.sleep(0.2)
         # Deassert HDMI clock reset
         self.reset_control.channel1[0].write(1)
-        # Wait 200 ms for the clock to come out of reset
-        time.sleep(0.2)
+        # Allow the IDT8T49N241 to complete reset and I2C initialization
+        # before the first device-ID access.
+        time.sleep(0.5)
 
         self.video.phy.vid_phy_controller.initialize()
         self.video.hdmi_in.frontend.set_phy(

@@ -1,0 +1,11 @@
+--- etc/lsb-release
++++ etc/lsb-release
+@@ -1,4 +1,4 @@
+-DISTRIB_ID=Ubuntu
+-DISTRIB_RELEASE=24.04
+-DISTRIB_CODENAME=noble
+-DISTRIB_DESCRIPTION="Ubuntu 24.04 LTS"
++DISTRIB_ID=pynqlinux
++DISTRIB_RELEASE=v4.0.0
++DISTRIB_CODENAME=Verona
++DISTRIB_DESCRIPTION="PYNQ Linux, based on Ubuntu 24.04"

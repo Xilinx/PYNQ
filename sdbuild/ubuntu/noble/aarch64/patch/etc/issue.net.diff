@@ -1,0 +1,5 @@
+--- etc/issue.net
++++ etc/issue.net
+@@ -1 +1 @@
+-Ubuntu 24.04 LTS
++PYNQ Linux, based on Ubuntu 24.04

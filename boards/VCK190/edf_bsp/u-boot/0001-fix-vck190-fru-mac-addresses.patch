@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: josh goldsmith <josh.goldsmith@amd.com>
+Date: Thu, 3 Sep 2026 11:50:00 +0100
+Subject: [PATCH] xilinx: read VCK190 MAC addresses from FRU
+
+The VCK190 FRU header points its multirecord area into the board area.
+Use the end of the board area when the regions overlap.
+
+Allow runtime board setup when a saved environment does not provide a
+MAC address. EDF uses a saved environment for SD boot.
+
+---
+ board/xilinx/common/fru_ops.c | 10 +++++++++-
+ board/xilinx/versal/board.c   |  3 ++-
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/board/xilinx/common/fru_ops.c b/board/xilinx/common/fru_ops.c
+--- a/board/xilinx/common/fru_ops.c
++++ b/board/xilinx/common/fru_ops.c
+@@ -276,5 +276,6 @@ int fru_capture(unsigned long addr)
+ 	struct fru_common_hdr *hdr;
+ 	u8 checksum = 0;
++	u8 multirec_offset;
+ 	unsigned long multirec_addr = addr;
+ 
+ 	checksum = fru_checksum((u8 *)addr, sizeof(struct fru_common_hdr));
+@@ -298,7 +299,14 @@ int fru_capture(unsigned long addr)
+ 	env_set_hex("fru_addr", addr);
+ 
+ 	if (hdr->off_multirec) {
+-		multirec_addr += fru_cal_area_len(hdr->off_multirec);
++		multirec_offset = hdr->off_multirec;
++
++		/* VCK190 FRUs can point into the board area. */
++		if (hdr->off_board &&
++		    multirec_offset < hdr->off_board + fru_data.brd.len)
++			multirec_offset = hdr->off_board + fru_data.brd.len;
++
++		multirec_addr += fru_cal_area_len(multirec_offset);
+ 		fru_parse_multirec(multirec_addr);
+ 	}
+ 
+diff --git a/board/xilinx/versal/board.c b/board/xilinx/versal/board.c
+--- a/board/xilinx/versal/board.c
++++ b/board/xilinx/versal/board.c
+@@ -293,7 +293,8 @@ int board_late_init(void)
+ {
+ 	int ret;
+ 
+-	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
++	if (!(gd->flags & GD_FLG_ENV_DEFAULT) &&
++	    env_get("ethaddr")) {
+ 		debug("Saved variables - Skipping\n");
+ 		return 0;
+ 	}
+-- 
+2.49.0

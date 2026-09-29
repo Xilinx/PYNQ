@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 
 import pynq._3rdparty.tinynumpy as tnp
-from ..metadata.runtime_metadata_parser import RuntimeMetadataParser
+from pynqmetadata.views.runtime import RuntimeMetadataParser
 from pynqmetadata.frontends import Metadata
 from .device import Device
 from .embedded_device import (
@@ -28,6 +28,8 @@ from pynq.remote import (
 )
 
 import grpc
+
+from pynq.ps import _is_versal
 
 PYNQ_PORT = 7967
 BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
@@ -115,7 +117,7 @@ class RemoteBitstreamHandler(BitstreamHandler):
             xclbin_parser = XclBin(xclbin_data=xclbin_data)
             _unify_dictionaries(parser, xclbin_parser)
             parser.refresh_hierarchy_dict()
-            self._xsa_bitstream_file = parser.xsa.bitstreamPaths[0]
+            self._xsa_bitstream_file = parser.xsa._primaryProgrammableImagePath()
         else:
             return None
         parser.bin_data = self.get_bin_data()
@@ -132,17 +134,21 @@ class RemoteBinfileHandler(RemoteBitstreamHandler):
     def get_bin_data(self):
         return self._filepath.read_bytes()
 
+class RemotePdifileHandler(RemoteBinfileHandler):
+    pass
+
 class RemoteXsafileHandler(RemoteBitstreamHandler):
     def get_bin_data(self):
         if self._xsa_bitstream_file is None:
             raise RuntimeError("Could not find bitstream file in XSA")
         else:
-            return bit2bin(Path(self._xsa_bitstream_file).read_bytes())
+            return _get_bitstream_handler(self._xsa_bitstream_file).get_bin_data()
 
 _bitstream_handlers = {
     ".bit": RemoteBitfileHandler,
     ".bin": RemoteBinfileHandler,
     ".xsa": RemoteXsafileHandler,
+    ".pdi": RemotePdifileHandler,
 }
 
 
@@ -383,6 +389,21 @@ class RemoteDevice(Device):
         """
         return RemoteMMIO(self._stub['mmio'], address, length)
 
+    def get_memory(self, description):
+        """Create a memory object for a memory in the overlay
+
+        Parameters
+        ----------
+        description : dict
+            The entry from the overlay mem_dict describing the memory
+
+        Returns
+        -------
+        RemoteMemory
+            Memory object for allocating buffers on the remote device
+        """
+        return RemoteMemory(self, description)
+
     def download(self, bitstream, parser=None):
         """Download bitstream to the remote FPGA device
 
@@ -517,6 +538,46 @@ class RemoteDevice(Device):
         return ar
             
 
+class RemoteMemory:
+    """Remote Memory placeholder class
+
+    Placeholder implementation for the memories of an overlay on remote
+    devices. Allocating into a specific memory is not yet implemented for
+    remote PYNQ devices, so buffers are allocated in the default memory.
+
+    Parameters
+    ----------
+    device : RemoteDevice
+        Device object for memory operations
+    desc : dict
+        The entry from the overlay mem_dict describing the memory
+    """
+
+    def __init__(self, device, desc):
+        self.device = device
+        self.desc = desc or {}
+        self.idx = self.desc.get("idx")
+        self.size = self.desc.get("size", self.desc.get("addr_range"))
+        self.base_address = self.desc.get("base_address", self.desc.get("phys_addr"))
+        warnings.warn(
+            "Allocating into a specific memory is not yet implemented for "
+            "remote devices; using the default memory instead."
+        )
+
+    def allocate(self, shape, dtype, **kwargs):
+        """Create a new buffer in the memory
+
+        Parameters
+        ----------
+        shape : tuple(int)
+            Shape of the array
+        dtype : np.dtype
+            Data type of the array
+
+        """
+        return self.device.allocate(shape, dtype, **kwargs)
+
+
 class RemoteGPIO:
     """Internal Helper class to wrap Linux's GPIO Sysfs API.
 
@@ -530,6 +591,8 @@ class RemoteGPIO:
     direction : str
         Input/output direction of the GPIO.
     """
+
+    _GPIO_MIN_USER_PIN = {'versal_gpio': 26, 'pmc_gpio': 52}
     
     def __init__(self, gpio_index, direction, device=None):
         """Return a new RemoteGPIO object.
@@ -677,6 +740,11 @@ class RemoteGPIO:
         """
         if device is None:
             raise RuntimeError("get_gpio_base_path requires a RemoteDevice instance.")
+        if target_label is None and _is_versal(device):
+            raise ValueError(
+                "target_label must be specified on Versal; use "
+                "'versal_gpio' or 'pmc_gpio'."
+            )
         stub = device._stub['gpio']
 
         response = stub.get_gpio_base_path(
@@ -756,7 +824,14 @@ class RemoteGPIO:
         if device is None:
             raise RuntimeError("get_gpio_pin requires a RemoteDevice instance.")
         
-        if target_label is not None:
+        if _is_versal(device):
+            if target_label not in RemoteGPIO._GPIO_MIN_USER_PIN:
+                raise ValueError(
+                    "target_label must be specified on Versal; use "
+                    "'versal_gpio' or 'pmc_gpio'."
+                )
+            GPIO_OFFSET = RemoteGPIO._GPIO_MIN_USER_PIN[target_label]
+        elif target_label is not None:
             GPIO_OFFSET = 0
         else:
             if device.arch == "aarch64":

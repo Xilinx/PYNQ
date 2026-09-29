@@ -42,18 +42,12 @@ The HDMI-Out is similar to HDMI-In. It has a Pixel Pack block (instead of the
 Video Front-ends
 ----------------
 
-The video library supports two different video front-ends. The front-end is
-responsible for converting the signals at the pins of the device into a
+The front-end converts the signals at the pins of the device into a
 24-bit-per-pixel, BGR formatted AXI stream that can be used by the rest of the
-pipeline. For the Pynq-Z1 and Pynq-Z2 a DVI-based front-end provides for
-resolutions of up to 1080p although due to the speed ratings of the
-differential pins only up to 720p is officially supported. This front-end is a
-drop-in IP included in the PYNQ IP library. For the ZCU104 the Xilinx HDMI
-subsystems are used to support full 4k support however recreating this
-bitstream will require a license. The HDMI subsystems also require connecting
-to a HDMI PHY responsible for driving the transceivers. This code can be seen
-in the ZCU104's `base.py`. All custom overlays needing to use the video
-subsystem should use this setup code.
+pipeline. The ZCU104 uses the AMD HDMI subsystems to support 4K video; rebuilding
+this bitstream requires an HDMI IP licence. The HDMI subsystems also connect to
+an HDMI PHY that drives the transceivers. This setup can be seen in the
+ZCU104's ``base.py``. The VCK190 base overlay does not include a video pipeline.
 
 Processing Options
 ------------------
@@ -98,11 +92,8 @@ HDMI-In block, or before the pixel_unpack block on the HDMI-Out side. This gives
 flexibility to use the video subsystem color space conversion blocks before and
 after the custom IP.
 
-The video pipelines of the Pynq-Z1 and Pynq-Z2 boards run at 142 MHz with one
-pixel-per-clock, slightly below the 148.5 MHz pixel clock for 1080p60 video but
-sufficient once blanking intervals are taken into account. for the ZCU104 board
-the pipeline runs at 300 MHz and two pixels-per-clock to support 4k60 (2160p)
-video.
+The ZCU104 pipeline runs at 300 MHz and two pixels-per-clock to support 4K60
+(2160p) video.
 
 Batch Processing
 ^^^^^^^^^^^^^^^^
@@ -115,10 +106,7 @@ Note that the DRAM is likely to be a bottleneck for video processing. The Video
 data is written to DRAM, then read from DRAM and send to the custom IP and is
 written back to DRAM, where it is read by the HDMI out.
 
-For the Pynq-Z1 which has a 16-bit DRAM, up to 1080p cwgraysc (8-bits per pixel)
-can be processed at ~60fps alongside the framebuffer memory bandwidth, but this
-is very close to the total memory bandwidth of the system. The ZCU104 with its
-much larger memory bandwidth can support 4k video at 60 FPS at 24-bit colour.
+The ZCU104 can support 4K video at 60 FPS at 24-bit colour.
 
 Examples
 --------
@@ -126,8 +114,8 @@ Examples
 More information about the Video subpackage, its components, and its their APIs
 can be found in the :ref:`pynq-lib-video` section.
 
-For more examples, see the Video Notebooks folder on the Pynq-Z1, Pynq-Z2 or
-ZCU104 board in the following directory:
+For more examples, see the Video Notebooks folder on the ZCU104 board in the
+following directory:
 
 .. code-block:: console
 

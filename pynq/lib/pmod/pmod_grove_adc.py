@@ -1,4 +1,5 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 
@@ -255,14 +256,17 @@ class Grove_ADC(object):
         elif head_ptr < tail_ptr:
             num_words = int(ceil((tail_ptr - head_ptr) / 4))
             data = self.microblaze.read(head_ptr, num_words)
+            data = [data] if isinstance(data, int) else data
             readings += [float("{0:.4f}".format(_reg2float(i))) for i in data]
         else:
             num_words = int(ceil((GROVE_ADC_LOG_END - head_ptr) / 4))
             data = self.microblaze.read(head_ptr, num_words)
+            data = [data] if isinstance(data, int) else data
             readings += [float("{0:.4f}".format(_reg2float(i))) for i in data]
 
             num_words = int(ceil((tail_ptr - GROVE_ADC_LOG_START) / 4))
             data = self.microblaze.read(GROVE_ADC_LOG_START, num_words)
+            data = [data] if isinstance(data, int) else data
             readings += [float("{0:.4f}".format(_reg2float(i))) for i in data]
         return readings
 

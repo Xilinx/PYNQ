@@ -1,4 +1,5 @@
 #   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -84,8 +85,6 @@ class PLMeta(type):
         else:
             import os
             import pickle
-            from pynqmetadata.frontends import Metadata
-            from .metadata.runtime_metadata_parser import RuntimeMetadataParser
             metadata_state_file = Path(f"{os.path.dirname(__file__)}/pl_server/_current_metadata.pkl")
             if os.path.isfile(metadata_state_file):
                 cls._dict_views_cached = True

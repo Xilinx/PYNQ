@@ -1,5 +1,0 @@
---- /etc/issue.net	2022-04-18 10:28:59.000000000 +0000
-+++ issue.net	2022-05-05 22:03:05.195260590 +0000
-@@ -1 +1 @@
--Ubuntu 22.04 LTS
-+PYNQ Linux, based on Ubuntu 20.04

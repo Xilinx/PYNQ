@@ -13,7 +13,7 @@ from distutils.dir_util import copy_tree
 from distutils.file_util import copy_file, move_file
 from shutil import rmtree
 
-from setuptools import Distribution, Extension, find_packages, setup
+from setuptools import Distribution, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 # Requirement
@@ -22,6 +22,8 @@ required = [
     'pynqutils',
     "setuptools>=24.2.0",
     "cffi",
+    # pycparser 3.0 removed the plyparser module that pynqmetadata still imports.
+    "pycparser<3",
     "numpy<2.0",
     "nest_asyncio",
     'grpcio==1.64.0',
@@ -30,14 +32,11 @@ required = [
 
 REMOTE_INSTALL = os.environ.get("PYNQ_REMOTE", False)
 
-# Device family constants
-ZYNQ_ARCH = "armv7l"
 ZU_ARCH = "aarch64"
 if "PYNQ_BUILD_ARCH" in os.environ:
     CPU_ARCH = os.environ["PYNQ_BUILD_ARCH"]
 else:
     CPU_ARCH = platform.machine()
-CPU_ARCH_IS_SUPPORTED = CPU_ARCH in [ZYNQ_ARCH, ZU_ARCH]
 
 # Parse version number
 def find_version(file_path):
@@ -68,7 +67,10 @@ def find_overlays(path):
             f
             for f in os.listdir(path)
             if os.path.isdir(os.path.join(path, f))
-            and len(glob.glob(os.path.join(path, f, "*.bit"))) > 0
+            and (
+                glob.glob(os.path.join(path, f, "*.bit"))
+                or glob.glob(os.path.join(path, f, "*.pdi"))
+            )
         ]
     else:
         return []
@@ -100,69 +102,16 @@ pynq_package_files = []
 extend_pynq_package(
     [
         "pynq/lib/pynqmicroblaze",
-        "pynq/lib/arduino",
         "pynq/lib/pmod",
-        "pynq/lib/rpi",
-        "pynq/lib/logictools",
         "pynq/pl_server/default.xclbin",
     ]
 )
-
-# Video source files
-_video_src = [
-    "pynq/lib/_pynq/_video/_video.c",
-    "pynq/lib/_pynq/_video/_capture.c",
-    "pynq/lib/_pynq/_video/_display.c",
-    "pynq/lib/_pynq/_video/py_xvtc.c",
-    "pynq/lib/_pynq/_video/utils.c",
-    "pynq/lib/_pynq/_video/py_xgpio.c",
-    "pynq/lib/_pynq/_video/video_capture.c",
-    "pynq/lib/_pynq/_video/video_display.c",
-]
-
-_video_gpio = [
-    "pynq/lib/_pynq/_video/bsp/gpio/xgpio.c",
-    "pynq/lib/_pynq/_video/bsp/gpio/xgpio_extra.c",
-    "pynq/lib/_pynq/_video/bsp/gpio/xgpio_intr.c",
-    "pynq/lib/_pynq/_video/bsp/gpio/xgpio_selftest.c",
-]
-
-_video_vtc = [
-    "pynq/lib/_pynq/_video/bsp/vtc/xvtc.c",
-    "pynq/lib/_pynq/_video/bsp/vtc/xvtc_intr.c",
-    "pynq/lib/_pynq/_video/bsp/vtc/xvtc_selftest.c",
-]
-
-_common_src = ["pynq/lib/_pynq/common/xil_stubs.c"]
-
-_bsp_includes = [
-    "pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src/common",
-    "pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src/arm/common",
-    "pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src/arm/common/gcc",
-]
-
-if CPU_ARCH == ZYNQ_ARCH:
-    _bsp_includes.append(
-        "pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src/arm/cortexa9"
-    )
-elif CPU_ARCH == ZU_ARCH:
-    _bsp_includes.append(
-        "pynq/lib/_pynq/embeddedsw/lib/bsp/standalone/src/arm/cortexa53/64bit"
-    )
 
 getting_started_notebooks = [
     "jupyter_notebooks.ipynb",
     "python_environment.ipynb",
     "jupyter_notebooks_advanced_features.ipynb",
 ]
-
-# Merge BSP src to _video src
-video = []
-video.extend(_video_gpio)
-video.extend(_video_vtc)
-video.extend(_video_src)
-video.extend(_common_src)
-
 
 # Copy notebooks in pynq/notebooks
 def copy_common_notebooks(staging_notebooks_dir):
@@ -282,7 +231,7 @@ def check_env():
     if "BOARD" not in os.environ:
         warnings.warn(
             "Use `export BOARD=<board-name>` "
-            "to get board specific overlays (e.g. Pynq-Z1, ZCU104).",
+            "to get board specific overlays (e.g. ZCU104, VCK190).",
             UserWarning,
         )
     else:
@@ -356,17 +305,13 @@ class BuildExtension(build_ext):
 
     def run(self):
         if not REMOTE_INSTALL:
-            if CPU_ARCH == ZYNQ_ARCH:
-                self.run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
-                self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/", "libiic.so")
-            elif CPU_ARCH == ZU_ARCH:
+            if CPU_ARCH == ZU_ARCH:
                 self.run_make(
                     "pynq/lib/_pynq/_displayport/", "pynq/lib/video/", "libdisplayport.so"
                 )
                 self.run_make("pynq/lib/_pynq/_xhdmi/", "pynq/lib/video/", "libxhdmi.so")
                 self.run_make("pynq/lib/_pynq/_audio/", "pynq/lib/", "libaudio.so")
                 self.run_make("pynq/lib/_pynq/_xiic/", "pynq/lib/", "libiic.so")
-                self.run_make("pynq/lib/_pynq/_pcam5c/", "pynq/lib/video/", "libpcam5c.so")
         else:
             self.announce("Remote install, skipping native C/C++ builds", level=2)
 
@@ -402,13 +347,9 @@ extend_pynq_package(
         "pynq/lib/_pynq/embeddedsw_lib.mk",
         "pynq/lib/_pynq/common",
         "pynq/lib/_pynq/_audio",
-        "pynq/lib/_pynq/_video",
-        "pynq/lib/_pynq/_video/bsp/vtc",
-        "pynq/lib/_pynq/_video/bsp/gpio",
         "pynq/lib/_pynq/_displayport",
         "pynq/lib/_pynq/_xhdmi",
         "pynq/lib/_pynq/_xiic",
-        "pynq/lib/_pynq/_pcam5c",
         "pynq/notebooks",
         "pynq/tests",
         "pynq/metadata",
@@ -418,25 +359,12 @@ extend_pynq_package(
     ]
 )
 
+console_scripts = [
+    "pynq = pynq._cli.cmd:main",
+    "pynq-get-notebooks = pynq._cli.get_notebooks:main",
+]
 if REMOTE_INSTALL:
-    ext_modules = [] # no extension modules for remote install
-else:
-    if CPU_ARCH == ZYNQ_ARCH:
-        ext_modules = [
-            Extension(
-                "pynq.lib._video",
-                video,
-                include_dirs=[
-                    "pynq/lib/_pynq/_video",
-                    "pynq/lib/_pynq/_video/bsp/vtc",
-                    "pynq/lib/_pynq/_video/bsp/gpio",
-                    "pynq/lib/_pynq/common/armv7l",
-                ]
-                + _bsp_includes,
-            ),
-        ]
-    else:
-        ext_modules = []
+    console_scripts.append("pynq-remote-selftest = pynq.remote.selftest.runner:main")
 
 
 setup(
@@ -460,15 +388,11 @@ setup(
         "pynq": pynq_package_files,
     },
     entry_points={
-        "console_scripts": [
-            "pynq = pynq._cli.cmd:main",
-            "pynq-get-notebooks = pynq._cli.get_notebooks:main",
-        ],
+        "console_scripts": console_scripts,
         "distutils.commands": [
             "download_overlays = pynqutils.setup_utils:du_download_overlays"
         ],
     },
-    ext_modules=ext_modules,
     zip_safe=False,
     license="BSD 3-Clause",
 )

@@ -286,7 +286,7 @@ ensures that an interrupt isn't seen multiple times.
 Examples
 --------
 
-For more examples, see the AsyncIO Buttons Notebook in the on the Pynq-Z1 in the
+For more examples, see the AsyncIO Buttons Notebook on the ZCU104 in the
 following directory:
 
 .. code-block:: console

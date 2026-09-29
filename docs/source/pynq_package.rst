@@ -44,6 +44,7 @@ Sub-packages:
   * pynq.pl_server - Contains sub-packages for PL server to work across
     multiple devices. It also includes the overlay metadata parsers 
     (e.g., tcl, hwh)
+  * pynq.remote - Host-side gRPC client modules for PYNQ.remote
 
 .. toctree::
     :hidden:
@@ -59,6 +60,7 @@ Sub-packages:
     pynq_package/pynq.overlay
     pynq_package/pynq.pl
     pynq_package/pynq.pl_server
+    pynq_package/pynq.remote
     pynq_package/pynq.pmbus
     pynq_package/pynq.ps
     pynq_package/pynq.registers

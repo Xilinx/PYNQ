@@ -13,7 +13,7 @@ from copy import deepcopy
 
 import pycparser
 from pycparser import c_ast, c_generator
-from pycparser.plyparser import ParseError
+from pycparser.c_parser import ParseError  # works on both pycparser 2.x and 3.x
 
 from pynq.ps import CPU_ARCH, ZU_ARCH, ZYNQ_ARCH
 from . import MicroblazeProgram
@@ -94,7 +94,7 @@ class VoidPointerWrapper:
             _generate_decl(
                 name + "_int",
                 c_ast.TypeDecl(
-                    name + "_int", [], c_ast.IdentifierType(["unsigned", "int"])
+                    name + "_int", [], None, c_ast.IdentifierType(["unsigned", "int"])
                 ),
             )
         )
@@ -108,18 +108,20 @@ class VoidPointerWrapper:
             c_ast.Decl(
                 name,
                 [],
+                None,
                 [],
                 [],
                 c_ast.PtrDecl(
                     [],
-                    c_ast.TypeDecl(name, [], c_ast.IdentifierType(["void"])),
+                    c_ast.TypeDecl(name, [], None, c_ast.IdentifierType(["void"])),
                 ),
                 c_ast.Cast(
                     c_ast.Typename(
                         None,
                         [],
+                        None,
                         c_ast.PtrDecl(
-                            [], c_ast.TypeDecl(None, [], c_ast.IdentifierType(["void"]))
+                            [], c_ast.TypeDecl(None, [], None, c_ast.IdentifierType(["void"]))
                         ),
                     ),
                     c_ast.ID(name + "_int"),
@@ -162,7 +164,7 @@ class ConstPointerWrapper:
             _generate_decl(
                 name + "_len",
                 c_ast.TypeDecl(
-                    name + "_len", [], c_ast.IdentifierType(["unsigned", "short"])
+                    name + "_len", [], None, c_ast.IdentifierType(["unsigned", "short"])
                 ),
             )
         )
@@ -227,7 +229,7 @@ class PointerWrapper:
             _generate_decl(
                 name + "_len",
                 c_ast.TypeDecl(
-                    name + "_len", [], c_ast.IdentifierType(["unsigned", "short"])
+                    name + "_len", [], None, c_ast.IdentifierType(["unsigned", "short"])
                 ),
             )
         )
@@ -436,8 +438,8 @@ def _generate_decl(name, decl):
     but same type as the provided decl.
 
     """
-    typedecl = c_ast.TypeDecl(name, [], decl.type)
-    return c_ast.Decl(name, [], [], [], typedecl, [], [])
+    typedecl = c_ast.TypeDecl(name, [], None, decl.type)
+    return c_ast.Decl(name, [], None, [], [], typedecl, [], [])
 
 
 def _generate_arraydecl(name, decl, length):
@@ -445,9 +447,9 @@ def _generate_arraydecl(name, decl, length):
     base on an existing declaration
 
     """
-    typedecl = c_ast.TypeDecl(name, [], decl.type)
+    typedecl = c_ast.TypeDecl(name, [], None, decl.type)
     arraydecl = c_ast.ArrayDecl(typedecl, length, [])
-    return c_ast.Decl(name, [], [], [], arraydecl, [], [])
+    return c_ast.Decl(name, [], None, [], [], arraydecl, [], [])
 
 
 class FuncAdapter:
@@ -500,9 +502,10 @@ class FuncAdapter:
             ret_assign = c_ast.Decl(
                 "ret",
                 [],
+                None,
                 [],
                 [],
-                c_ast.TypeDecl("ret", [], decl.type.type),
+                c_ast.TypeDecl("ret", [], None, decl.type.type),
                 function_call,
                 [],
             )
@@ -647,14 +650,15 @@ def _build_handle_function(functions):
     )
     handle_decl = c_ast.FuncDecl(
         None,
-        c_ast.TypeDecl("_handle_events", [], c_ast.IdentifierType(["void"])),
+        c_ast.TypeDecl("_handle_events", [], None, c_ast.IdentifierType(["void"])),
     )
     command_decl = c_ast.Decl(
         "command",
         [],
+        None,
         [],
         [],
-        c_ast.TypeDecl("command", [], c_ast.IdentifierType(["int"])),
+        c_ast.TypeDecl("command", [], None, c_ast.IdentifierType(["int"])),
         [],
         [],
     )

@@ -17,14 +17,6 @@ from .wifi import Wifi
 from .cmac import CMAC
 from .debugbridge import DebugBridge
 
-from .rpi import Rpi
-
-from .arduino import Arduino
-from .arduino import Arduino_DevMode
-from .arduino import Arduino_IO
-from .arduino import Arduino_Analog
-from .arduino import Arduino_LCD18
-
 from .pmod import Pmod
 from .pmod import Pmod_DevMode
 from .pmod import Pmod_ADC
@@ -40,13 +32,6 @@ from .pmod import Pmod_ALS
 from .pmod import Pmod_Cable
 from .pmod import Pmod_Timer
 from .pmod import Pmod_PWM
-
-from .logictools import LogicToolsController
-from .logictools import Waveform
-from .logictools import BooleanGenerator
-from .logictools import PatternGenerator
-from .logictools import TraceAnalyzer
-from .logictools import FSMGenerator
 
 from . import video
 from . import audio

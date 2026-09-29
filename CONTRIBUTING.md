@@ -21,7 +21,7 @@ and <a href="https://github.com/Xilinx/BNN-PYNQ" target="_blank">BNN-PYNQ</a> re
    
 - For Microblaze peripheral device drivers, we encourage users to submit their C/C++ within 
 a Jupyter notebook using the microblaze IPython magic.  Please see 
-the <a href="https://github.com/Xilinx/PYNQ/tree/master/boards/Pynq-Z1/base/notebooks/microblaze" target="_blank">Microblaze example notebooks</a> 
+the <a href="https://github.com/Xilinx/PYNQ/tree/master/boards/ZCU104/base/notebooks/microblaze" target="_blank">Microblaze example notebooks</a> 
 for how to write custom device drivers.
        
 

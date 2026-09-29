@@ -1,4 +1,4 @@
-.. _ZCU104-base-overlay:
+.. _zcu104-base-overlay:
 
 Base Overlay
 ============

@@ -20,6 +20,10 @@ thumbs.db
 *.jou
 *.vitis_hls_log*.xml
 
+# Compiled shared objects (build artefacts of pynq/lib/_pynq/*)
+######################
+*.so
+
 # VIM Swap Files
 ######################
 *.swp
@@ -28,11 +32,23 @@ thumbs.db
 ######################
 build/
 sdcard/
+dist/
 
 # Raw overlay files
 *.bit
 *.hwh
 *.xsa
+*.pdi
+*.dcp
+*.ncr
+
+# Vivado project directories, regenerated from the .tcl sources
+######################
+boards/*/base/base/
+boards/*/golden/golden/
+.Xil/
+*.pb
+hd_visual/
 
 # Test failure outputs
 ######################

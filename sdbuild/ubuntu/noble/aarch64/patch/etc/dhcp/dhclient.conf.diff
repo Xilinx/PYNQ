@@ -1,0 +1,17 @@
+--- etc/dhcp/dhclient.conf
++++ etc/dhcp/dhclient.conf
+@@ -24,10 +24,10 @@
+ #supersede domain-name "fugue.com home.vix.com";
+ #prepend domain-name-servers 127.0.0.1;
+ #require subnet-mask, domain-name-servers;
+-timeout 300;
+-#retry 60;
+-#reboot 10;
+-#select-timeout 5;
++timeout 10;
++retry 1;
++reboot 3;
++select-timeout 0;
+ #initial-interval 2;
+ #script "/sbin/dhclient-script";
+ #media "-link0 -link1 -link2", "link0 link1";

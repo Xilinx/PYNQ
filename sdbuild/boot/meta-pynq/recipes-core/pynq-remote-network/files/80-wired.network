@@ -1,0 +1,10 @@
+[Match]
+Name=en* eth* end*
+
+[Network]
+DHCP=yes
+# Fixed fallback address for direct host<->board links.
+Address=192.168.2.99/24
+
+[DHCPv4]
+RouteMetric=10

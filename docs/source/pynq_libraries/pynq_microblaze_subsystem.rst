@@ -10,8 +10,7 @@ interrupts received from the subsystem.
 
 Each PYNQ MicroBlaze subsystem is contained within an IO Processor (IOP). An IOP
 defines a set of communication and behavioral controllers that are controlled by
-Python. There are currently three IOPs provided with PYNQ: Arduino, PMOD, and
-Logictools.
+Python. PYNQ provides a PMOD IOP.
 
 Block Diagram
 -------------
@@ -25,13 +24,13 @@ interrupt requester, and external interface.
 
 * The Interrupt Controller is the interface for other communication or
   behavioral controllers connected to the MicroBlaze Processor.
-* The Interrupt Requester sends interrupt requests to the Zynq Processing System.
+* The Interrupt Requester sends interrupt requests to the Processing System.
 * The External Interface allows the MicroBlaze subsystem to communicate with
   other communication, behavioral controllers, or DDR Memory.
 * The Block RAM holds MicroBlaze Instructions and Data.
 
 The Block RAM is dual-ported: One port connected to the MicroBlaze Instruction
-and Data ports; The other port is connected to the ARM® Cortex®-A9 processor for
+and Data ports; The other port is connected to the ARM® processor for
 communication.
 
 If the External Interface is connected to DDR Memory, DDR can be used to
@@ -43,27 +42,31 @@ transfer large data segments between the PS (Python) and the Subsystem.
 Examples
 --------  
 
-In the :ref:`pynqz1-base-overlay`, three IOP instances with PYNQ Microblaze Subsystems
-are available: iop1 (PMODA), iop2 (PMODB), and iop3 (Arduino). After the overlay
+In the :ref:`zcu104-base-overlay`, Pmod instances with PYNQ Microblaze Subsystems
+are available. After the overlay
 is loaded these can be accessed as follows:
 
 .. code-block:: Python
 
    from pynq.overlays.base import BaseOverlay
    from pynq.lib import PynqMicroblaze
+   from pynq.lib.pmod.constants import BIN_LOCATION
 
    base = BaseOverlay('base.bit')
 
-   mb = PynqMicroblaze(base.iop1.mb_info,
-                       "/home/xilinx/pynq/lib/pmod/pmod_timer.bin")
+   mb = PynqMicroblaze(base.PMODA, BIN_LOCATION + "pmod_timer.bin")
    mb.reset()
+
+``base.PMODA`` is the Microblaze information dictionary for the first Pmod
+subsystem, and ``BIN_LOCATION`` is the directory the Pmod executables are
+installed in. The VCK190 base overlay does not include a PYNQ MicroBlaze
+subsystem.
 
 More information about the PynqMicroblaze class, and its API can be found in the
 :ref:`pynq-lib-pynqmicroblaze` section.
 
-:ref:`pmod`, :ref:`Arduino`, and :ref:`Grove` classes are subclasses of the
-PynqMicroBlaze class, and further example notebooks can be found in those
-sections.
+:ref:`pmod` is a subclass of the PynqMicroBlaze class, and further example
+notebooks can be found in that section.
 
 Creating a New PYNQ Microblaze
 ------------------------------

@@ -1,0 +1,6 @@
+--- etc/issue
++++ etc/issue
+@@ -1,2 +1,2 @@
+-Ubuntu 24.04 LTS \n \l
++PYNQ Linux, based on Ubuntu 24.04 \n \l
+ 

@@ -28,8 +28,8 @@ Python/Linux. The PYNQ image currently includes drivers for the most commonly
 used USB webcams, WiFi peripherals, and other standard USB devices.
 
 Other peripherals can be connected to and accessed from the Zynq PL. E.g. HDMI,
-Audio, Buttons, Switches, LEDs, and general-purpose interfaces including Pmods,
-and Arduino. As the PL is programmable, an overlay which provides controllers
+Audio, Buttons, Switches, LEDs, and general-purpose interfaces including Pmods.
+As the PL is programmable, an overlay which provides controllers
 for these peripherals or interfaces must be loaded before they can be used.
 
 A library of hardware IP is included in Vivado which can be used to connect to a
@@ -40,7 +40,7 @@ extended to support additional IP.
 
 Zynq platforms usually have one or more *headers* or *interfaces* that allow
 connection of external peripherals, or to connect directly to the Zynq PL
-pins. A range of off-the-shelf peripherals can be connected to Pmod and Arduino
+pins. A range of off-the-shelf peripherals can be connected to Pmod
 interfaces. Other peripherals can be connected to these ports via adapters, or
 with a breadboard. Note that while a peripheral can be physically connected to
 the Zynq PL pins, a controller must be built into the overlay, and a software
@@ -62,12 +62,10 @@ Supported IP
 .. toctree::
     :maxdepth: 1
 
-    pynq_libraries/audio.rst
     pynq_libraries/axigpio.rst
     pynq_libraries/axiiic.rst
     pynq_libraries/debugbridge.rst
     pynq_libraries/dma.rst
-    pynq_libraries/logictools.rst
     pynq_libraries/video.rst
 
 PYNQ IOPs
@@ -76,10 +74,7 @@ PYNQ IOPs
 .. toctree::
     :maxdepth: 1
 
-    pynq_libraries/arduino.rst
-    pynq_libraries/grove.rst
     pynq_libraries/pmod.rst
-    pynq_libraries/rpi.rst
 
 PynqMicroBlaze
 --------------

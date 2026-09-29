@@ -1,0 +1,32 @@
+/* ZCU104 board-specific device-tree nodes (appended to the SDT base dts). */
+
+/ {
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size=<0x0 0x20000000>;
+			alignment = <0x0 0x2000>;
+			linux,cma-default;
+		};
+	};
+};
+
+&i2c1 {
+	i2c-mux@74 {
+		i2c@3 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <3>;
+
+			ina226@40 {
+				compatible = "ti,ina226";
+				reg = <0x40>;
+				shunt-resistor = <5000>;
+			};
+		};
+	};
+};

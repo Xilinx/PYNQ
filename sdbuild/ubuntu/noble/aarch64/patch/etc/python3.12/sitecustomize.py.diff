@@ -1,0 +1,10 @@
+--- etc/python3.12/sitecustomize.py
++++ etc/python3.12/sitecustomize.py
+@@ -5,3 +5,7 @@
+     pass
+ else:
+     apport_python_hook.install()
++
++# Import libgomp to work around OpenCV load order issues
++import ctypes
++ctypes.cdll.LoadLibrary("libgomp.so.1")

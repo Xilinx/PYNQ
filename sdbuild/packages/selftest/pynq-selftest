@@ -1,0 +1,3 @@
+#!/bin/bash
+export SELFTEST_ROOT=/usr/local/share/pynq-selftest
+exec python3 "$SELFTEST_ROOT/lib/orchestrator.py" "$@"

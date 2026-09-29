@@ -14,45 +14,39 @@ here:
       
 The base design can be used as a starting point to create a new design.
 
+The VCK190 uses segmented configuration. Build
+``boards/VCK190/golden`` before ``boards/VCK190/base`` so that the overlay is
+compatible with the boot image.
+
 
 Vivado board files
 ------------------
 
-Vivado board files contain the configuration for a board that is required when
-creating a new project in Vivado. For most of the Xilinx boards (for example,
-ZCU104), the board files have already been included in Vivado; users can 
-simply choose the corresponding board when they create a new project. 
-For some other boards (for example, Pynq-Z1 and Pynq-Z2), 
-the corresponding board files can be downloaded as shown below.
+Vivado board files contain the configuration required when creating a project
+for a board. The ZCU104 and VCK190 board files are included with Vivado and can
+be selected when creating a project.
 
-* `Download the Pynq-Z1 board files
-  <https://github.com/cathalmccabe/pynq-z1_board_files/raw/master/pynq-z1.zip>`_
-* `Download the Pynq-Z2 board files (see Downloads section)
-  <https://www.tulembedded.com/FPGA/ProductsPYNQ-Z2.html#:~:text=Z2%20Board%20File>`_
-  
-Installing these files in Vivado allows the board to be selected when creating
-a new project. This will configure the Zynq PS settings.
-
-To install the board files, extract, and copy the board files folder to:
+Boards that are not shipped with Vivado, for example the RFSoC 4x2 used by
+RFSoC-PYNQ, supply their own board files. Extract them and copy the board files
+folder to:
 
    .. code-block:: console
 
       <Xilinx installation directory>/Vivado/<version>/data/xhub/boards/XilinxBoardStore/boards/Xilinx/
 
-If Vivado is open, it must be restart to load in the new project files before a
-new project can be created.
+Installing the files allows the board to be selected when creating a new
+project, which applies the processing system settings for that board. If Vivado
+is already open it must be restarted before the new board files can be used.
 
 
 XDC constraints file
 --------------------
 
-Please see below for a list of constraint files.
-
-* `Download the Pynq-Z1 Master XDC constraints
-  <https://reference.digilentinc.com/_media/reference/programmable-logic/pynq-z1/pynq-z1_c.zip>`_
-
-* `Download the Pynq-Z2 Master XDC constraints
-  <https://dpoauwgwqsy2x.cloudfront.net/Download/pynq-z2_v1.0.xdc.zip>`_
+Constraint files and board documentation are available from the
+`ZCU104 <https://www.amd.com/en/products/adaptive-socs-and-fpgas/evaluation-boards/zcu104.html>`_
+and
+`VCK190 <https://www.amd.com/en/products/adaptive-socs-and-fpgas/evaluation-boards/vck190.html>`_
+board pages.
 
 
 

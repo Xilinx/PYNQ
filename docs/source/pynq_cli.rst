@@ -24,7 +24,7 @@ when you type ``pynq subcommand`` it looks for an available executable named
 
 Therefore, to add new functionalities to the PYNQ CLI, it is sufficient to make 
 a new executable available that follow this naming structure. For example, to 
-download the collatoral for all installed notebooks, the ``pynq-get-notebooks`` executable is created,
+download the collateral for all installed notebooks, the ``pynq-get-notebooks`` executable is created,
 and it will be called by typing ``pynq get-notebooks`` in the command line.
 
 Printing the Help Message
@@ -48,9 +48,7 @@ To get the installed PYNQ version, you can type
     
     pynq --version
 
-This will also print out the hash of the commit ID from the 
-`PYNQ GitHub <https://github.com/Xilinx/PYNQ>`_ repository, that might be 
-useful for diagnosing issues and bug reporting.
+This prints the installed PYNQ version string and install path.
 
 Available subcommands
 ---------------------
@@ -143,6 +141,6 @@ be listed by printing the help message:
 
 .. code:: bash
 
-    pynq examples --help
+    pynq-get-notebooks --help
 
 Please refer to the help message for more info about these options.

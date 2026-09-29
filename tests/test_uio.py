@@ -135,7 +135,9 @@ UIO_CONTROLLER_TESTS = {
 
 @pytest.mark.parametrize('testname', UIO_CONTROLLER_TESTS.keys())
 def test_uio_controller(monkeypatch, tmpdir, testname):
-    event_loop = asyncio.get_event_loop()
+    # No loop is current once an async test has run, so make one.
+    event_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(event_loop)
     callback = None
     client_fd = None
 
@@ -165,3 +167,6 @@ def test_uio_controller(monkeypatch, tmpdir, testname):
     callback = None
     del uio_device
     assert client_fd is None
+
+    asyncio.set_event_loop(None)
+    event_loop.close()
