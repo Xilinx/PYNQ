@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PYNQ brings Python, Jupyter notebooks, and reusable hardware overlays to AMD adaptive computing platforms.">
+  <title>PYNQ | Python for adaptive computing</title>
+  <link rel="stylesheet" href="assets/css/site.css?v=8">
+  <script defer src="assets/js/site.js"></script>
+  <script defer src="assets/js/cookie-consent.js"></script>
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner container">
+      <a class="brand" href="#top" aria-label="PYNQ home"><img src="assets/images/231862217-A_AMD_Pynq_Lockup_RGB_Blk.svg" alt="AMD PYNQ"></a>
+      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav"><span></span><span></span><span></span></button>
+      <nav id="site-nav" class="site-nav" aria-label="Primary navigation">
+        <a href="#about">About</a>
+        <a href="#boards">Boards &amp; images</a>
+        <a href="#get-started">Get started</a>
+        <a href="https://discuss.pynq.io/">Support</a>
+      </nav>
+      <a class="header-link" href="https://pynq.readthedocs.io/en/latest/">Documentation <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero" id="about" aria-labelledby="hero-title">
+      <div class="hero-grid" aria-hidden="true"></div><div class="hero-slash" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <h1 id="hero-title">Welcome to PYNQ&trade;</h1>
+          <p class="hero-lead">PYNQ is an open-source project from AMD that makes it easier to use adaptive computing platforms. It uses Python and Jupyter notebooks to work with programmable logic and processors.</p>
+          <div class="hero-actions"><a class="button button-red" href="#get-started">Get started <span aria-hidden="true">↗</span></a><a class="text-link light-link" href="#images">Download images <span aria-hidden="true">↓</span></a></div>
+        </div>
+        <div class="hero-visual" aria-label="Example of exploring a hardware design in Python">
+          <h2>Explore and control FPGA designs in Python</h2>
+          <p>Load and inspect hardware designs at runtime, read and write registers with MMIO, allocate buffers for data transfer, and much more.</p>
+          <div class="code-card"><div class="code-top">overlay.py</div><pre><code><span class="code-purple">from</span> pynq <span class="code-purple">import</span> Overlay, MMIO, allocate
+
+ol = Overlay(<span class="code-green">"my_design.xsa"</span>)
+print(ol.ip_dict)
+
+mmio = MMIO(BASE_ADDR, ADDR_RANGE)
+mmio.write(ADDR_OFFSET, DATA)
+result = mmio.read(ADDR_OFFSET)
+
+buffer = allocate(shape=(5,), dtype=<span class="code-green">'u4'</span>)
+buffer[:] = range(5)</code></pre></div>
+        </div>
+      </div>
+    </section>
+    <section class="section about-section" aria-labelledby="about-title">
+      <div class="container about-intro">
+        <div><h2 id="about-title">Who is PYNQ for?</h2></div>
+        <div><p class="section-lead">PYNQ is intended for a wide range of designers and developers.</p><p class="body-copy">Python libraries, Jupyter notebooks, and overlays provide a way to use programmable logic alongside processor software.</p></div>
+      </div>
+      <div class="container audience-grid" aria-label="Who PYNQ is for">
+        <article><h3>Software developers</h3><p>Use existing hardware overlays from Python, without having to design the hardware.</p></article>
+        <article><h3>System architects</h3><p>Prototype systems with a Python interface to programmable logic.</p></article>
+        <article><h3>Hardware designers</h3><p>Make reusable designs available to others through Python APIs.</p></article>
+      </div>
+    </section>
+    <section class="section boards-section" id="boards" aria-labelledby="boards-title">
+      <div class="container">
+        <div class="section-head"><h2 id="boards-title">Boards and images</h2></div>
+        <div class="download-directory" id="images">
+          <div class="directory-heading"><div><h3>Latest PYNQ images</h3></div><p>Choose the image for your board and memory configuration. Older versions are in Previous downloads below.</p></div>
+          <div class="download-list">
+            <article class="download-row"><div class="download-board"><h4>ZCU104</h4><p class="device-family">Zynq UltraScale+</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/ZCU104-4.0.0.zip">Download v4.0.0 <span aria-hidden="true">↓</span></a></div><a class="setup-link" href="https://github.com/Xilinx/PYNQ/tree/master/boards/ZCU104">Setup guide <span aria-hidden="true">↗</span></a></article>
+            <article class="download-row"><div class="download-board"><h4>AUP-ZU3</h4><p class="device-family">Zynq UltraScale+</p></div><div class="download-links"><span class="download-unavailable">v4.0.0 · 4 GB — Coming soon</span><span class="download-unavailable">v4.0.0 · 8 GB — Coming soon</span></div><a class="setup-link" href="https://github.com/Xilinx/AUP-ZU3">Setup guide <span aria-hidden="true">↗</span></a></article>
+            <article class="download-row"><div class="download-board"><h4>RFSoC 4x2</h4><p class="device-family">Zynq UltraScale+ RFSoC</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/RFSoC4x2-4.0.0.zip">Download v4.0.0 <span aria-hidden="true">↓</span></a></div><a class="setup-link" href="https://www.rfsoc-pynq.io/getting_started.html">Setup guide <span aria-hidden="true">↗</span></a></article>
+            <article class="download-row"><div class="download-board"><h4>ZCU111</h4><p class="device-family">Zynq UltraScale+ RFSoC</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/ZCU111-4.0.0.zip">Download v4.0.0 <span aria-hidden="true">↓</span></a></div><a class="setup-link" href="https://www.rfsoc-pynq.io/getting_started.html">Setup guide <span aria-hidden="true">↗</span></a></article>
+            <article class="download-row"><div class="download-board"><h4>ZCU208</h4><p class="device-family">Zynq UltraScale+ RFSoC</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/ZCU208-4.0.0.zip">Download v4.0.0 <span aria-hidden="true">↓</span></a></div><a class="setup-link" href="https://www.rfsoc-pynq.io/getting_started.html">Setup guide <span aria-hidden="true">↗</span></a></article>
+            <article class="download-row"><div class="download-board"><h4>VCK190</h4><p class="device-family">Versal AI Core</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/VCK190-4.0.0.zip">Download v4.0.0 <span aria-hidden="true">↓</span></a></div><a class="setup-link" href="https://github.com/Xilinx/PYNQ/tree/master/boards/VCK190">Setup guide <span aria-hidden="true">↗</span></a></article>
+            <article class="download-row"><div class="download-board"><h4>Kria starter kits</h4><p class="device-family">Zynq UltraScale+</p></div><div class="download-links"><span class="download-unavailable">PYNQ v4.0 — Coming soon</span><a href="https://ubuntu.com/download/amd">Ubuntu board images <span aria-hidden="true">↗</span></a></div><a class="setup-link" href="https://github.com/Xilinx/Kria-PYNQ">PYNQ setup <span aria-hidden="true">↗</span></a></article>
+          </div>
+        </div>
+        <div class="build-files">
+          <div><h3>Build a PYNQ image</h3><p>Source distribution and root filesystem downloads for custom board images.</p><a class="build-guide-link" href="https://pynq.readthedocs.io/en/latest/pynq_sd_card.html">Read the image build guide ↗</a></div>
+          <div class="build-file-links">
+            <a href="https://download.amd.com/opendownload/pynq/pynq-v4.0.0.tar.gz">PYNQ v4.0.0 source distribution <span aria-hidden="true">↓</span></a>
+            <a href="https://download.amd.com/opendownload/pynq/noble.aarch64.4.0.0.tar.gz">v4.0.0 AArch64 root filesystem <span aria-hidden="true">↓</span></a>
+          </div>
+        </div>
+        <details class="archive-details">
+          <summary><span><strong>Previous downloads</strong><small>Older board images and image build files</small></span><b aria-hidden="true">+</b></summary>
+          <h3 class="archive-heading">Previous board images</h3>
+          <div class="download-list archive-list">
+            <article class="download-row"><div class="download-board"><h4>ZCU104</h4><p class="device-family">Zynq UltraScale+</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/zcu104_v3.1.1.zip">v3.1.1 <span aria-hidden="true">↓</span></a><a href="https://bit.ly/zcu104_v3_0_1">v3.0.1 <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>AUP-ZU3</h4><p class="device-family">Zynq UltraScale+</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/AUP-ZU3-3.1.1-4gb.zip">v3.1.1 · 4 GB <span aria-hidden="true">↓</span></a><a href="https://download.amd.com/opendownload/pynq/AUP-ZU3-3.1.1-8gb.zip">v3.1.1 · 8 GB <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>RFSoC 4x2</h4><p class="device-family">Zynq UltraScale+ RFSoC</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/rfsoc4x2_v3.1.1.zip">v3.1.1 <span aria-hidden="true">↓</span></a><a href="https://bit.ly/rfsoc4x2_v3_0_1">v3.0.1 <span aria-hidden="true">↓</span></a><a href="https://bit.ly/rfsoc4x2_v2_7">v2.7 <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>ZCU111</h4><p class="device-family">Zynq UltraScale+ RFSoC</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/zcu111_v3.1.1.zip">v3.1.1 <span aria-hidden="true">↓</span></a><a href="https://bit.ly/zcu111_v3_0_1">v3.0.1 <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>ZCU208</h4><p class="device-family">Zynq UltraScale+ RFSoC</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/zcu208_v3.1.1.zip">v3.1.1 <span aria-hidden="true">↓</span></a><a href="https://bit.ly/zcu208_v3_0_1">v3.0.1 <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>PYNQ-Z1</h4><p class="device-family">Zynq 7000</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/pynq_z1_v3.1.1.zip">v3.1.1 <span aria-hidden="true">↓</span></a><a href="https://bit.ly/pynqz1_v3_0_1">v3.0.1 <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>PYNQ-Z2</h4><p class="device-family">Zynq 7000</p></div><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/pynq_z2_v3.1.1.zip">v3.1.1 <span aria-hidden="true">↓</span></a><a href="https://bit.ly/pynqz2_v3_0_1">v3.0.1 <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>RFSoC 2x2</h4><p class="device-family">Zynq UltraScale+ RFSoC</p></div><div class="download-links"><a href="https://bit.ly/rfsoc2x2_v3_0_1">v3.0.1 <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>Ultra96V2 / Ultra96</h4><p class="device-family">Zynq UltraScale+</p></div><div class="download-links"><a href="https://bit.ly/ultra96v2_v3_0_1">Ultra96V2 · v3.0.1 <span aria-hidden="true">↓</span></a><a href="https://bit.ly/ultra96v1_v3_0_1">Ultra96 · v3.0.1 <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>ZUBoard 1CG</h4><p class="device-family">Zynq UltraScale+</p></div><div class="download-links"><a href="https://bit.ly/zuboard_v3_0_1">v3.0.1 <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>TySOM-3-ZU7EV</h4><p class="device-family">Zynq UltraScale+</p></div><div class="download-links"><a href="https://bit.ly/Tysom3_v3_0_1">v3.0.1 <span aria-hidden="true">↓</span></a><a href="https://bit.ly/tysom3_v2_7">v2.7 <span aria-hidden="true">↓</span></a></div></article>
+            <article class="download-row"><div class="download-board"><h4>TySOM-3A-ZU19EG</h4><p class="device-family">Zynq UltraScale+</p></div><div class="download-links"><a href="https://bit.ly/Tysom3a_v3_0_1">v3.0.1 <span aria-hidden="true">↓</span></a><a href="https://bit.ly/tysom3a_v2_7">v2.7 <span aria-hidden="true">↓</span></a></div></article>
+          </div>
+          <div class="previous-build-files">
+            <h3>Previous image build files</h3>
+            <div class="previous-build-grid">
+              <div class="previous-build-group"><h4>v3.1</h4><div class="download-links"><a href="https://download.amd.com/opendownload/pynq/pynq-3.1.2.tar.gz">Source distribution <span aria-hidden="true">↓</span></a><a href="https://download.amd.com/opendownload/pynq/jammy.aarch64.3.1.0.tar.gz">AArch64 root filesystem <span aria-hidden="true">↓</span></a><a href="https://download.amd.com/opendownload/pynq/jammy.arm.3.1.0.tar.gz">ARM root filesystem <span aria-hidden="true">↓</span></a></div></div>
+              <div class="previous-build-group"><h4>v3.0</h4><div class="download-links"><a href="https://bit.ly/pynq_sdist_v3_0_1">Source distribution <span aria-hidden="true">↓</span></a><a href="https://bit.ly/pynq_aarch64_v3_0_1">AArch64 root filesystem <span aria-hidden="true">↓</span></a><a href="https://bit.ly/pynq_arm_v3_1">ARM root filesystem <span aria-hidden="true">↓</span></a></div></div>
+              <div class="previous-build-group"><h4>v2.7</h4><div class="download-links"><a href="https://bit.ly/pynq_binary_v2_7">Source distribution <span aria-hidden="true">↓</span></a><a href="https://bit.ly/pynq_aarch64_2_7">AArch64 root filesystem <span aria-hidden="true">↓</span></a><a href="https://bit.ly/pynq_arm_2_7">ARM root filesystem <span aria-hidden="true">↓</span></a></div></div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+    <section class="section start-section" id="get-started" aria-labelledby="start-title">
+      <div class="container start-layout">
+        <div class="start-heading"><h2 id="start-title">How do I get started with PYNQ?</h2></div>
+        <div class="start-steps">
+          <div><a href="https://pynq.readthedocs.io/en/latest/getting_started.html"><span>Check the PYNQ Getting Started guide</span><b aria-hidden="true">↗</b></a></div>
+          <div><a href="#boards"><span>Find out about supported boards</span><b aria-hidden="true">↗</b></a></div>
+          <div><a href="https://pynq.readthedocs.io/en/latest/"><span>Read the PYNQ documentation</span><b aria-hidden="true">↗</b></a></div>
+        </div>
+      </div>
+    </section>
+    <section class="section community-section" id="community" aria-labelledby="community-title">
+      <div class="container community-layout">
+        <div><h2 id="community-title">Get involved</h2><p>The PYNQ source code is available on GitHub. For questions or to contact the PYNQ team, use the support forum.</p></div>
+        <div class="community-links">
+          <a href="https://discuss.pynq.io/"><span><strong>Support forum</strong></span><b aria-hidden="true">↗</b></a>
+          <a href="https://github.com/Xilinx/PYNQ/tree/master"><span><strong>PYNQ on GitHub</strong></span><b aria-hidden="true">↗</b></a>
+          <a href="https://discuss.pynq.io/c/tutorials-workshops/15"><span><strong>Learn on the PYNQ forum</strong></span><b aria-hidden="true">↗</b></a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <nav class="footer-links" aria-label="Legal and policy">
+        <a href="https://www.amd.com/en/legal/copyright.html">Terms and Conditions</a>
+        <a href="https://www.amd.com/en/legal/privacy.html">Privacy</a>
+        <a href="https://www.amd.com/en/legal/trademarks.html">Trademarks</a>
+        <a href="https://www.amd.com/content/dam/amd/en/documents/corporate/cr/supply-chain-transparency.pdf">Supply Chain Transparency</a>
+        <a href="https://www.amd.com/en/legal/competition.html">Fair &amp; Open Competition</a>
+        <a href="https://www.amd.com/content/dam/amd/en/documents/corporate/amd-uk-tax-strategy.pdf">UK Tax Strategy</a>
+        <a href="https://www.amd.com/en/legal/cookies.html">Cookies Policy</a>
+        <a href="#cookiessettings">Cookie Settings</a>
+      </nav>
+      <span>© 2026 Advanced Micro Devices, Inc.</span>
+    </div>
+  </footer>
+  <div class="cookie-consent" id="cookie-consent" role="region" aria-labelledby="cookie-consent-title" hidden>
+    <div class="cookie-consent-inner">
+      <div>
+        <h2 id="cookie-consent-title" tabindex="-1">Cookie preferences</h2>
+        <p>This site uses optional analytics cookies to understand how it is used. You can change your choice at any time through Cookie Settings.</p>
+      </div>
+      <div class="cookie-consent-actions">
+        <button type="button" id="cookie-reject">Reject analytics</button>
+        <button type="button" id="cookie-accept">Accept analytics</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
