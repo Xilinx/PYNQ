@@ -14,8 +14,9 @@ board:
 .. toctree::
     :maxdepth: 1
 
+    vck190/vck190_golden_reference
     vck190/vck190_base_overlay
 
 Other third party overlays may also be available for this board. See the
-`PYNQ community webpage <http://www.pynq.io/community.html>`_ for details of
+`PYNQ community webpage <https://www.pynq.io/community.html>`_ for details of
 third party overlays and other resources.

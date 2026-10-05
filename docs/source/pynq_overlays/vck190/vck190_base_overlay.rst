@@ -6,20 +6,19 @@ Base Overlay
 The purpose of the *base* overlay design for any PYNQ supported board is to
 allow peripherals on a board to be used out-of-the-box.
 
-The VCK190 uses Versal segmented configuration. The golden reference design
-configures the processors, NoC and DDR during boot. The ``base.pdi`` overlay
-configures the programmable logic at runtime without re-initializing the
-processor.
+The VCK190 uses Versal segmented configuration. Therefore, the base overlay is built
+against the :ref:`golden reference design <vck190-golden-reference>` which configures
+the processors, NoC and DDR during boot. The ``base.pdi`` overlay configures the programmable
+logic at runtime without re-initializing the processor.
 
-The base overlay can also be used as a reference design for creating new
-customized overlays.
+The base overlay can also be used as a reference design for creating new customized overlays.
 
 VCK190 Base Design
 ------------------
 
 The base overlay on VCK190 includes the following hardware:
 
-    * Four user LEDs, four DIP switches and four push buttons
+    * Four user LEDs, four DIP switches and two push buttons
     * AXI DMA loopback through an AXI Stream FIFO
     * 8 KB block RAM
     * Two AXI timers and an interrupt controller

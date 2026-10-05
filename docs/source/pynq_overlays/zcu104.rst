@@ -54,13 +54,14 @@ For details on the ZCU104 board including reference manual, schematics,
 constraints file (xdc),
 see the `AMD-Xilinx ZCU104 webpage <https://www.amd.com/en/products/adaptive-socs-and-fpgas/evaluation-boards/zcu104.html>`_
 
-The following overlays are include by default in the PYNQ image for the ZCU104 board:
+The following overlays are included by default in the PYNQ image for the ZCU104 board:
 
 .. toctree::
     :maxdepth: 1
    
+    loading_an_overlay
     zcu104/zcu104_base_overlay
 
 Other third party overlays may also be available for this board. See the 
-`PYNQ community webpage <http://www.pynq.io/community.html>`_ for details of 
+`PYNQ community webpage <https://www.pynq.io/community.html>`_ for details of 
 third party overlays and other resources. 
