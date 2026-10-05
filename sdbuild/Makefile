@@ -192,7 +192,7 @@ $$(ROOT_$1) : $$(BASE_PATH_$1) $$(BITSTREAM_ABS_$1) $$(STAGE4_DEPENDS_$1) $$(MOD
 	rm $$(STAGING_$1)/depmod.sh
 	sudo umount -l $$(STAGING_$1)/dev
 	rm -rf $$(EXTRA_BOOT_$1)
-	cp -r $$(STAGING_$1)/boot $$(EXTRA_BOOT_$1)
+	sudo cp -r $$(STAGING_$1)/boot $$(EXTRA_BOOT_$1)
 
 	# Clean up any unwanted user directories created during build process
 	# Only keep the xilinx user directory
