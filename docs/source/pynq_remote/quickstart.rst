@@ -6,129 +6,134 @@ Quick Start
 This page shows how to get started with PYNQ.remote. We use the ZCU104 and the
 `PYNQ-HelloWorld <https://github.com/Xilinx/PYNQ-HelloWorld>`_ overlay as an
 example, but the steps are similar for other supported AMD adaptive SoCs and
-overlays.
+overlays. The steps are provided for Windows, Linux, and macOS operating systems.
+Use the commands that match your machine to set up and use PYNQ.remote.
 
 Prerequisites
 -------------
 
 * Host machine running Linux, Windows, or macOS
-* Python 3.10 or newer
 * Supported AMD adaptive SoC with network access
 * Network connection between host and target
 
-Step 1: Install PYNQ.remote on the Host
----------------------------------------
+Step 1: Install uv
+------------------
 
-PYNQ.remote uses two environment variables at different stages. Set
-``PYNQ_REMOTE=1`` when installing the ``pynq`` package on the host so that
-remote client dependencies are installed and native board binaries are skipped.
-Set ``PYNQ_REMOTE_DEVICES`` at runtime, before ``import pynq``, to identify the
-target board. See :doc:`env_variables` for platform-specific ways to set
-``PYNQ_REMOTE_DEVICES``.
+We use the ``uv`` tool to manage Python versions, projects, and packages in an
+isolated environment. This stops project-specific dependencies from clashing
+with your system. Dependencies for your project are recorded in a
+``pyproject.toml`` file.
 
-It is recommended to use a
-`Python virtual environment <https://docs.python.org/3/library/venv.html>`_.
+The ``uv`` tool can be installed using the following command:
 
 **Linux/macOS:**
 
 .. code-block:: bash
 
-   PYNQ_REMOTE=1 pip install pynq
-
-To install the development version from source:
-
-.. code-block:: bash
-
-   git clone --recursive https://github.com/Xilinx/PYNQ.git
-   cd PYNQ
-   PYNQ_REMOTE=1 pip install .
+   curl -LsSf https://astral.sh/uv/install.sh | sh
 
 **Windows (PowerShell):**
 
 .. code-block:: powershell
 
-   $env:PYNQ_REMOTE="1"; pip install pynq
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
-Step 2: Prepare and Boot the Target Device
-------------------------------------------
 
-* Create a PYNQ.remote image using the instructions in :doc:`image_build`.
-* Flash the image to your SD card (see :doc:`../appendix/sdcard`).
-* Insert the SD card and power on the device.
+Step 2: Create a Project
+------------------------
 
-Remote images configure both a static address of ``192.168.2.99`` and DHCP.
-If your host is on the ``192.168.2.0/24`` network, continue to Step 3 and use
-that address in ``PYNQ_REMOTE_DEVICES``.
+Running ``uv init --bare`` sets up a project containing a minimal
+``pyproject.toml``. Additionally, passing ``--python "==3.11.*"`` specifies
+that the project uses Python 3.11. Run the following command to create the
+project:
 
-If the board is on a different network, use the DHCP address from your router's
-client list. See :doc:`troubleshooting` if you need to use a USB serial console.
-The first time you connect over serial, log in as ``amd-edf`` and set a password
-when prompted.
-
-Step 3: Install and Run PYNQ-HelloWorld
----------------------------------------
-
-Install the required dependencies in your Python virtual environment:
+**Linux/macOS and Windows (PowerShell):**
 
 .. code-block:: bash
 
-   pip install jupyterlab matplotlib pillow wheel
+   uv init remote-project --bare --python "==3.11.*"
+   cd remote-project
 
-Install the PYNQ-HelloWorld overlay. Set the ``BOARD`` environment variable
-before installation so that PYNQ-Utils knows which board you are targeting:
+Step 3: Install PYNQ and Dependencies
+-------------------------------------
 
-**Windows:**
-
-.. code-block:: bash
-
-   # PowerShell:
-   $env:BOARD="ZCU104"; pip install --no-build-isolation pynq-helloworld
-
-   # Command Prompt:
-   set BOARD=ZCU104 && pip install --no-build-isolation pynq-helloworld
+Before you install any dependencies into the ``uv`` environment, PYNQ's
+installer needs to be instructed to build in *remote mode*. To do this, set the
+``PYNQ_REMOTE`` environment variable before installing PYNQ.
 
 **Linux/macOS:**
 
 .. code-block:: bash
 
-   BOARD=ZCU104 pip install --no-build-isolation pynq-helloworld
+   export PYNQ_REMOTE=1
 
-Download the notebooks and overlay files:
+**Windows (PowerShell):**
+
+.. code-block:: powershell
+
+   $env:PYNQ_REMOTE = "1"
+
+PYNQ can then be installed, **followed by** any other dependencies required
+for your project. The first command below installs the most recent version of
+PYNQ from GitHub. ``uv add`` installs packages into the project environment and
+records each of them in the ``pyproject.toml``.
+
+**Linux/macOS and Windows (PowerShell):**
 
 .. code-block:: bash
 
-   pynq get-notebooks pynq-helloworld -d ZCU104
+   uv add "pynq @ git+https://github.com/Xilinx/PYNQ.git"
+   uv add "setuptools<78" "pycparser<3" "numpy<2" scipy ipywidgets plotly anywidget matplotlib pillow ipython jupyterlab voila
 
-The ``-d`` argument tells ``pynq get-notebooks`` which board package to use.
+Step 4: Install PYNQ-HelloWorld
+-------------------------------
 
-Start Jupyter Lab:
+Before installing the PYNQ-HelloWorld overlay, set the ``BOARD`` environment
+variable so that PYNQ-Utils knows which board you are targeting.
+
+**Linux/macOS:**
 
 .. code-block:: bash
 
-   jupyter lab
+   export BOARD=ZCU104
 
-   # On some shells it may be necessary to use:
-   python -m jupyterlab
+**Windows (PowerShell):**
 
-Connecting to the Board
-~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: powershell
 
-Before importing ``pynq``, set ``PYNQ_REMOTE_DEVICES`` to the board address:
+   $env:BOARD = "ZCU104"
 
-.. code-block:: python
+PYNQ-HelloWorld is then ready to be installed:
 
-   import os
-   os.environ['PYNQ_REMOTE_DEVICES'] = "192.168.2.99"  # default static IP
+**Linux/macOS and Windows (PowerShell):**
 
-   from pynq import allocate, Overlay
+.. code-block:: bash
 
-   overlay = Overlay("resizer.bit")
+   uv pip install --no-build-isolation pynq-helloworld
+   uv run pynq get-notebooks pynq-helloworld -d ZCU104
 
-Modifying the Notebook for PYNQ.remote
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step 5: Running JupyterLab
+--------------------------
 
-When you open the ``resizer_pl.ipynb`` notebook, add the lines above to the
-imports cell before ``from pynq import allocate, Overlay``.
+Before running any overlays, the IP address assigned to your board must be stored in an
+environment variable called ``PYNQ_REMOTE_DEVICES``. This can be configured directly in a
+Linux/macOS or PowerShell terminal, or in Python using the ``os`` module **before**
+running ``import pynq``. Running ``uv run jupyter-lab`` starts the Jupyter session, allowing
+you to interact with the board using PYNQ.remote.
 
-Once this change is made, you should be able to run through the entire notebook
-and resize images completely remotely using PYNQ.remote.
+**Linux/macOS:**
+
+.. code-block:: bash
+
+   export PYNQ_REMOTE_DEVICES=192.168.2.99
+   uv run jupyter-lab
+
+**Windows (PowerShell):**
+
+.. code-block:: powershell
+
+   $env:PYNQ_REMOTE_DEVICES = "192.168.2.99"
+   uv run jupyter-lab
+
+Navigate to the ``pynq-notebooks/pynq-helloworld`` directory and explore the
+``resizer_pl.ipynb`` notebook.

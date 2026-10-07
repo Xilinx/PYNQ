@@ -45,3 +45,33 @@ XrtBufferManager Class
    :undoc-members:
    :protected-members:
    :private-members:
+
+GPIO Class
+----------
+
+.. doxygenclass:: GPIO
+   :project: Device
+   :members:
+   :undoc-members:
+   :protected-members:
+   :private-members:
+
+XRFCLK Class (RFSoC only)
+-------------------------
+
+.. doxygenclass:: XRFCLK
+   :project: Device
+   :members:
+   :undoc-members:
+   :protected-members:
+   :private-members:
+
+XrfdcRemote Class (RFSoC only)
+------------------------------
+
+.. doxygenclass:: XrfdcRemote
+   :project: Device
+   :members:
+   :undoc-members:
+   :protected-members:
+   :private-members:

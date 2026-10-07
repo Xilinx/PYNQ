@@ -165,7 +165,7 @@ class RemoteDevice(Device):
     It provides bitstream downloading, memory allocation, MMIO operations,
     and other PYNQ functionality through gRPC remote procedure calls.
 
-    The device supports multiple bitstream formats (.bit, .bin, .xsa) and
+    The device supports multiple bitstream formats (.bit, .pdi, .bin, .xsa) and
     handles metadata parsing, caching, and AXI port width configuration
     remotely.
     """

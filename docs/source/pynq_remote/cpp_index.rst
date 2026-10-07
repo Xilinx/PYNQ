@@ -19,4 +19,4 @@ Like PYNQ's Python API, PYNQ.cpp is part of the PYNQ ecosystem and is specifical
 PYNQ.remote uses gRPC to communicate with PYNQ devices, allowing remote management of FPGA resources and memory operations. 
 PYNQ.remote images use a gRPC server to interact with PYNQ.cpp, which provides the necessary C++ backend functionality equivalent to what PYNQ's Python API offers.
 
-Because it exists as a standalone C++ library, PYNQ can be used independently of PYNQ.remote. This allows developers to create custom low-level C++ applications that interact with AMD adaptive SoC platforms using familiar PYNQ concepts.
+Because it exists as a standalone C++ library, *PYNQ.cpp* can be used independently of PYNQ.remote. This allows developers to create custom low-level C++ applications that interact with AMD adaptive SoC platforms using familiar PYNQ concepts.
