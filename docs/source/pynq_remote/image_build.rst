@@ -28,17 +28,32 @@ Using the Docker-based build flow
 
         git clone --recursive https://github.com/Xilinx/PYNQ.git
 
-#. Set up the build environment by following :ref:`pynq-sd-card`. This includes
-   setting ``XILINX_TOOLS`` and ``XILINXD_LICENSE_FILE`` before starting the
-   container.
-
-#. Build the remote image for your target board:
+#. Build the Docker image:
 
    .. code-block:: bash
 
-        # Inside the Docker container
         cd PYNQ/sdbuild
-        make pynqremote BOARDS=<board_name>
+        docker build --build-arg USERNAME=$(whoami) --build-arg USER_UID=$(id -u) \
+          --build-arg USER_GID=$(id -g) -t pynqdock:latest .
+        cd ..
+
+#. Set the paths to the AMD tools and licence, then build the remote image for
+   your target board:
+
+   .. code-block:: bash
+
+        export XILINX_TOOLS=/tools/Xilinx/2025.2
+        export XILINXD_LICENSE_FILE="$HOME/.Xilinx"
+
+        docker run --init --rm \
+          --network host \
+          -e XILINX_TOOLS -e XILINXD_LICENSE_FILE \
+          -v "$XILINX_TOOLS:$XILINX_TOOLS:ro" \
+          -v "$XILINXD_LICENSE_FILE:$XILINXD_LICENSE_FILE" \
+          -v "$PWD:/workspace" \
+          --privileged \
+          pynqdock:latest \
+          bash -lc 'cd /workspace/sdbuild && make pynqremote BOARDS=<board_name>'
 
    Replace ``<board_name>`` with your target board (``ZCU104`` or ``VCK190``).
    The remote image target does not require the prebuilt classic PYNQ root
@@ -51,8 +66,9 @@ Using the Docker-based build flow
 #. Flash the generated ``sdbuild/output/<BOARD>-4.0.0-remote.img`` image to an
    SD card and boot your device (see :doc:`../appendix/sdcard`).
 
-#. After booting, the ``pynq-remote`` server starts automatically. Use
-   ``ip addr`` on the board to find its address, then follow :doc:`quickstart`.
+#. After booting, the ``pynq-remote`` server starts automatically. Run
+   ``ip addr`` on the board through a serial console to find its address,
+   then follow :doc:`quickstart`.
 
 Image size
 ----------

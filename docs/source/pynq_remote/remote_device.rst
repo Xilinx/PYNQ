@@ -5,7 +5,7 @@ The RemoteDevice Class
 
 The ``RemoteDevice`` class enables controlling PYNQ boards over network connections using gRPC. It provides a complete remote access solution including bitstream downloading, memory allocation, MMIO operations, and other PYNQ functionalities through remote procedure calls. 
 
-This module includes classes for remote memory management (``RemoteBuffer``), memory-mapped I/O (``RemoteMMIO``), bitstream handling, and communication channel management. The implementation handles multiple bitstream formats (.bit, .bin, .xsa), metadata parsing, and caching while maintaining compatibility with the local PYNQ API. 
+This module includes classes for remote memory management (``RemoteBuffer``), memory-mapped I/O (``RemoteMMIO``), overlay handling, and communication channel management. The implementation handles multiple bitstream formats (.bit, .pdi, .bin, .xsa), metadata parsing, and caching while maintaining compatibility with the local PYNQ API. 
 
 Remote devices can be configured through the ``PYNQ_REMOTE_DEVICES`` environment
 variable, which should contain a comma-separated list of IP addresses for target

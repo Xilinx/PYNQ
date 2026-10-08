@@ -32,7 +32,7 @@ The diagram below illustrates the key differences between Classic PYNQ and PYNQ.
 
 * Offload the Python API to your host machine, reducing on-target resource requirements.
 * Target-side C++ implementation (`PYNQ.cpp`) for boosting on-device performance.
-* Lightweight Petalinux images: shrink SD card images from ~7GB to around 200MB (small enough for a RAM disk).
+* Lightweight EDF/Yocto images: shrink SD card images from ~7GB to around 200MB (small enough for a RAM disk).
 * PYNQ API compatibility: classic PYNQ code and Jupyter notebooks run remotely, with minimal or no changes.
 * Extend with custom remote APIs using Protobuf definitions.
 
