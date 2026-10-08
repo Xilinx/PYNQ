@@ -3,23 +3,25 @@
 DMA
 ===
 
-PYNQ supports the AXI central DMA IP with the PYNQ *DMA* class. DMA can be used for 
+PYNQ supports the AXI DMA IP with the PYNQ *DMA* class. DMA can be used for 
 high performance burst transfers between PS DRAM and the PL. 
 
-The *DMA* class supports simple mode only.
+The *DMA* class supports both simple mode and scatter gather mode.
 
 Block Diagram
 -------------
 
-The DMA has an AXI lite control interface, and a read and write channel which consist
+The DMA has an AXI4-Lite control interface, and a read and write channel which consist
 of a AXI master port to access the memory location, and a stream port to connect to 
 an IP. 
 
 .. image:: ../images/dma.png
    :align: center
 
-The read channel will read from PS DRAM, and write to a stream. The write channel 
-will read from a stream, and write back to PS DRAM. 
+The read channel will read from PS DRAM, and write to a stream. The write channel will read
+from a stream, and write back to PS DRAM. On Zynq UltraScale+, the DMA usually accesses PS
+DRAM through the AXI High Performance (HP) slave ports. On the VCK190, it accesses DDR through
+the Network on Chip.
 
 Note that the DMA expects any streaming IP connected to the DMA (write channel) to 
 set the AXI TLAST 

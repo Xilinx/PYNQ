@@ -5,7 +5,7 @@ Interrupt
 
 The ``Interrupt`` class represents a single interrupt pin in the block
 design. It mimics a python ``Event`` by having a single ``wait`` function that
-blocks until the interrupt is raised. The event will be cleared automatically
+blocks until an interrupt is raised. The event will be cleared automatically
 when the interrupt is cleared. To construct an event, pass in fully qualified
 path to the pin in the block diagram, e.g. ``'my_ip/interrupt'`` as the only
 argument.
@@ -39,7 +39,7 @@ The AXI Interrupt Controller can be avoided for overlays with only one
 interrupt, in such overlays the interrupt pin must be connected to the
 first interrupt line of the processing system.
 
-PYNQ only support interrupts that are ultimately connected to IRQ_F2P[0].
+PYNQ only supports interrupts that are connected to ``pl_ps_irq0``.
 
 An Example for the PYNQ Interrupt Subsystem
 -------------------------------------------
@@ -57,14 +57,14 @@ Hardware Design
 ^^^^^^^^^^^^^^^
 
 In this example we are using two independent instances of the
-`AXI Timer IP <https://www.xilinx.com/products/intellectual-property/axi_timer.html#documentation>`_
-from the Xilinx IP library.
+`AXI Timer IP <https://www.amd.com/en/products/adaptive-socs-and-fpgas/intellectual-property/axi_timer.html#documentation>`_
+from the Vivado IP library.
 
 The PYNQ interrupt software layer is dependent on the hardware design
 meeting the following restrictions
 
 * All interrupts must ultimately be connected to the first interrupt
-  line of the ZYNQ block
+  line of the Zynq Ultrscale+ Processing system or Versal CIPS block
 * Multiple interrupts must be combined using AXI Interrupt controllers
 
 This block design below shows the pattern of using a concat IP block to combine
@@ -73,9 +73,11 @@ into the input of both the interrupt controller and the processing system.
 
 .. image:: ../images/interrupt_bd.png
    :align: center
-
-The default Peripheral Interrupt Type, set by the block automation, is Level. This causes that not all interrupts can be caught in Pynq.
-Change the Peripheral Interrupt Type in the AXI Interrupt Controller block from Level to Edge, by setting the Interrupt Type - Edge or Level to Manual. Then enter value 0xFFFFFFFF.
+   
+The default Peripheral Interrupt Type, set by the block automation, is Level.
+With this setting, PYNQ may not catch all interrupts. Change the Peripheral
+Interrupt Type in the AXI Interrupt Controller block from Level to Edge, by
+setting the Interrupt Type - Edge or Level to Manual. Then enter value 0xFFFFFFFF.
 
 .. image:: ../images/interrupt_bd_trigger.png
    :align: center
@@ -89,9 +91,9 @@ architecture. To do this first we load the new overlay
 
    .. code-block:: Python
 
-      import pynq
+      from pynq import Overlay
 
-      ol = pynq.Overlay('timer_interrupts.bit')
+      ol = Overlay('timer_interrupts.bit')
 
 We can get access to instances of the interrupt class by navigating the
 overlay object. Each IP instances has a ``_interrupts`` dictionary which lists

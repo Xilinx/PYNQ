@@ -56,7 +56,8 @@ Board Support
 
 For full support on a board a custom configuration file is required for
 libsensors to identify which voltage rails are attached to which sensors which
-should be copied to ``/etc/sensors.d``. The PYNQ repository contains a
-configuration for the ZCU104 board. For details on the format of this file see
-both the ZCU104 configuration in ``boards/ZCU104/packages/sensorconf``
-directory and the lm-sensors documentation at the link in the introduction.
+should be copied to ``/etc/sensors.d``. The PYNQ repository does not contain a
+configuration for the VCK190 board. However, one is included for the ZCU104 board.
+For details on the format of this file see both the ZCU104 configuration in the
+``boards/ZCU104/packages/sensorconf`` directory and the lm-sensors documentation at
+the link in the introduction.

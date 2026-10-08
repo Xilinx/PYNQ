@@ -33,7 +33,7 @@ non-void primitive the following semantics:
 
 The timeline of the execution of the function can be seen below:
 
-.. image::../images/ipmb_data_transfer.png
+.. image:: ../images/ipmb_data_transfer.png
 
 The Python ``struct`` module is used to convert the Python type passed
 to the function into the appropriately sized integer or floating point

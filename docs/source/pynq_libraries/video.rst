@@ -27,7 +27,7 @@ HDMI-In
 .. image:: ../images/hdmi_in_subsystem.png
    :align: center
 
-The Pixel Unpack and the Color Convert block allow conversion between different
+The Pixel Pack and the Color Convert block allow conversion between different
 color spaces at runtime. 
 
 HDMI-Out
@@ -36,8 +36,8 @@ HDMI-Out
 .. image:: ../images/hdmi_out_subsystem.png
    :align: center
 
-The HDMI-Out is similar to HDMI-In. It has a Pixel Pack block (instead of the
-*Unpack* block for HDMI-In) and a Color Convert block.
+The HDMI-Out is similar to HDMI-In. It has a Pixel Unpack block (instead of the
+*Pack* block for HDMI-In) and a Color Convert block.
 
 Video Front-ends
 ----------------
@@ -271,16 +271,17 @@ to the accelerator and a second task to bring frames back from the accelerator.
         while True:
             frame = hdmi_out.newframe()
             dma.recvchannel.transfer(frame)
-            await dma.recvchannel.wait()
+            await dma.recvchannel.wait_async()
             await hdmi_out.writeframe_async(frame)
 
 Zynq Ultrascale+ DisplayPort
 ----------------------------
 
-On Zynq Ultrascale+ devices there is a hardened DisplayPort interface that may
-be exposed on the board. On all supported boards the PYNQ environment will
-bring up a Fluxbox-based desktop environment with the Chromium browser to allow
-easy access to Jupyter directly on the board. For high-performance video output
+The ZCU104 board has a DisplayPort interface, but the VCK190 does not. The
+PYNQ environment includes a Fluxbox-based desktop environment that can be
+shown over DisplayPort to allow access to Jupyter directly on the board.
+The desktop is disabled by default and can be enabled with
+``sudo systemctl enable --now pynq-x11``. For high-performance video output
 over DisplayPort the PYNQ environment offers a ``DisplayPort`` class that
 offers a similar API to the HDMI output. The only change between the
 DisplayPort and HDMI outputs is that the colourspace cannot be changed

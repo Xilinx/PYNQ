@@ -21,12 +21,12 @@ attaching a JTAG adapter.
 
 Another use case is to control a Debug Bridge IP in *AXI to JTAG* 
 configuration. In this config, the Debug Bridge runs as 
-a remote JTAG adapter for another AMD-Xilinx FPGA with its JTAG pins
+a remote JTAG adapter for another AMD FPGA with its JTAG pins
 connected to the Debug Bridge in the PYNQ host.
 
 This class provides a Python implementation of the XVC server v1.0 
 for ease of use and integration with PYNQ overlays. More details about
-XVC could be found in the `Product Page <https://www.xilinx.com/products/intellectual-property/xvc.html>`_ 
+XVC could be found in the `Product Page <https://www.amd.com/en/products/adaptive-socs-and-fpgas/intellectual-property/xvc.html>`_ 
 and the `Official Wiki <https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/644579329/Xilinx+Virtual+Cable>`_.
 
 Use ``start_xvc_server()`` and ``stop_xvc_server()`` methods to setup and kill the XVC server.

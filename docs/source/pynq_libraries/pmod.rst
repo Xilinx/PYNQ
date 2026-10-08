@@ -105,7 +105,8 @@ Examples
 In the :ref:`zcu104-base-overlay`, two Pmod instances are available: PMODA and
 PMODB. After the overlay is loaded these instances can be accessed as follows:
 
-The VCK190 base overlay does not include Pmod interfaces.
+The VCK190 does not include Pmod interfaces, and so no instances are available in
+it's base overlay.
 
 .. code-block:: Python
 
@@ -120,9 +121,9 @@ The VCK190 base overlay does not include Pmod interfaces.
 More information about the Pmod subpackage, its components, and its API can be
 found in the :ref:`pynq-lib-pmod` section.
 
-For more examples, see the notebooks in the following directory on the  board:
+For more examples, see the notebooks in the following directory on the ZCU104 board:
 
 .. code-block:: console
 
-   <Jupyter Dashboard>/base/pmod/
+   <Jupyter Home>/base/pmod/
 

@@ -3,11 +3,11 @@
 AxiIIC
 ======
 
-The AxiIIC class provides methods to read from , and write to an AXI IIC
+The AxiIIC class provides methods to read from, and write to an AXI IIC
 controller IP.
 
 
-The ``send()`` and ``receive()`` methods are used to read and write data.
+The ``send()`` and ``receive()`` methods are used to write and read data, respectively.
 
 .. code-block:: Python
 

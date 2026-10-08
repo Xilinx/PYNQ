@@ -3,10 +3,15 @@
 PS GPIO
 =======
 
-The Zynq device has up to 64 GPIO from PS to PL. These can be used for simple control type operations. For example, in the base overlay, the PS GPIO wires are used as the reset signals for the IOPs. 
-The PS GPIO are a very simple interface and there is no IP required in the PL to use them. 
+The Zynq UltraScale+ device has up to 96 GPIO from PS to PL (``zynqmp_gpio``).
+Versal devices have both a PS GPIO (``versal_gpio``) and a PMC GPIO (``pmc_gpio``)
+with up to 32 and 64 GPIO from PS to PL, respectively. These can be used for simple
+control type operations. For example, in the ZCU104 base overlay, the PS GPIO wires
+are used as the reset and interrupt-acknowledge signals for the IOPs. The PS GPIO are
+a very simple interface and there is no IP required in the PL to use them. 
 
-The *GPIO* class is used to control the PS GPIO. Note that *AXI* GPIO are controlled by the :ref:`pynq-libraries-axigpio` class. 
+The *GPIO* class is used to control the PS GPIO. Note that *AXI* GPIO are
+controlled by the :ref:`pynq-libraries-axigpio` class. 
 
 Block Diagram
 -------------
@@ -43,6 +48,14 @@ an appropriate overlay with the PS GPIO connected to something.
 
    output.write(0)
    input.read()
+
+On Versal, ``get_gpio_pin()`` requires a ``target_label`` to select the specific GPIO
+controller between ``versal_gpio`` and ``pmc_gpio``.
+
+.. code-block:: Python
+
+   output = GPIO(GPIO.get_gpio_pin(0, 'pmc_gpio'), 'out')
+   input = GPIO(GPIO.get_gpio_pin(1, 'pmc_gpio'), 'in')
 
 More information about the GPIO module and the API for reading, writing
 and waiting for interrupts can be found in the :ref:`pynq-gpio` sections
