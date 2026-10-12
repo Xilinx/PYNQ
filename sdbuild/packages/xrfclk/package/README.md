@@ -3,22 +3,13 @@
 This is a package implementing the drivers to configure RF reference clocks
 for the Xilinx Zynq RFSoC boards (e.g., ZCU111).
 
-## Boards and Chips
 
-For simple (safe) use, refer to `set_ref_clks()`.
-
-For RFSoC experts, you can specify custom clock frequencies, assuming you
-know what you're doing. In that case, you can leverage the following methods:
-
-1. `set_lmk04208_clks()` for boards with LMK04208.
-2. `set_lmk04832_clks()` for boards with LMK04832.
-3. `set_lmx2594_clks()` for boards with LMX2594.
-
-For example, checking ZCU111 schematic, you should be able to find that the
-ZCU111 board has LMK04208 and LMX2594 chips. 
-
-For other boards you may also need to adjust the I2C and SPI addresses 
-specified in `src/xrfdc_clk.h`.
+## Instructions
+The LMKxxxxx and LMXxxxx clocking configurations are set via the `set_ref_clks()` command:
+```python
+from xrfclk import set_ref_clks
+set_ref_clks(lmk_freq=122.88, lmx_freq=409.6)
+```
 
 ## Register Values
 
