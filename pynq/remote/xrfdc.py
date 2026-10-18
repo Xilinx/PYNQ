@@ -1,10 +1,13 @@
-#   Copyright (c) 2018, Xilinx, Inc.
+#   Copyright (c) 2018-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 """
 Remote gRPC driver for Xilinx RF Data Converter IP.
 Mirrors the classic PYNQ xrfdc API using data-driven property generation.
 """
+
+import re
 
 from . import xrfdc_pb2, xrfdc_pb2_grpc
 from pynq.overlay import DefaultIP
@@ -67,6 +70,40 @@ XRFDC_CAL_BLOCK_OCB2 = 1
 XRFDC_CAL_BLOCK_GCB  = 2
 XRFDC_CAL_BLOCK_TSCB = 3
 
+ADC_TILE = XRFDC_ADC_TILE
+DAC_TILE = XRFDC_DAC_TILE
+
+STATE_OFF      = 0x0
+STATE_SHUTDOWN = 0x1
+STATE_PWRUP    = 0x3
+STATE_CLK_DET  = 0x6
+STATE_CAL      = 0xB
+STATE_FULL     = 0xF
+
+DATA_TYPE_REAL = 0x0
+DATA_TYPE_IQ   = 0x1
+
+MB_DATATYPE_C2C = 0x1
+MB_DATATYPE_R2C = 0x2
+MB_DATATYPE_C2R = 0x4
+
+LINK_COUPLING_DC = 0x0
+LINK_COUPLING_AC = 0x1
+
+SIGDET_MODE_AVG  = 0x0
+SIGDET_MODE_RNDM = 0x1
+
+CAL_BLOCK_OCB1 = XRFDC_CAL_BLOCK_OCB1
+CAL_BLOCK_OCB2 = XRFDC_CAL_BLOCK_OCB2
+CAL_BLOCK_GCB  = XRFDC_CAL_BLOCK_GCB
+CAL_BLOCK_TSCB = XRFDC_CAL_BLOCK_TSCB
+
+TILE_LAYOUT_4ADC_4DAC = 0x0
+TILE_LAYOUT_3ADC_2DAC = 0x1
+
+MTS_SYSREF_DISABLE = 0x0
+MTS_SYSREF_ENABLE  = 0x1
+
 
 # ============================================================================
 # Helpers
@@ -97,16 +134,89 @@ def _as_property_dict(value, callback=None):
     return dct
 
 
-class CalCoeffStruct(dict):
+class CalCoeffStruct(PropertyDict):
     """Dict that also supports attribute access like CFFI struct.
-    Supports both cal['coeff0'] and cal.Coeff0.
+    Supports both cal['Coeff0'] and cal.Coeff0.
     """
     def __getattr__(self, name):
-        if name.startswith('Coeff'):
-            key = name.lower()
-            if key in self:
-                return self[key]
+        if name in self:
+            return self[name]
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
+
+_PB_NAMES = {'Info': 'distribution_info'}
+
+
+def _pb_name(name):
+    if name in _PB_NAMES:
+        return _PB_NAMES[name]
+    return re.sub(r'(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])', '_',
+                  name).lower()
+
+
+def _spec(*fields):
+    """Struct layout: each field is a name or (name, shape, nested spec),
+    where shape is None, a length, or a (rows, cols) tuple."""
+    return [(f, None, None) if isinstance(f, str) else f for f in fields]
+
+
+def _from_pb(msg, spec):
+    out = PropertyDict()
+    for name, shape, sub in spec:
+        value = getattr(msg, _pb_name(name))
+        conv = (lambda v: _from_pb(v, sub)) if sub else (lambda v: v)
+        if shape is None:
+            out[name] = conv(value)
+            continue
+        flat = [conv(v) for v in value]
+        if isinstance(shape, tuple):
+            flat = [flat[r * shape[1]:(r + 1) * shape[1]] for r in range(shape[0])]
+        out[name] = flat
+    return out
+
+
+def _to_pb(msg, value, spec):
+    for name, shape, sub in spec:
+        if name not in value:
+            continue
+        field, val = _pb_name(name), value[name]
+        if shape is None:
+            if sub:
+                _to_pb(getattr(msg, field), val, sub)
+            else:
+                setattr(msg, field, val)
+            continue
+        if isinstance(shape, tuple):
+            val = [v for row in val for v in row]
+        repeated = getattr(msg, field)
+        for v in val:
+            if sub:
+                _to_pb(repeated.add(), v, sub)
+            else:
+                repeated.append(v)
+    return msg
+
+
+_SIGNAL_DETECTOR = _spec('Mode', 'TimeConstant', 'Flush', 'EnableIntegrator',
+                         'Threshold', 'ThreshOnTriggerCnt', 'ThreshOffTriggerCnt',
+                         'HysteresisEnable')
+_CAL_COEFFS = _spec(*[f'Coeff{i}' for i in range(8)])
+_DTC_SETTINGS = _spec('RefTile', 'IsPLL', ('Target', 4, None), 'Scan_Mode',
+                      ('DTC_Code', 4, None), ('Num_Windows', 4, None),
+                      ('Max_Gap', 4, None), ('Min_Gap', 4, None),
+                      ('Max_Overlap', 4, None))
+_MTS_CONFIG = _spec('RefTile', 'Tiles', 'Target_Latency', ('Offset', 4, None),
+                    ('Latency', 4, None), 'Marker_Delay', 'SysRef_Enable',
+                    ('DTC_Set_PLL', None, _DTC_SETTINGS),
+                    ('DTC_Set_T1', None, _DTC_SETTINGS))
+_TILE_CLOCK = _spec('SourceType', 'SourceTile', 'PLLEnable', 'RefClkFreq',
+                    'SampleRate', 'DivisionFactor', 'DistributedClock', 'Delay')
+_DIST_INFO = _spec('MaxDelay', 'MinDelay', 'IsDelayBalanced', 'Source',
+                   'UpperBound', 'LowerBound', ('ClkSettings', (2, 4), _TILE_CLOCK))
+_DIST_SETTINGS = _spec('SourceType', 'SourceTileId', ('EdgeTileIds', 2, None),
+                       ('EdgeTypes', 2, None), 'DistRefClkFreq', 'DistributedClock',
+                       ('SampleRates', (2, 4), None), 'ShutdownMode',
+                       ('Info', None, _DIST_INFO))
 
 
 # ============================================================================
@@ -124,7 +234,8 @@ _DAC_DDP = [
     ('mixer_input_data_type', 'C_DAC_Data_Type{}{}', 'int'),
     ('data_width', 'C_DAC_Data_Width{}{}', 'int'),
     ('interpolation_mode', 'C_DAC_Interpolation_Mode{}{}', 'int'),
-    ('mixer_type', 'C_DAC_Mixer_Type{}{}', 'int')
+    ('mixer_type', 'C_DAC_Mixer_Type{}{}', 'int'),
+    ('nco_freq', 'C_DAC_NCO_Freq{}{}', 'double', '0.0')
 ]
 
 _ADC_ADP = [
@@ -136,7 +247,8 @@ _ADC_DDP = [
     ('mixer_input_data_type', 'C_ADC_Data_Type{}{}', 'int'),
     ('data_width', 'C_ADC_Data_Width{}{}', 'int'),
     ('decimation_mode', 'C_ADC_Decimation_Mode{}{}', 'int'),
-    ('mixer_type', 'C_ADC_Mixer_Type{}{}', 'int')
+    ('mixer_type', 'C_ADC_Mixer_Type{}{}', 'int'),
+    ('nco_freq', 'C_ADC_NCO_Freq{}{}', 'double', '0.0')
 ]
 
 _DAC_Tile = [
@@ -150,7 +262,8 @@ _DAC_Tile = [
     ('ref_clk_div', 'C_DAC{}_Refclk_Div', 'int'),
     ('multiband_config', 'C_DAC{}_Band', 'int'),
     ('max_sample_rate', 'C_DAC{}_Fs_Max', 'double'),
-    ('num_slices', 'C_DAC{}_Slices', 'int')
+    ('num_slices', 'C_DAC{}_Slices', 'int'),
+    ('link_coupling', 'C_DAC{}_Link_Coupling', 'int', '0')
 ]
 
 _ADC_Tile = [
@@ -188,7 +301,9 @@ def _to_value(val, dtype):
 
 def _set_configs(obj, params, config, *args):
     for c in config:
-        setattr(obj, c[0], _to_value(params[c[1].format(*args)], c[2]))
+        key = c[1].format(*args)
+        val = params[key] if len(c) < 4 else params.get(key, c[3])
+        setattr(obj, c[0], _to_value(val, c[2]))
 
 
 def populate_config(obj, params):
@@ -262,6 +377,15 @@ def _create_dict_property(name, get_stub, resp_attr, field_map,
     return property(_get, _set)
 
 
+def _create_value_method(stub):
+    """Generate a method returning resp.value, for C functions that return
+    their result directly rather than through a status code."""
+    def method(self):
+        return self._call_grpc(stub).value
+    method.__name__ = stub
+    return method
+
+
 # ============================================================================
 # Property spec tables
 # ============================================================================
@@ -271,6 +395,7 @@ _block_scalar_props = [
     ('NyquistZone',       'GetNyquistZone',       'nyquist_zone',
                           'SetNyquistZone',        'SetNyquistZoneRequest', 'nyquist_zone'),
     ('EnabledInterrupts', 'GetEnabledInterrupts',  'value'),
+    ('Coupling',          'GetCoupling',           'value'),
 ]
 
 # Block-level dict properties: (name, get_stub, resp_attr, field_map, set_stub, set_req, set_msg, readonly, callback_event)
@@ -282,7 +407,6 @@ _block_dict_props = [
      'SetMixerSettings', 'SetMixerSettingsRequest', 'MixerSettings', False, EVENT_MIXER),
     ('QMCSettings', 'GetQMCSettings', 'settings',
      {'EnablePhase': 'enable_phase', 'EnableGain': 'enable_gain',
-      'EnableOffsetCorr': 'enable_offset_corr',
       'GainCorrectionFactor': 'gain_correction_factor',
       'PhaseCorrectionFactor': 'phase_correction_factor',
       'OffsetCorrectionFactor': 'offset_correction_factor',
@@ -313,6 +437,7 @@ _adc_scalar_props = [
     ('FabWrVldWordsObs',    'GetFabWrVldWordsObs',    'value'),
     ('Dither',              'GetDither',              'value',
                             'SetDither',              'SetDitherRequest',           'value'),
+    ('LinkCoupling',        'GetLinkCoupling',        'value'),
 ]
 
 # ADC block dict properties
@@ -324,6 +449,10 @@ _adc_dict_props = [
     ('DSA', 'GetDSA', 'settings',
      {'DisableRTS': 'disable_rts', 'Attenuation': 'attenuation'},
      'SetDSA', 'SetDSARequest', 'DSASettings', False, None),
+    ('SignalDetector', 'GetSignalDetector', 'settings',
+     {name: _pb_name(name) for name, _, _ in _SIGNAL_DETECTOR},
+     'SetSignalDetector', 'SetSignalDetectorRequest', 'SignalDetectorSettings',
+     False, None),
 ]
 
 # DAC block scalar properties
@@ -344,6 +473,8 @@ _dac_scalar_props = [
                             'SetIMRPassMode',         'SetIMRPassModeRequest',         'value'),
     ('DACCompMode',         'GetDACCompMode',         'value',
                             'SetDACCompMode',         'SetDACCompModeRequest',         'value'),
+    ('DACDataScaler',       'GetDACDataScaler',       'value',
+                            'SetDACDataScaler',       'BlockValueRequest',             'value'),
 ]
 
 # Tile scalar properties
@@ -353,6 +484,9 @@ _tile_scalar_props = [
     ('FIFOStatus',    'GetFIFOStatus',    'enable'),
     ('ClockSource',   'GetClockSource',   'clock_source'),
     ('PLLLockStatus', 'GetPLLLockStatus', 'lock_status'),
+    ('MTSEnable',     'GetMTSEnable',     'value'),
+    ('MaxSampleRate', 'GetMaxSampleRate', 'value'),
+    ('MinSampleRate', 'GetMinSampleRate', 'value'),
 ]
 
 # Tile dict properties
@@ -364,6 +498,19 @@ _tile_dict_props = [
       'FractionalData': 'fractional_data', 'FractWidth': 'fract_width'},
      None, None, None, True, None),
 ]
+
+
+_block_value_methods = ['GetDataType', 'GetDataWidth', 'IsFifoEnabled',
+                        'CheckBlockEnabled', 'CheckDigitalPathEnabled',
+                        'Get_BlockBaseAddr']
+_adc_value_methods = ['IsADCBlockEnabled', 'IsADCDigitalPathEnabled']
+_dac_value_methods = ['IsDACBlockEnabled', 'IsDACDigitalPathEnabled',
+                      'GetInverseSincFilter', 'GetMixedMode']
+_tile_value_methods = ['GetFabClkFreq', 'GetMultibandConfig', 'CheckTileEnabled',
+                       'Get_TileBaseAddr']
+_adc_tile_value_methods = ['GetNoOfADCBlocks', 'IsHighSpeedADC']
+_dac_tile_value_methods = ['GetNoOfDACBlock']
+_rfdc_value_methods = ['GetDriverVersion', 'GetTileLayout', 'Get_IPBaseAddr']
 
 
 # ============================================================================
@@ -544,6 +691,15 @@ class RFdcBlock:
     def GetConnectedQData(self):
         return self._call_grpc('GetConnectedQData').value
 
+    def GetConnectedIQData(self):
+        resp = self._call_grpc('GetConnectedIQData')
+        return resp.connected_i_data, resp.connected_q_data
+
+    def SetConnectedIQData(self, ConnectedIData, ConnectedQData):
+        self._call_grpc('SetConnectedIQData', xrfdc_pb2.SetConnectedIQDataRequest,
+                        connected_i_data=ConnectedIData,
+                        connected_q_data=ConnectedQData)
+
 
 class RFdcAdcBlock(RFdcBlock):
     """ADC block with ADC-specific methods."""
@@ -601,9 +757,12 @@ class RFdcAdcBlock(RFdcBlock):
 
     def SetCalCoefficients(self, CalibrationBlock, *args, **kwargs):
         """Set calibration coefficients.
-        Supports: (block, struct), (block, c0..c7), (block, coeff0=v, ...)
+        Supports: (block, dict), (block, struct), (block, c0..c7),
+        (block, coeff0=v, ...)
         """
-        if len(args) == 1 and hasattr(args[0], 'Coeff0'):
+        if len(args) == 1 and isinstance(args[0], dict):
+            coeffs_list = [args[0].get(f'Coeff{i}', 0) for i in range(8)]
+        elif len(args) == 1 and hasattr(args[0], 'Coeff0'):
             coeffs_list = [getattr(args[0], f'Coeff{i}', 0) for i in range(8)]
         elif len(args) >= 7:
             coeffs_list = list(args[:8]) + [0] * (8 - len(args))
@@ -623,8 +782,7 @@ class RFdcAdcBlock(RFdcBlock):
         resp = self._call_grpc('GetCalCoefficients',
                                xrfdc_pb2.GetCalCoefficientsRequest,
                                calibration_block=CalibrationBlock)
-        return CalCoeffStruct({f'coeff{i}': getattr(resp.coeffs, f'coeff{i}')
-                               for i in range(8)})
+        return CalCoeffStruct(_from_pb(resp.coeffs, _CAL_COEFFS))
 
     def IntrHandler(self, *args, **kwargs):
         raise NotImplementedError(
@@ -702,6 +860,19 @@ class RFdcTile:
     def DumpRegs(self):
         self._call_grpc('DumpRegs')
 
+    def CustomStartUp(self, StartState, EndState):
+        self._call_grpc('CustomStartUp', xrfdc_pb2.CustomStartUpRequest,
+                        start_state=StartState, end_state=EndState)
+
+    def WaitForState(self, State):
+        self._call_grpc('WaitForState', xrfdc_pb2.WaitForStateRequest, state=State)
+
+    def MultiBand(self, DigitalDataPathMask, MixerInOutDataType, DataConverterMask):
+        self._call_grpc('MultiBand', xrfdc_pb2.MultiBandRequest,
+                        digital_data_path_mask=DigitalDataPathMask,
+                        mixer_in_out_data_type=MixerInOutDataType,
+                        data_converter_mask=DataConverterMask)
+
     def GetPLLConfig(self):
         s = self._call_grpc('GetPLLConfig').settings
         return {'Enabled': s.enabled, 'RefClkFreq': s.ref_clk_freq,
@@ -728,8 +899,7 @@ class RFdcAdcTile(RFdcTile):
                         enable=Enable, block_id=0)
 
     def GetFIFOStatusObs(self):
-        resp = self._call_grpc('GetFIFOStatusObs')
-        return {'Enable': resp.enable}
+        return int(self._call_grpc('GetFIFOStatusObs').enable)
 
 
 class RFdcDacTile(RFdcTile):
@@ -761,6 +931,15 @@ for spec in _tile_scalar_props:
     setattr(RFdcTile, spec[0], _create_scalar_property(*spec))
 for spec in _tile_dict_props:
     setattr(RFdcTile, spec[0], _create_dict_property(*spec))
+
+for cls, stubs in [(RFdcBlock, _block_value_methods),
+                   (RFdcAdcBlock, _adc_value_methods),
+                   (RFdcDacBlock, _dac_value_methods),
+                   (RFdcTile, _tile_value_methods),
+                   (RFdcAdcTile, _adc_tile_value_methods),
+                   (RFdcDacTile, _dac_tile_value_methods)]:
+    for stub in stubs:
+        setattr(cls, stub, _create_value_method(stub))
 
 
 # ============================================================================
@@ -908,64 +1087,73 @@ class RFdc(DefaultIP):
             'State': resp.ip_status.state,
         })
 
+    def _call_grpc(self, method_name, req_class=None, **kwargs):
+        if req_class is None:
+            req_class = xrfdc_pb2.RFdcRequest
+        resp = getattr(self._stub, method_name)(req_class(**kwargs))
+        if resp.status.code != 0:
+            raise RuntimeError(f"{method_name} failed: {resp.status.message}")
+        return resp
+
     def GetClkDistribution(self):
-        req = xrfdc_pb2.GetClkDistributionRequest()
-        resp = self._stub.GetClkDistribution(req)
-        if resp.status.code != 0:
-            raise RuntimeError(f"GetClkDistribution failed: {resp.status.message}")
+        resp = self._call_grpc('GetClkDistribution',
+                               xrfdc_pb2.GetClkDistributionRequest)
+        return _as_property_dict({'Distributions': [
+            _from_pb(d, _DIST_SETTINGS) for d in resp.distributions]})
 
-        def _tile_clk(ts):
-            return {'SourceType': ts.source_type, 'SourceTile': ts.source_tile,
-                    'PLLEnable': ts.pll_enable, 'RefClkFreq': ts.ref_clk_freq,
-                    'SampleRate': ts.sample_rate, 'DivisionFactor': ts.division_factor,
-                    'DistributedClock': ts.distributed_clock, 'Delay': ts.delay}
-
-        dist = resp.settings.distribution_info
-        return {
-            'DAC': [_tile_clk(t) for t in resp.settings.dac],
-            'ADC': [_tile_clk(t) for t in resp.settings.adc],
-            'DistributionInfo': {
-                'Source': dist.source, 'UpperBound': dist.upper_bound,
-                'LowerBound': dist.lower_bound, 'MaxDelay': dist.max_delay,
-                'MinDelay': dist.min_delay, 'IsDelayBalanced': dist.is_delay_balanced,
-            },
-        }
-
-    def SetClkDistribution(self, distribution_settings):
-        settings = xrfdc_pb2.ClkDistributionSettings()
-        _CLK_DIST_FIELDS = {
-            'SourceType': 'source_type', 'SourceTile': 'source_tile',
-            'PLLEnable': 'pll_enable', 'RefClkFreq': 'ref_clk_freq',
-            'SampleRate': 'sample_rate', 'DivisionFactor': 'division_factor',
-            'DistributedClock': 'distributed_clock', 'Delay': 'delay',
-        }
-        for d in distribution_settings.get('DAC', []):
-            t = settings.dac.add()
-            for k, v in d.items():
-                setattr(t, _CLK_DIST_FIELDS[k], v)
-        for d in distribution_settings.get('ADC', []):
-            t = settings.adc.add()
-            for k, v in d.items():
-                setattr(t, _CLK_DIST_FIELDS[k], v)
-        if 'DistributionInfo' in distribution_settings:
-            di = distribution_settings['DistributionInfo']
-            settings.distribution_info.source = di.get('Source', 0)
-            settings.distribution_info.upper_bound = di.get('UpperBound', 0)
-            settings.distribution_info.lower_bound = di.get('LowerBound', 0)
-            settings.distribution_info.max_delay = di.get('MaxDelay', 0)
-            settings.distribution_info.min_delay = di.get('MinDelay', 0)
-            settings.distribution_info.is_delay_balanced = di.get('IsDelayBalanced', 0)
-
-        req = xrfdc_pb2.SetClkDistributionRequest(settings=settings)
-        resp = self._stub.SetClkDistribution(req)
-        if resp.status.code != 0:
-            raise RuntimeError(f"SetClkDistribution failed: {resp.status.message}")
+    def SetClkDistribution(self, DistributionSettings):
+        settings = _to_pb(xrfdc_pb2.ClkDistributionSettings(),
+                          DistributionSettings, _DIST_SETTINGS)
+        self._call_grpc('SetClkDistribution', xrfdc_pb2.SetClkDistributionRequest,
+                        settings=settings)
 
     @property
     def ClkDistribution(self):
-        settings = self.GetClkDistribution()
-        return _as_property_dict(settings, callback=lambda v: self.SetClkDistribution(v))
+        return self.GetClkDistribution()
 
-    @ClkDistribution.setter
-    def ClkDistribution(self, value):
-        self.SetClkDistribution(value)
+    def GetMasterTile(self, Type):
+        return self._call_grpc('GetMasterTile', xrfdc_pb2.TileTypeRequest,
+                               tile_type=Type).value
+
+    def GetSysRefSource(self, Type):
+        return self._call_grpc('GetSysRefSource', xrfdc_pb2.TileTypeRequest,
+                               tile_type=Type).value
+
+    def RDReg(self, BaseAddr, RegAddr, Mask):
+        return self._call_grpc('RDReg', xrfdc_pb2.RegRequest, base_addr=BaseAddr,
+                               reg_addr=RegAddr, mask=Mask).value
+
+    def ClrSetReg(self, BaseAddr, RegAddr, Mask, Data):
+        self._call_grpc('ClrSetReg', xrfdc_pb2.RegRequest, base_addr=BaseAddr,
+                        reg_addr=RegAddr, mask=Mask, data=Data)
+
+    def ClrReg(self, BaseAddr, RegAddr, Mask):
+        self._call_grpc('ClrReg', xrfdc_pb2.RegRequest, base_addr=BaseAddr,
+                        reg_addr=RegAddr, mask=Mask)
+
+    def MultiConverter_Init(self, RefTile, PLL_Codes=None, T1_Codes=None):
+        resp = self._call_grpc('MultiConverter_Init',
+                               xrfdc_pb2.MultiConverterInitRequest,
+                               ref_tile=RefTile,
+                               pll_codes=[] if PLL_Codes is None else list(PLL_Codes),
+                               t1_codes=[] if T1_Codes is None else list(T1_Codes))
+        return _from_pb(resp.config, _MTS_CONFIG)
+
+    def MultiConverter_Sync(self, Type, Config):
+        resp = self._call_grpc(
+            'MultiConverter_Sync', xrfdc_pb2.MultiConverterSyncRequest, tile_type=Type,
+            config=_to_pb(xrfdc_pb2.MultiConverterSyncConfig(), Config, _MTS_CONFIG))
+        return _from_pb(resp.config, _MTS_CONFIG)
+
+    def MTS_Sysref_Config(self, DACSyncConfig, ADCSyncConfig, SysRefEnable):
+        self._call_grpc(
+            'MTS_Sysref_Config', xrfdc_pb2.MTSSysrefConfigRequest,
+            dac_sync_config=_to_pb(xrfdc_pb2.MultiConverterSyncConfig(),
+                                   DACSyncConfig, _MTS_CONFIG),
+            adc_sync_config=_to_pb(xrfdc_pb2.MultiConverterSyncConfig(),
+                                   ADCSyncConfig, _MTS_CONFIG),
+            sys_ref_enable=SysRefEnable)
+
+
+for stub in _rfdc_value_methods:
+    setattr(RFdc, stub, _create_value_method(stub))

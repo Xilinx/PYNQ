@@ -85,6 +85,50 @@ libxrfdcManager::libxrfdcManager() : handle_(nullptr) {
     XRFdc_GetFIFOStatusObs = nullptr;
     XRFdc_GetClkDistribution = nullptr;
     XRFdc_SetClkDistribution = nullptr;
+    XRFdc_GetCoupling = nullptr;
+    XRFdc_GetLinkCoupling = nullptr;
+    XRFdc_GetSignalDetector = nullptr;
+    XRFdc_SetSignalDetector = nullptr;
+    XRFdc_GetDACDataScaler = nullptr;
+    XRFdc_SetDACDataScaler = nullptr;
+    XRFdc_GetConnectedIQData = nullptr;
+    XRFdc_SetConnectedIQData = nullptr;
+    XRFdc_GetDataType = nullptr;
+    XRFdc_GetDataWidth = nullptr;
+    XRFdc_IsFifoEnabled = nullptr;
+    XRFdc_CheckBlockEnabled = nullptr;
+    XRFdc_CheckDigitalPathEnabled = nullptr;
+    XRFdc_Get_BlockBaseAddr = nullptr;
+    XRFdc_IsDACBlockEnabled = nullptr;
+    XRFdc_IsDACDigitalPathEnabled = nullptr;
+    XRFdc_GetInverseSincFilter = nullptr;
+    XRFdc_GetMixedMode = nullptr;
+    XRFdc_IsADCBlockEnabled = nullptr;
+    XRFdc_IsADCDigitalPathEnabled = nullptr;
+    XRFdc_CustomStartUp = nullptr;
+    XRFdc_WaitForState = nullptr;
+    XRFdc_MultiBand = nullptr;
+    XRFdc_GetFabClkFreq = nullptr;
+    XRFdc_GetMultibandConfig = nullptr;
+    XRFdc_CheckTileEnabled = nullptr;
+    XRFdc_Get_TileBaseAddr = nullptr;
+    XRFdc_GetNoOfDACBlock = nullptr;
+    XRFdc_GetNoOfADCBlocks = nullptr;
+    XRFdc_IsHighSpeedADC = nullptr;
+    XRFdc_GetMTSEnable = nullptr;
+    XRFdc_GetMaxSampleRate = nullptr;
+    XRFdc_GetMinSampleRate = nullptr;
+    XRFdc_GetDriverVersion = nullptr;
+    XRFdc_GetTileLayout = nullptr;
+    XRFdc_Get_IPBaseAddr = nullptr;
+    XRFdc_GetMasterTile = nullptr;
+    XRFdc_GetSysRefSource = nullptr;
+    XRFdc_RDReg = nullptr;
+    XRFdc_ClrSetReg = nullptr;
+    XRFdc_ClrReg = nullptr;
+    XRFdc_MultiConverter_Init = nullptr;
+    XRFdc_MultiConverter_Sync = nullptr;
+    XRFdc_MTS_Sysref_Config = nullptr;
 }
 
 libxrfdcManager::~libxrfdcManager() {
@@ -182,6 +226,50 @@ void libxrfdcManager::loadLibrary() {
     XRFdc_GetFIFOStatusObs = (XRFdc_GetFIFOStatusObs_t)dlsym(handle_, "XRFdc_GetFIFOStatusObs");
     XRFdc_GetClkDistribution = (XRFdc_GetClkDistribution_t)dlsym(handle_, "XRFdc_GetClkDistribution");
     XRFdc_SetClkDistribution = (XRFdc_SetClkDistribution_t)dlsym(handle_, "XRFdc_SetClkDistribution");
+    XRFdc_GetCoupling = (XRFdc_GetCoupling_t)dlsym(handle_, "XRFdc_GetCoupling");
+    XRFdc_GetLinkCoupling = (XRFdc_GetLinkCoupling_t)dlsym(handle_, "XRFdc_GetLinkCoupling");
+    XRFdc_GetSignalDetector = (XRFdc_GetSignalDetector_t)dlsym(handle_, "XRFdc_GetSignalDetector");
+    XRFdc_SetSignalDetector = (XRFdc_SetSignalDetector_t)dlsym(handle_, "XRFdc_SetSignalDetector");
+    XRFdc_GetDACDataScaler = (XRFdc_GetDACDataScaler_t)dlsym(handle_, "XRFdc_GetDACDataScaler");
+    XRFdc_SetDACDataScaler = (XRFdc_SetDACDataScaler_t)dlsym(handle_, "XRFdc_SetDACDataScaler");
+    XRFdc_GetConnectedIQData = (XRFdc_GetConnectedIQData_t)dlsym(handle_, "XRFdc_GetConnectedIQData");
+    XRFdc_SetConnectedIQData = (XRFdc_SetConnectedIQData_t)dlsym(handle_, "XRFdc_SetConnectedIQData");
+    XRFdc_GetDataType = (XRFdc_GetDataType_t)dlsym(handle_, "XRFdc_GetDataType");
+    XRFdc_GetDataWidth = (XRFdc_GetDataWidth_t)dlsym(handle_, "XRFdc_GetDataWidth");
+    XRFdc_IsFifoEnabled = (XRFdc_IsFifoEnabled_t)dlsym(handle_, "XRFdc_IsFifoEnabled");
+    XRFdc_CheckBlockEnabled = (XRFdc_CheckBlockEnabled_t)dlsym(handle_, "XRFdc_CheckBlockEnabled");
+    XRFdc_CheckDigitalPathEnabled = (XRFdc_CheckDigitalPathEnabled_t)dlsym(handle_, "XRFdc_CheckDigitalPathEnabled");
+    XRFdc_Get_BlockBaseAddr = (XRFdc_Get_BlockBaseAddr_t)dlsym(handle_, "XRFdc_Get_BlockBaseAddr");
+    XRFdc_IsDACBlockEnabled = (XRFdc_IsDACBlockEnabled_t)dlsym(handle_, "XRFdc_IsDACBlockEnabled");
+    XRFdc_IsDACDigitalPathEnabled = (XRFdc_IsDACDigitalPathEnabled_t)dlsym(handle_, "XRFdc_IsDACDigitalPathEnabled");
+    XRFdc_GetInverseSincFilter = (XRFdc_GetInverseSincFilter_t)dlsym(handle_, "XRFdc_GetInverseSincFilter");
+    XRFdc_GetMixedMode = (XRFdc_GetMixedMode_t)dlsym(handle_, "XRFdc_GetMixedMode");
+    XRFdc_IsADCBlockEnabled = (XRFdc_IsADCBlockEnabled_t)dlsym(handle_, "XRFdc_IsADCBlockEnabled");
+    XRFdc_IsADCDigitalPathEnabled = (XRFdc_IsADCDigitalPathEnabled_t)dlsym(handle_, "XRFdc_IsADCDigitalPathEnabled");
+    XRFdc_CustomStartUp = (XRFdc_CustomStartUp_t)dlsym(handle_, "XRFdc_CustomStartUp");
+    XRFdc_WaitForState = (XRFdc_WaitForState_t)dlsym(handle_, "XRFdc_WaitForState");
+    XRFdc_MultiBand = (XRFdc_MultiBand_t)dlsym(handle_, "XRFdc_MultiBand");
+    XRFdc_GetFabClkFreq = (XRFdc_GetFabClkFreq_t)dlsym(handle_, "XRFdc_GetFabClkFreq");
+    XRFdc_GetMultibandConfig = (XRFdc_GetMultibandConfig_t)dlsym(handle_, "XRFdc_GetMultibandConfig");
+    XRFdc_CheckTileEnabled = (XRFdc_CheckTileEnabled_t)dlsym(handle_, "XRFdc_CheckTileEnabled");
+    XRFdc_Get_TileBaseAddr = (XRFdc_Get_TileBaseAddr_t)dlsym(handle_, "XRFdc_Get_TileBaseAddr");
+    XRFdc_GetNoOfDACBlock = (XRFdc_GetNoOfDACBlock_t)dlsym(handle_, "XRFdc_GetNoOfDACBlock");
+    XRFdc_GetNoOfADCBlocks = (XRFdc_GetNoOfADCBlocks_t)dlsym(handle_, "XRFdc_GetNoOfADCBlocks");
+    XRFdc_IsHighSpeedADC = (XRFdc_IsHighSpeedADC_t)dlsym(handle_, "XRFdc_IsHighSpeedADC");
+    XRFdc_GetMTSEnable = (XRFdc_GetMTSEnable_t)dlsym(handle_, "XRFdc_GetMTSEnable");
+    XRFdc_GetMaxSampleRate = (XRFdc_GetMaxSampleRate_t)dlsym(handle_, "XRFdc_GetMaxSampleRate");
+    XRFdc_GetMinSampleRate = (XRFdc_GetMinSampleRate_t)dlsym(handle_, "XRFdc_GetMinSampleRate");
+    XRFdc_GetDriverVersion = (XRFdc_GetDriverVersion_t)dlsym(handle_, "XRFdc_GetDriverVersion");
+    XRFdc_GetTileLayout = (XRFdc_GetTileLayout_t)dlsym(handle_, "XRFdc_GetTileLayout");
+    XRFdc_Get_IPBaseAddr = (XRFdc_Get_IPBaseAddr_t)dlsym(handle_, "XRFdc_Get_IPBaseAddr");
+    XRFdc_GetMasterTile = (XRFdc_GetMasterTile_t)dlsym(handle_, "XRFdc_GetMasterTile");
+    XRFdc_GetSysRefSource = (XRFdc_GetSysRefSource_t)dlsym(handle_, "XRFdc_GetSysRefSource");
+    XRFdc_RDReg = (XRFdc_RDReg_t)dlsym(handle_, "XRFdc_RDReg");
+    XRFdc_ClrSetReg = (XRFdc_ClrSetReg_t)dlsym(handle_, "XRFdc_ClrSetReg");
+    XRFdc_ClrReg = (XRFdc_ClrReg_t)dlsym(handle_, "XRFdc_ClrReg");
+    XRFdc_MultiConverter_Init = (XRFdc_MultiConverter_Init_t)dlsym(handle_, "XRFdc_MultiConverter_Init");
+    XRFdc_MultiConverter_Sync = (XRFdc_MultiConverter_Sync_t)dlsym(handle_, "XRFdc_MultiConverter_Sync");
+    XRFdc_MTS_Sysref_Config = (XRFdc_MTS_Sysref_Config_t)dlsym(handle_, "XRFdc_MTS_Sysref_Config");
 
     if (!XRFdc_LookupConfig || !XRFdc_CfgInitialize ||
         !XRFdc_GetIPStatus || !XRFdc_GetBlockStatus ||
@@ -309,6 +397,7 @@ XRFdc_Config* XrfdcRemote::ConvertProtoToConfig(const xrfdc::RFdcConfig& proto_c
         c_tile.MultibandConfig = proto_tile.multiband_config();
         c_tile.MaxSampleRate = proto_tile.max_sample_rate();
         c_tile.NumSlices = proto_tile.num_slices();
+        c_tile.LinkCoupling = proto_tile.link_coupling();
 
         // DAC Block Analog config (4 blocks per tile)
         for (int block = 0; block < 4 && block < proto_tile.dac_block_analog_config_size(); block++) {
@@ -332,6 +421,7 @@ XRFdc_Config* XrfdcRemote::ConvertProtoToConfig(const xrfdc::RFdcConfig& proto_c
             c_digital.FifoEnable = proto_digital.fifo_enable();
             c_digital.AdderEnable = proto_digital.adder_enable();
             c_digital.MixerType = proto_digital.mixer_type();
+            c_digital.NCOFreq = proto_digital.nco_freq();
         }
     }
 
@@ -372,6 +462,7 @@ XRFdc_Config* XrfdcRemote::ConvertProtoToConfig(const xrfdc::RFdcConfig& proto_c
             c_digital.DecimationMode = proto_digital.decimation_mode();
             c_digital.FifoEnable = proto_digital.fifo_enable();
             c_digital.MixerType = proto_digital.mixer_type();
+            c_digital.NCOFreq = proto_digital.nco_freq();
         }
     }
 
@@ -1538,7 +1629,7 @@ u32 XrfdcRemote::GetCalCoefficients(u32 tile_id, u32 block_id, u32 calibration_b
     return lib_manager_.XRFdc_GetCalCoefficients(rfdc_inst_, tile_id, block_id, calibration_block, coeffs);
 }
 
-u32 XrfdcRemote::GetClkDistribution(XRFdc_Distribution_Settings* settings) {
+u32 XrfdcRemote::GetClkDistribution(XRFdc_Distribution_System_Settings* settings) {
     if (!rfdc_inst_ || !lib_manager_.XRFdc_GetClkDistribution || !settings) return XRFDC_FAILURE;
     return lib_manager_.XRFdc_GetClkDistribution(rfdc_inst_, settings);
 }
@@ -4320,147 +4411,454 @@ grpc::Status XrfdcImpl::GetCalCoefficients(ServerContext* context,
         }
     }
 
+namespace {
+
+void ToProto(const XRFdc_Tile_Clock_Settings& c, xrfdc::TileClockSettings* p) {
+    p->set_source_type(c.SourceType);
+    p->set_source_tile(c.SourceTile);
+    p->set_pll_enable(c.PLLEnable);
+    p->set_ref_clk_freq(c.RefClkFreq);
+    p->set_sample_rate(c.SampleRate);
+    p->set_division_factor(c.DivisionFactor);
+    p->set_distributed_clock(c.DistributedClock);
+    p->set_delay(c.Delay);
+}
+
+void FromProto(const xrfdc::TileClockSettings& p, XRFdc_Tile_Clock_Settings& c) {
+    c.SourceType = p.source_type();
+    c.SourceTile = p.source_tile();
+    c.PLLEnable = p.pll_enable();
+    c.RefClkFreq = p.ref_clk_freq();
+    c.SampleRate = p.sample_rate();
+    c.DivisionFactor = p.division_factor();
+    c.DistributedClock = p.distributed_clock();
+    c.Delay = p.delay();
+}
+
+void ToProto(const XRFdc_Distribution_Settings& c, xrfdc::ClkDistributionSettings* p) {
+    p->set_source_type(c.SourceType);
+    p->set_source_tile_id(c.SourceTileId);
+    for (int i = 0; i < 2; i++) {
+        p->add_edge_tile_ids(c.EdgeTileIds[i]);
+        p->add_edge_types(c.EdgeTypes[i]);
+    }
+    p->set_dist_ref_clk_freq(c.DistRefClkFreq);
+    p->set_distributed_clock(c.DistributedClock);
+    p->set_shutdown_mode(c.ShutdownMode);
+    auto* info = p->mutable_distribution_info();
+    info->set_max_delay(c.Info.MaxDelay);
+    info->set_min_delay(c.Info.MinDelay);
+    info->set_is_delay_balanced(c.Info.IsDelayBalanced);
+    info->set_source(c.Info.Source);
+    info->set_upper_bound(c.Info.UpperBound);
+    info->set_lower_bound(c.Info.LowerBound);
+    for (int type = 0; type < 2; type++) {
+        for (int tile = 0; tile < 4; tile++) {
+            p->add_sample_rates(c.SampleRates[type][tile]);
+            ToProto(c.Info.ClkSettings[type][tile], info->add_clk_settings());
+        }
+    }
+}
+
+void FromProto(const xrfdc::ClkDistributionSettings& p, XRFdc_Distribution_Settings& c) {
+    c.SourceType = p.source_type();
+    c.SourceTileId = p.source_tile_id();
+    for (int i = 0; i < 2; i++) {
+        c.EdgeTileIds[i] = i < p.edge_tile_ids_size() ? p.edge_tile_ids(i) : 0;
+        c.EdgeTypes[i] = i < p.edge_types_size() ? p.edge_types(i) : 0;
+    }
+    c.DistRefClkFreq = p.dist_ref_clk_freq();
+    c.DistributedClock = p.distributed_clock();
+    c.ShutdownMode = p.shutdown_mode();
+    const auto& info = p.distribution_info();
+    c.Info.MaxDelay = info.max_delay();
+    c.Info.MinDelay = info.min_delay();
+    c.Info.IsDelayBalanced = info.is_delay_balanced();
+    c.Info.Source = info.source();
+    c.Info.UpperBound = info.upper_bound();
+    c.Info.LowerBound = info.lower_bound();
+    for (int i = 0; i < 8; i++) {
+        if (i < p.sample_rates_size()) c.SampleRates[i / 4][i % 4] = p.sample_rates(i);
+        if (i < info.clk_settings_size()) FromProto(info.clk_settings(i), c.Info.ClkSettings[i / 4][i % 4]);
+    }
+}
+
+template <typename Repeated>
+int RepeatedAt(const Repeated& r, int i) {
+    return i < r.size() ? r.Get(i) : 0;
+}
+
+void ToProto(const XRFdc_MTS_DTC_Settings& c, xrfdc::MTSDTCSettings* p) {
+    p->set_ref_tile(c.RefTile);
+    p->set_is_pll(c.IsPLL);
+    p->set_scan_mode(c.Scan_Mode);
+    for (int i = 0; i < 4; i++) {
+        p->add_target(c.Target[i]);
+        p->add_dtc_code(c.DTC_Code[i]);
+        p->add_num_windows(c.Num_Windows[i]);
+        p->add_max_gap(c.Max_Gap[i]);
+        p->add_min_gap(c.Min_Gap[i]);
+        p->add_max_overlap(c.Max_Overlap[i]);
+    }
+}
+
+void FromProto(const xrfdc::MTSDTCSettings& p, XRFdc_MTS_DTC_Settings& c) {
+    c.RefTile = p.ref_tile();
+    c.IsPLL = p.is_pll();
+    c.Scan_Mode = p.scan_mode();
+    for (int i = 0; i < 4; i++) {
+        c.Target[i] = RepeatedAt(p.target(), i);
+        c.DTC_Code[i] = RepeatedAt(p.dtc_code(), i);
+        c.Num_Windows[i] = RepeatedAt(p.num_windows(), i);
+        c.Max_Gap[i] = RepeatedAt(p.max_gap(), i);
+        c.Min_Gap[i] = RepeatedAt(p.min_gap(), i);
+        c.Max_Overlap[i] = RepeatedAt(p.max_overlap(), i);
+    }
+}
+
+void ToProto(const XRFdc_MultiConverter_Sync_Config& c, xrfdc::MultiConverterSyncConfig* p) {
+    p->set_ref_tile(c.RefTile);
+    p->set_tiles(c.Tiles);
+    p->set_target_latency(c.Target_Latency);
+    for (int i = 0; i < 4; i++) {
+        p->add_offset(c.Offset[i]);
+        p->add_latency(c.Latency[i]);
+    }
+    p->set_marker_delay(c.Marker_Delay);
+    p->set_sys_ref_enable(c.SysRef_Enable);
+    ToProto(c.DTC_Set_PLL, p->mutable_dtc_set_pll());
+    ToProto(c.DTC_Set_T1, p->mutable_dtc_set_t1());
+}
+
+void FromProto(const xrfdc::MultiConverterSyncConfig& p, XRFdc_MultiConverter_Sync_Config& c) {
+    c.RefTile = p.ref_tile();
+    c.Tiles = p.tiles();
+    c.Target_Latency = p.target_latency();
+    for (int i = 0; i < 4; i++) {
+        c.Offset[i] = RepeatedAt(p.offset(), i);
+        c.Latency[i] = RepeatedAt(p.latency(), i);
+    }
+    c.Marker_Delay = p.marker_delay();
+    c.SysRef_Enable = p.sys_ref_enable();
+    FromProto(p.dtc_set_pll(), c.DTC_Set_PLL);
+    FromProto(p.dtc_set_t1(), c.DTC_Set_T1);
+}
+
+void CheckRegRange(const xrfdc::RegRequest* request, size_t size) {
+    if (uint64_t{request->base_addr()} + request->reg_addr() + sizeof(u16) > size)
+        throw std::out_of_range("register outside the RFdc address range");
+}
+
+}  // namespace
+
+#define XRFDC_CALL(fn, ...) rfdc_remote_->Call("XRFdc_" #fn, rfdc_remote_->lib().XRFdc_##fn, ##__VA_ARGS__)
+
 grpc::Status XrfdcImpl::GetClkDistribution(ServerContext* context,
                                     const xrfdc::GetClkDistributionRequest* request,
                                     xrfdc::GetClkDistributionResponse* response) {
-        std::lock_guard<std::mutex> lk(mu_);
-
-        if (!initialized_) {
-            auto* status = response->mutable_status();
-            status->set_code(1);
-            status->set_message("RFDC not initialized. Call CfgInitialize first.");
-            return grpc::Status(grpc::StatusCode::FAILED_PRECONDITION, "RFDC not initialized");
-        }
-        try {
-            XRFdc_Distribution_Settings settings;
-            u32 ret = rfdc_remote_->GetClkDistribution(&settings);
-
-            rfdc_remote_->PopulateStatus(
-                response->mutable_status(),
-                "GetClkDistribution",
-                ret,
-                0,  // IP-wide operation
-                -1,  // No tile
-                -1   // No block
-            );
-
-            if (ret == 0) {
-                auto* dist_settings = response->mutable_settings();
-                // Populate DAC tile settings
-                for (int i = 0; i < 4; i++) {
-                    auto* dac_tile = dist_settings->add_dac();
-                    const auto& dac_clk = settings.Info.ClkSettings[XRFDC_DAC_TILE][i];
-                    dac_tile->set_source_type(dac_clk.SourceType);
-                    dac_tile->set_source_tile(dac_clk.SourceTile);
-                    dac_tile->set_pll_enable(dac_clk.PLLEnable);
-                    dac_tile->set_ref_clk_freq(dac_clk.RefClkFreq);
-                    dac_tile->set_sample_rate(dac_clk.SampleRate);
-                    dac_tile->set_division_factor(dac_clk.DivisionFactor);
-                    dac_tile->set_delay(dac_clk.Delay);
-                    dac_tile->set_distributed_clock(dac_clk.DistributedClock);
-                }
-                // Populate ADC tile settings
-                for (int i = 0; i < 4; i++) {
-                    auto* adc_tile = dist_settings->add_adc();
-                    const auto& adc_clk = settings.Info.ClkSettings[XRFDC_ADC_TILE][i];
-                    adc_tile->set_source_type(adc_clk.SourceType);
-                    adc_tile->set_source_tile(adc_clk.SourceTile);
-                    adc_tile->set_pll_enable(adc_clk.PLLEnable);
-                    adc_tile->set_ref_clk_freq(adc_clk.RefClkFreq);
-                    adc_tile->set_sample_rate(adc_clk.SampleRate);
-                    adc_tile->set_division_factor(adc_clk.DivisionFactor);
-                    adc_tile->set_delay(adc_clk.Delay);
-                    adc_tile->set_distributed_clock(adc_clk.DistributedClock);
-                }
-                // Populate distribution status
-                {
-                    auto* dist_status = dist_settings->mutable_distribution_info();
-                    const auto& dist_info = settings.Info;
-                    dist_status->set_source(dist_info.Source);
-                    dist_status->set_upper_bound(dist_info.UpperBound);
-                    dist_status->set_lower_bound(dist_info.LowerBound);
-                    dist_status->set_max_delay(dist_info.MaxDelay);
-                    dist_status->set_min_delay(dist_info.MinDelay);
-                    dist_status->set_is_delay_balanced(dist_info.IsDelayBalanced);
-                }
+    return Run("GetClkDistribution", response, [&] {
+        XRFdc_Distribution_System_Settings settings;
+        memset(&settings, 0, sizeof(settings));
+        u32 ret = rfdc_remote_->GetClkDistribution(&settings);
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "GetClkDistribution", ret, 0, -1, -1);
+        if (ret == 0) {
+            for (int i = 0; i < XRFDC_DIST_MAX; i++) {
+                ToProto(settings.Distributions[i], response->add_distributions());
             }
-            return grpc::Status::OK;
-        } catch (const std::exception& e) {
-            auto* status = response->mutable_status();
-            status->set_code(1);
-            status->set_message(std::string("GetClkDistribution failed: ") + e.what());
-            return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
         }
-    }
+    });
+}
 
 grpc::Status XrfdcImpl::SetClkDistribution(ServerContext* context,
                                     const xrfdc::SetClkDistributionRequest* request,
                                     xrfdc::TileControlResponse* response) {
-        std::lock_guard<std::mutex> lk(mu_);
+    return Run("SetClkDistribution", response, [&] {
+        XRFdc_Distribution_Settings settings;
+        memset(&settings, 0, sizeof(settings));
+        FromProto(request->settings(), settings);
+        u32 ret = rfdc_remote_->SetClkDistribution(&settings);
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "SetClkDistribution", ret, 0, -1, -1);
+    });
+}
 
-        if (!initialized_) {
-            auto* status = response->mutable_status();
-            status->set_code(1);
-            status->set_message("RFDC not initialized. Call CfgInitialize first.");
-            return grpc::Status(grpc::StatusCode::FAILED_PRECONDITION, "RFDC not initialized");
+#define XRFDC_BLOCK_GETTER(name, ...)                                                        \
+grpc::Status XrfdcImpl::name(ServerContext* context, const xrfdc::BlockRequest* request,    \
+                             xrfdc::ValueResponse* response) {                              \
+    return Run(#name, response, [&] {                                                       \
+        u32 value = 0;                                                                      \
+        u32 ret = XRFDC_CALL(name, __VA_ARGS__, &value);                                    \
+        rfdc_remote_->PopulateStatus(response->mutable_status(), #name, ret,                \
+                                     request->tile_type(), request->tile_id(), request->block_id()); \
+        response->set_value(value);                                                         \
+    });                                                                                     \
+}
+
+#define XRFDC_BLOCK_VALUE(name, ...)                                                         \
+grpc::Status XrfdcImpl::name(ServerContext* context, const xrfdc::BlockRequest* request,    \
+                             xrfdc::ValueResponse* response) {                              \
+    return Run(#name, response, [&] {                                                       \
+        response->set_value(XRFDC_CALL(name, __VA_ARGS__));                                 \
+        rfdc_remote_->PopulateStatus(response->mutable_status(), #name, 0,                  \
+                                     request->tile_type(), request->tile_id(), request->block_id()); \
+    });                                                                                     \
+}
+
+#define XRFDC_TILE_VALUE(name, response_type, ...)                                           \
+grpc::Status XrfdcImpl::name(ServerContext* context, const xrfdc::TileRequest* request,     \
+                             xrfdc::response_type* response) {                              \
+    return Run(#name, response, [&] {                                                       \
+        response->set_value(XRFDC_CALL(name, __VA_ARGS__));                                 \
+        rfdc_remote_->PopulateStatus(response->mutable_status(), #name, 0,                  \
+                                     request->tile_type(), request->tile_id());             \
+    });                                                                                     \
+}
+
+#define XRFDC_TILE_GETTER(name, value_type, response_type)                                   \
+grpc::Status XrfdcImpl::name(ServerContext* context, const xrfdc::TileRequest* request,     \
+                             xrfdc::response_type* response) {                              \
+    return Run(#name, response, [&] {                                                       \
+        value_type value = 0;                                                               \
+        u32 ret = XRFDC_CALL(name, request->tile_type(), request->tile_id(), &value);       \
+        rfdc_remote_->PopulateStatus(response->mutable_status(), #name, ret,                \
+                                     request->tile_type(), request->tile_id());             \
+        response->set_value(value);                                                         \
+    });                                                                                     \
+}
+
+#define TYPED_BLOCK request->tile_type(), request->tile_id(), request->block_id()
+#define IMPLICIT_BLOCK request->tile_id(), request->block_id()
+#define TYPED_TILE request->tile_type(), request->tile_id()
+
+XRFDC_BLOCK_GETTER(GetCoupling, TYPED_BLOCK)
+XRFDC_BLOCK_GETTER(GetLinkCoupling, IMPLICIT_BLOCK)
+XRFDC_BLOCK_GETTER(GetDACDataScaler, IMPLICIT_BLOCK)
+XRFDC_BLOCK_VALUE(GetDataType, TYPED_BLOCK)
+XRFDC_BLOCK_VALUE(GetDataWidth, TYPED_BLOCK)
+XRFDC_BLOCK_VALUE(IsFifoEnabled, TYPED_BLOCK)
+XRFDC_BLOCK_VALUE(CheckBlockEnabled, TYPED_BLOCK)
+XRFDC_BLOCK_VALUE(CheckDigitalPathEnabled, TYPED_BLOCK)
+XRFDC_BLOCK_VALUE(Get_BlockBaseAddr, TYPED_BLOCK)
+XRFDC_BLOCK_VALUE(IsDACBlockEnabled, IMPLICIT_BLOCK)
+XRFDC_BLOCK_VALUE(IsDACDigitalPathEnabled, IMPLICIT_BLOCK)
+XRFDC_BLOCK_VALUE(GetInverseSincFilter, IMPLICIT_BLOCK)
+XRFDC_BLOCK_VALUE(GetMixedMode, IMPLICIT_BLOCK)
+XRFDC_BLOCK_VALUE(IsADCBlockEnabled, IMPLICIT_BLOCK)
+XRFDC_BLOCK_VALUE(IsADCDigitalPathEnabled, IMPLICIT_BLOCK)
+
+XRFDC_TILE_VALUE(GetFabClkFreq, DoubleResponse, TYPED_TILE)
+XRFDC_TILE_VALUE(GetMultibandConfig, ValueResponse, TYPED_TILE)
+XRFDC_TILE_VALUE(CheckTileEnabled, ValueResponse, TYPED_TILE)
+XRFDC_TILE_VALUE(Get_TileBaseAddr, ValueResponse, TYPED_TILE)
+XRFDC_TILE_VALUE(GetNoOfDACBlock, ValueResponse, request->tile_id())
+XRFDC_TILE_VALUE(GetNoOfADCBlocks, ValueResponse, request->tile_id())
+XRFDC_TILE_VALUE(IsHighSpeedADC, ValueResponse, request->tile_id())
+XRFDC_TILE_GETTER(GetMTSEnable, u32, ValueResponse)
+XRFDC_TILE_GETTER(GetMaxSampleRate, double, DoubleResponse)
+XRFDC_TILE_GETTER(GetMinSampleRate, double, DoubleResponse)
+
+grpc::Status XrfdcImpl::GetSignalDetector(ServerContext* context, const xrfdc::BlockRequest* request,
+                                          xrfdc::GetSignalDetectorResponse* response) {
+    return Run("GetSignalDetector", response, [&] {
+        XRFdc_Signal_Detector_Settings c;
+        memset(&c, 0, sizeof(c));
+        u32 ret = XRFDC_CALL(GetSignalDetector, IMPLICIT_BLOCK, &c);
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "GetSignalDetector", ret, TYPED_BLOCK);
+        auto* p = response->mutable_settings();
+        p->set_mode(c.Mode);
+        p->set_time_constant(c.TimeConstant);
+        p->set_flush(c.Flush);
+        p->set_enable_integrator(c.EnableIntegrator);
+        p->set_threshold(c.Threshold);
+        p->set_thresh_on_trigger_cnt(c.ThreshOnTriggerCnt);
+        p->set_thresh_off_trigger_cnt(c.ThreshOffTriggerCnt);
+        p->set_hysteresis_enable(c.HysteresisEnable);
+    });
+}
+
+grpc::Status XrfdcImpl::SetSignalDetector(ServerContext* context, const xrfdc::SetSignalDetectorRequest* request,
+                                          xrfdc::TileControlResponse* response) {
+    return Run("SetSignalDetector", response, [&] {
+        const auto& p = request->settings();
+        XRFdc_Signal_Detector_Settings c;
+        c.Mode = p.mode();
+        c.TimeConstant = p.time_constant();
+        c.Flush = p.flush();
+        c.EnableIntegrator = p.enable_integrator();
+        c.Threshold = p.threshold();
+        c.ThreshOnTriggerCnt = p.thresh_on_trigger_cnt();
+        c.ThreshOffTriggerCnt = p.thresh_off_trigger_cnt();
+        c.HysteresisEnable = p.hysteresis_enable();
+        u32 ret = XRFDC_CALL(SetSignalDetector, IMPLICIT_BLOCK, &c);
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "SetSignalDetector", ret,
+                                     XRFDC_ADC_TILE, request->tile_id(), request->block_id());
+    });
+}
+
+grpc::Status XrfdcImpl::SetDACDataScaler(ServerContext* context, const xrfdc::BlockValueRequest* request,
+                                         xrfdc::TileControlResponse* response) {
+    return Run("SetDACDataScaler", response, [&] {
+        u32 ret = XRFDC_CALL(SetDACDataScaler, IMPLICIT_BLOCK, request->value());
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "SetDACDataScaler", ret, TYPED_BLOCK);
+    });
+}
+
+grpc::Status XrfdcImpl::GetConnectedIQData(ServerContext* context, const xrfdc::BlockRequest* request,
+                                           xrfdc::GetConnectedIQDataResponse* response) {
+    return Run("GetConnectedIQData", response, [&] {
+        int i_data = 0, q_data = 0;
+        u32 ret = XRFDC_CALL(GetConnectedIQData, TYPED_BLOCK, &i_data, &q_data);
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "GetConnectedIQData", ret, TYPED_BLOCK);
+        response->set_connected_i_data(i_data);
+        response->set_connected_q_data(q_data);
+    });
+}
+
+grpc::Status XrfdcImpl::SetConnectedIQData(ServerContext* context, const xrfdc::SetConnectedIQDataRequest* request,
+                                           xrfdc::TileControlResponse* response) {
+    return Run("SetConnectedIQData", response, [&] {
+        XRFDC_CALL(SetConnectedIQData, TYPED_BLOCK, request->connected_i_data(), request->connected_q_data());
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "SetConnectedIQData", 0, TYPED_BLOCK);
+    });
+}
+
+grpc::Status XrfdcImpl::CustomStartUp(ServerContext* context, const xrfdc::CustomStartUpRequest* request,
+                                      xrfdc::TileControlResponse* response) {
+    return Run("CustomStartUp", response, [&] {
+        u32 ret = XRFDC_CALL(CustomStartUp, request->tile_type(), static_cast<int>(request->tile_id()),
+                             request->start_state(), request->end_state());
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "CustomStartUp", ret, TYPED_TILE);
+    });
+}
+
+grpc::Status XrfdcImpl::WaitForState(ServerContext* context, const xrfdc::WaitForStateRequest* request,
+                                     xrfdc::TileControlResponse* response) {
+    return Run("WaitForState", response, [&] {
+        u32 ret = XRFDC_CALL(WaitForState, TYPED_TILE, request->state());
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "WaitForState", ret, TYPED_TILE);
+    });
+}
+
+grpc::Status XrfdcImpl::MultiBand(ServerContext* context, const xrfdc::MultiBandRequest* request,
+                                  xrfdc::TileControlResponse* response) {
+    return Run("MultiBand", response, [&] {
+        u32 ret = XRFDC_CALL(MultiBand, TYPED_TILE, static_cast<u8>(request->digital_data_path_mask()),
+                             request->mixer_in_out_data_type(), request->data_converter_mask());
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "MultiBand", ret, TYPED_TILE);
+    });
+}
+
+grpc::Status XrfdcImpl::GetDriverVersion(ServerContext* context, const xrfdc::RFdcRequest* request,
+                                         xrfdc::DoubleResponse* response) {
+    return Run("GetDriverVersion", response, [&] {
+        auto fn = rfdc_remote_->lib().XRFdc_GetDriverVersion;
+        if (!fn) throw std::runtime_error("XRFdc_GetDriverVersion not available");
+        response->set_value(fn());
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "GetDriverVersion", 0, 0, -1, -1);
+    });
+}
+
+grpc::Status XrfdcImpl::GetTileLayout(ServerContext* context, const xrfdc::RFdcRequest* request,
+                                      xrfdc::ValueResponse* response) {
+    return Run("GetTileLayout", response, [&] {
+        response->set_value(XRFDC_CALL(GetTileLayout));
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "GetTileLayout", 0, 0, -1, -1);
+    });
+}
+
+grpc::Status XrfdcImpl::Get_IPBaseAddr(ServerContext* context, const xrfdc::RFdcRequest* request,
+                                       xrfdc::ValueResponse* response) {
+    return Run("Get_IPBaseAddr", response, [&] {
+        response->set_value(XRFDC_CALL(Get_IPBaseAddr));
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "Get_IPBaseAddr", 0, 0, -1, -1);
+    });
+}
+
+grpc::Status XrfdcImpl::GetMasterTile(ServerContext* context, const xrfdc::TileTypeRequest* request,
+                                      xrfdc::ValueResponse* response) {
+    return Run("GetMasterTile", response, [&] {
+        response->set_value(XRFDC_CALL(GetMasterTile, request->tile_type()));
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "GetMasterTile", 0, request->tile_type(), -1, -1);
+    });
+}
+
+grpc::Status XrfdcImpl::GetSysRefSource(ServerContext* context, const xrfdc::TileTypeRequest* request,
+                                        xrfdc::ValueResponse* response) {
+    return Run("GetSysRefSource", response, [&] {
+        response->set_value(XRFDC_CALL(GetSysRefSource, request->tile_type()));
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "GetSysRefSource", 0, request->tile_type(), -1, -1);
+    });
+}
+
+grpc::Status XrfdcImpl::RDReg(ServerContext* context, const xrfdc::RegRequest* request,
+                              xrfdc::ValueResponse* response) {
+    return Run("RDReg", response, [&] {
+        CheckRegRange(request, rfdc_remote_->mapped_size());
+        response->set_value(XRFDC_CALL(RDReg, request->base_addr(), request->reg_addr(),
+                                       static_cast<u16>(request->mask())));
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "RDReg", 0, 0, -1, -1);
+    });
+}
+
+grpc::Status XrfdcImpl::ClrSetReg(ServerContext* context, const xrfdc::RegRequest* request,
+                                  xrfdc::TileControlResponse* response) {
+    return Run("ClrSetReg", response, [&] {
+        CheckRegRange(request, rfdc_remote_->mapped_size());
+        XRFDC_CALL(ClrSetReg, request->base_addr(), request->reg_addr(),
+                   static_cast<u16>(request->mask()), static_cast<u16>(request->data()));
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "ClrSetReg", 0, 0, -1, -1);
+    });
+}
+
+grpc::Status XrfdcImpl::ClrReg(ServerContext* context, const xrfdc::RegRequest* request,
+                               xrfdc::TileControlResponse* response) {
+    return Run("ClrReg", response, [&] {
+        CheckRegRange(request, rfdc_remote_->mapped_size());
+        XRFDC_CALL(ClrReg, request->base_addr(), request->reg_addr(), static_cast<u16>(request->mask()));
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "ClrReg", 0, 0, -1, -1);
+    });
+}
+
+grpc::Status XrfdcImpl::MultiConverter_Init(ServerContext* context, const xrfdc::MultiConverterInitRequest* request,
+                                            xrfdc::MultiConverterSyncResponse* response) {
+    return Run("MultiConverter_Init", response, [&] {
+        auto fn = rfdc_remote_->lib().XRFdc_MultiConverter_Init;
+        if (!fn) throw std::runtime_error("XRFdc_MultiConverter_Init not available");
+        int pll_codes[4], t1_codes[4];
+        for (int i = 0; i < 4; i++) {
+            pll_codes[i] = RepeatedAt(request->pll_codes(), i);
+            t1_codes[i] = RepeatedAt(request->t1_codes(), i);
         }
-        try {
-            XRFdc_Distribution_Settings settings;
-            memset(&settings, 0, sizeof(settings));
+        XRFdc_MultiConverter_Sync_Config config;
+        memset(&config, 0, sizeof(config));
+        u32 ret = fn(&config, request->pll_codes_size() ? pll_codes : nullptr,
+                     request->t1_codes_size() ? t1_codes : nullptr, request->ref_tile());
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "MultiConverter_Init", ret, 0, -1, -1);
+        ToProto(config, response->mutable_config());
+    });
+}
 
-            // Populate DAC tile settings from request
-            for (int i = 0; i < 4 && i < request->settings().dac_size(); i++) {
-                const auto& dac = request->settings().dac(i);
-                auto& dac_clk = settings.Info.ClkSettings[XRFDC_DAC_TILE][i];
-                dac_clk.SourceType = dac.source_type();
-                dac_clk.SourceTile = dac.source_tile();
-                dac_clk.PLLEnable = dac.pll_enable();
-                dac_clk.DivisionFactor = dac.division_factor();
-                dac_clk.Delay = dac.delay();
-                dac_clk.DistributedClock = dac.distributed_clock();
-                dac_clk.RefClkFreq = dac.ref_clk_freq();
-                dac_clk.SampleRate = dac.sample_rate();
-            }
-            // Populate ADC tile settings from request
-            for (int i = 0; i < 4 && i < request->settings().adc_size(); i++) {
-                const auto& adc = request->settings().adc(i);
-                auto& adc_clk = settings.Info.ClkSettings[XRFDC_ADC_TILE][i];
-                adc_clk.SourceType = adc.source_type();
-                adc_clk.SourceTile = adc.source_tile();
-                adc_clk.PLLEnable = adc.pll_enable();
-                adc_clk.DivisionFactor = adc.division_factor();
-                adc_clk.Delay = adc.delay();
-                adc_clk.DistributedClock = adc.distributed_clock();
-                adc_clk.RefClkFreq = adc.ref_clk_freq();
-                adc_clk.SampleRate = adc.sample_rate();
-            }
+grpc::Status XrfdcImpl::MultiConverter_Sync(ServerContext* context, const xrfdc::MultiConverterSyncRequest* request,
+                                            xrfdc::MultiConverterSyncResponse* response) {
+    return Run("MultiConverter_Sync", response, [&] {
+        XRFdc_MultiConverter_Sync_Config config;
+        memset(&config, 0, sizeof(config));
+        FromProto(request->config(), config);
+        u32 ret = XRFDC_CALL(MultiConverter_Sync, request->tile_type(), &config);
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "MultiConverter_Sync", ret,
+                                     request->tile_type(), -1, -1);
+        ToProto(config, response->mutable_config());
+    });
+}
 
-            // Populate distribution status from request
-            const auto& dist = request->settings().distribution_info();
-            auto& dist_info = settings.Info;
-            dist_info.Source = dist.source();
-            dist_info.UpperBound = dist.upper_bound();
-            dist_info.LowerBound = dist.lower_bound();
-            dist_info.MaxDelay = dist.max_delay();
-            dist_info.MinDelay = dist.min_delay();
-            dist_info.IsDelayBalanced = dist.is_delay_balanced();
-
-            u32 ret = rfdc_remote_->SetClkDistribution(&settings);
-
-            rfdc_remote_->PopulateStatus(
-                response->mutable_status(),
-                "SetClkDistribution",
-                ret,
-                0,  // IP-wide operation
-                -1,  // No tile
-                -1   // No block
-            );
-
-            return grpc::Status::OK;
-        } catch (const std::exception& e) {
-            auto* status = response->mutable_status();
-            status->set_code(1);
-            status->set_message(std::string("SetClkDistribution failed: ") + e.what());
-            return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-        }
-    }
+grpc::Status XrfdcImpl::MTS_Sysref_Config(ServerContext* context, const xrfdc::MTSSysrefConfigRequest* request,
+                                          xrfdc::TileControlResponse* response) {
+    return Run("MTS_Sysref_Config", response, [&] {
+        XRFdc_MultiConverter_Sync_Config dac_config, adc_config;
+        memset(&dac_config, 0, sizeof(dac_config));
+        memset(&adc_config, 0, sizeof(adc_config));
+        FromProto(request->dac_sync_config(), dac_config);
+        FromProto(request->adc_sync_config(), adc_config);
+        u32 ret = XRFDC_CALL(MTS_Sysref_Config, &dac_config, &adc_config, request->sys_ref_enable());
+        rfdc_remote_->PopulateStatus(response->mutable_status(), "MTS_Sysref_Config", ret, 0, -1, -1);
+    });
+}

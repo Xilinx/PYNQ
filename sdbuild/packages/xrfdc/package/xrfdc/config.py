@@ -1,4 +1,5 @@
-#   Copyright (c) 2018, Xilinx, Inc.
+#   Copyright (c) 2018-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 
@@ -15,7 +16,8 @@ _DAC_DDP = [
     ('MixerInputDataType', 'C_DAC_Data_Type{}{}', 'int'),
     ('DataWidth', 'C_DAC_Data_Width{}{}', 'int'),
     ('InterpolationMode', 'C_DAC_Interpolation_Mode{}{}', 'int'),
-    ('MixerType', 'C_DAC_Mixer_Type{}{}', 'int')
+    ('MixerType', 'C_DAC_Mixer_Type{}{}', 'int'),
+    ('NCOFreq', 'C_DAC_NCO_Freq{}{}', 'double', '0.0')
 ]
 
 _ADC_ADP = [
@@ -27,7 +29,8 @@ _ADC_DDP = [
     ('MixerInputDataType', 'C_ADC_Data_Type{}{}', 'int'),
     ('DataWidth', 'C_ADC_Data_Width{}{}', 'int'),
     ('DecimationMode', 'C_ADC_Decimation_Mode{}{}', 'int'),
-    ('MixerType', 'C_ADC_Mixer_Type{}{}', 'int')
+    ('MixerType', 'C_ADC_Mixer_Type{}{}', 'int'),
+    ('NCOFreq', 'C_ADC_NCO_Freq{}{}', 'double', '0.0')
 ]
 
 _DAC_Tile = [
@@ -41,7 +44,8 @@ _DAC_Tile = [
     ('RefClkDiv', 'C_DAC{}_Refclk_Div', 'int'),
     ('MultibandConfig', 'C_DAC{}_Band', 'int'),
     ('MaxSampleRate', 'C_DAC{}_Fs_Max', 'double'),
-    ('NumSlices', 'C_DAC{}_Slices', 'int')
+    ('NumSlices', 'C_DAC{}_Slices', 'int'),
+    ('LinkCoupling', 'C_DAC{}_Link_Coupling', 'int', '0')
 ]
 
 _ADC_Tile = [
@@ -85,7 +89,9 @@ def _to_value(val, dtype):
 
 def _set_configs(obj, params, config, *args):
     for c in config:
-        setattr(obj, c[0], _to_value(params[c[1].format(*args)], c[2]))
+        key = c[1].format(*args)
+        val = params[key] if len(c) < 4 else params.get(key, c[3])
+        setattr(obj, c[0], _to_value(val, c[2]))
 
 
 def populate_config(obj, params):
