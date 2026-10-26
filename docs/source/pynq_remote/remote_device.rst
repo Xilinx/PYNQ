@@ -24,7 +24,28 @@ When ``PYNQ_REMOTE_DEVICES`` is set, ``Device.devices`` lists one
 ``RemoteDevice`` per address and ``Overlay`` uses the active device if no
 ``device`` argument is given.
 
+Remote resource cleanup
+-----------------------
+
+The target-side server owns remote buffers, MMIO mappings, and GPIO objects.
+By default, ``RemoteDevice`` releases stale server resources when it connects,
+before a full overlay download, and during orderly interpreter shutdown. Pass
+``auto_cleanup=False`` when constructing a device to disable this automatic
+behavior.
+
+Call ``RemoteDevice.cleanup()`` to release all server-side resources explicitly.
+Individual resources can be released with ``MMIO.close()``,
+``RemoteMMIO.close()``, ``RemoteBuffer.freebuffer()``, and
+``RemoteGPIO.close()``. Release calls may safely be repeated or run after
+device-wide cleanup.
+
+Device-wide cleanup assumes one active host session owns the remote server. It
+does not distinguish resources created by different concurrent clients.
+
 The ``RemoteDevice`` class is complemented by ``PYNQ.cpp`` which operates on the target device, providing a C++ implementation of the PYNQ API. For more details on the C++ implementation, see the :ref:`cppindex` module documentation.
+
+Remote Device Python API Reference
+----------------------------------
 
 .. automodule:: pynq.pl_server.remote_device
     :members:
