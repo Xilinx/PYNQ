@@ -239,3 +239,30 @@ def test_deprecated_debug_keyword(mmap_device):
             'Warning is not of type DeprecationWarning'
         assert "debug" in str(w[-1].message), \
             'Warning not related to keyword debug'
+
+
+def test_remote_mmio_close_can_retry_after_rpc_failure():
+    from pynq.pl_server.remote_device import RemoteMMIO
+
+    class Stub:
+        def __init__(self):
+            self.release_calls = 0
+
+        def release_mmio(self, request):
+            self.release_calls += 1
+            if self.release_calls == 1:
+                raise RuntimeError("Temporary RPC failure")
+            return type("Response", (), {"msg": ""})()
+
+    remote_mmio = RemoteMMIO.__new__(RemoteMMIO)
+    remote_mmio._stub = Stub()
+    remote_mmio._closed = False
+    remote_mmio.mmio_id = "0"
+
+    with pytest.raises(RuntimeError, match="Temporary RPC failure"):
+        remote_mmio.close()
+
+    assert remote_mmio._closed is False
+    remote_mmio.close()
+    assert remote_mmio._closed is True
+    assert remote_mmio._stub.release_calls == 2

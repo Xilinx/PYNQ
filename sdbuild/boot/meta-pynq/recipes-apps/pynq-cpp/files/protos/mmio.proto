@@ -4,6 +4,7 @@ package mmio;
 
 service Mmio{
     rpc get_mmio (GetMmioRequest) returns (GetMmioResponse) {}
+    rpc release_mmio (ReleaseMmioRequest) returns (ReleaseMmioResponse) {}
     rpc read (ReadRequest) returns (ReadResponse) {}
     rpc write (WriteRequest) returns (WriteResponse) {}
 }
@@ -17,6 +18,15 @@ message GetMmioResponse {
     bool status = 1;
     optional string msg = 2;
     optional string mmio_id = 3;
+}
+
+message ReleaseMmioRequest {
+    string mmio_id = 1;
+}
+
+message ReleaseMmioResponse {
+    bool status = 1;
+    optional string msg = 2;
 }
 
 message ReadRequest {

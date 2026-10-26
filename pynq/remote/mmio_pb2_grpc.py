@@ -44,6 +44,11 @@ class MmioStub(object):
                 request_serializer=mmio__pb2.GetMmioRequest.SerializeToString,
                 response_deserializer=mmio__pb2.GetMmioResponse.FromString,
                 _registered_method=True)
+        self.release_mmio = channel.unary_unary(
+                '/mmio.Mmio/release_mmio',
+                request_serializer=mmio__pb2.ReleaseMmioRequest.SerializeToString,
+                response_deserializer=mmio__pb2.ReleaseMmioResponse.FromString,
+                _registered_method=True)
         self.read = channel.unary_unary(
                 '/mmio.Mmio/read',
                 request_serializer=mmio__pb2.ReadRequest.SerializeToString,
@@ -60,6 +65,12 @@ class MmioServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def get_mmio(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def release_mmio(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -84,6 +95,11 @@ def add_MmioServicer_to_server(servicer, server):
                     servicer.get_mmio,
                     request_deserializer=mmio__pb2.GetMmioRequest.FromString,
                     response_serializer=mmio__pb2.GetMmioResponse.SerializeToString,
+            ),
+            'release_mmio': grpc.unary_unary_rpc_method_handler(
+                    servicer.release_mmio,
+                    request_deserializer=mmio__pb2.ReleaseMmioRequest.FromString,
+                    response_serializer=mmio__pb2.ReleaseMmioResponse.SerializeToString,
             ),
             'read': grpc.unary_unary_rpc_method_handler(
                     servicer.read,
@@ -123,6 +139,33 @@ class Mmio(object):
             '/mmio.Mmio/get_mmio',
             mmio__pb2.GetMmioRequest.SerializeToString,
             mmio__pb2.GetMmioResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def release_mmio(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/mmio.Mmio/release_mmio',
+            mmio__pb2.ReleaseMmioRequest.SerializeToString,
+            mmio__pb2.ReleaseMmioResponse.FromString,
             options,
             channel_credentials,
             insecure,

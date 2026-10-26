@@ -59,6 +59,11 @@ class RemoteDeviceStub(object):
                 request_serializer=remote__device__pb2.ShutdownRequest.SerializeToString,
                 response_deserializer=remote__device__pb2.ShutdownResponse.FromString,
                 _registered_method=True)
+        self.cleanup = channel.unary_unary(
+                '/remote_device.RemoteDevice/cleanup',
+                request_serializer=remote__device__pb2.CleanupRequest.SerializeToString,
+                response_deserializer=remote__device__pb2.CleanupResponse.FromString,
+                _registered_method=True)
         self.readfile = channel.unary_stream(
                 '/remote_device.RemoteDevice/readfile',
                 request_serializer=remote__device__pb2.ReadFileRequest.SerializeToString,
@@ -98,6 +103,12 @@ class RemoteDeviceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def shutdown(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def cleanup(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -143,6 +154,11 @@ def add_RemoteDeviceServicer_to_server(servicer, server):
                     servicer.shutdown,
                     request_deserializer=remote__device__pb2.ShutdownRequest.FromString,
                     response_serializer=remote__device__pb2.ShutdownResponse.SerializeToString,
+            ),
+            'cleanup': grpc.unary_unary_rpc_method_handler(
+                    servicer.cleanup,
+                    request_deserializer=remote__device__pb2.CleanupRequest.FromString,
+                    response_serializer=remote__device__pb2.CleanupResponse.SerializeToString,
             ),
             'readfile': grpc.unary_stream_rpc_method_handler(
                     servicer.readfile,
@@ -268,6 +284,33 @@ class RemoteDevice(object):
             '/remote_device.RemoteDevice/shutdown',
             remote__device__pb2.ShutdownRequest.SerializeToString,
             remote__device__pb2.ShutdownResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def cleanup(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/remote_device.RemoteDevice/cleanup',
+            remote__device__pb2.CleanupRequest.SerializeToString,
+            remote__device__pb2.CleanupResponse.FromString,
             options,
             channel_credentials,
             insecure,

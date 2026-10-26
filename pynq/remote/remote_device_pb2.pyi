@@ -64,6 +64,18 @@ class ShutdownResponse(_message.Message):
     status: bool
     def __init__(self, status: bool = ...) -> None: ...
 
+class CleanupRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class CleanupResponse(_message.Message):
+    __slots__ = ("status", "msg")
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    MSG_FIELD_NUMBER: _ClassVar[int]
+    status: bool
+    msg: str
+    def __init__(self, status: bool = ..., msg: _Optional[str] = ...) -> None: ...
+
 class SetPlClkRequest(_message.Message):
     __slots__ = ("i", "div0", "div1", "clk_mhz")
     I_FIELD_NUMBER: _ClassVar[int]

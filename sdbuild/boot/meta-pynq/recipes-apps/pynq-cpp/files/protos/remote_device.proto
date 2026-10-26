@@ -7,6 +7,7 @@ service RemoteDevice {
     rpc download (stream DownloadRequest) returns (DownloadResponse) {}
     rpc set_pl_clk(SetPlClkRequest) returns (SetPlClkResponse) {}
     rpc shutdown(ShutdownRequest) returns (ShutdownResponse) {}
+    rpc cleanup(CleanupRequest) returns (CleanupResponse) {}
     rpc readfile(ReadFileRequest) returns (stream ReadFileResponse) {}
     rpc writefile(stream WriteFileRequest) returns (WriteFileResponse) {}
     rpc existsfile(ExistsFileRequest) returns (ExistsFileResponse) {}
@@ -50,6 +51,13 @@ message ShutdownRequest {}
 
 message ShutdownResponse {
     bool status = 1;
+}
+
+message CleanupRequest {}
+
+message CleanupResponse {
+    bool status = 1;
+    optional string msg = 2;
 }
 
 message SetPlClkRequest {
