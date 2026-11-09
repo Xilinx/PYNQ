@@ -36,6 +36,7 @@ GPIO::GPIO(uint32_t gpio_index, std::string direction)
 
 GPIO::~GPIO()
 {
+    this->unexport();
 }
 
 uint32_t GPIO::read()

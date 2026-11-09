@@ -1,3 +1,4 @@
+import atexit
 import os
 from pathlib import Path
 import pickle
@@ -183,10 +184,22 @@ class RemoteDevice(Device):
             devices = [RemoteDevice(i, ip_list[i]) for i in range(num)]
             return devices
 
-    def __init__(self, index=0, ip_addr=None, port=PYNQ_PORT, tag="remote{}"):
+    def __init__(
+        self, index=0, ip_addr=None, port=PYNQ_PORT, tag="remote{}",
+        auto_cleanup=True
+    ):
+        """Create a remote PYNQ device connection.
+
+        Parameters
+        ----------
+        auto_cleanup : bool
+            If True, automatically release stale server-side resources when
+            connecting, before full overlay downloads, and when this client exits.
+        """
         super().__init__(tag.format(index))
         self.ip_addr = ip_addr
         self.port = port
+        self.auto_cleanup = auto_cleanup
         self.client = GrpcChannel(self.ip_addr, self.port)
         self._stub = {
             'device': remote_device_pb2_grpc.RemoteDeviceStub(self.client.channel),
@@ -194,6 +207,11 @@ class RemoteDevice(Device):
             'buffer': buffer_pb2_grpc.RemoteBufferStub(self.client.channel),
             'gpio': gpio_pb2_grpc.GpioStub(self.client.channel),
         }
+
+        self._closed = False
+        if self.auto_cleanup:
+            self.cleanup()
+        atexit.register(self.close)
 
         self.arch = self.get_arch()
         self.name = self.get_board_name()
@@ -336,7 +354,7 @@ class RemoteDevice(Device):
                     for reg_name in ZU_FPD_SLCR_REG[para]:
                         addr = ZU_FPD_SLCR_REG[para][reg_name]["addr"]
                         f = ZU_FPD_SLCR_REG[para][reg_name]["field"]
-                        Register(addr)[f[0] : f[1]] = ZU_FPD_SLCR_VALUE[width]
+                        Register(addr, device=self)[f[0] : f[1]] = ZU_FPD_SLCR_VALUE[width]
 
             for para in ZU_AXIFM_REG:
                 if para in parameter_dict:
@@ -344,7 +362,7 @@ class RemoteDevice(Device):
                     for reg_name in ZU_AXIFM_REG[para]:
                         addr = ZU_AXIFM_REG[para][reg_name]["addr"]
                         f = ZU_AXIFM_REG[para][reg_name]["field"]
-                        Register(addr)[f[0] : f[1]] = ZU_AXIFM_VALUE[width]
+                        Register(addr, device=self)[f[0] : f[1]] = ZU_AXIFM_VALUE[width]
 
     def gen_cache(self, bitstream, parser=None):
         """ Generates the cache of the metadata even if no download occurred """
@@ -403,6 +421,47 @@ class RemoteDevice(Device):
             Memory object for allocating buffers on the remote device
         """
         return RemoteMemory(self, description)
+
+    def cleanup(self):
+        """Release server-side resources owned by previous remote sessions.
+
+        This is intentionally broad because a newly started host Python kernel
+        cannot know which buffers, MMIO mappings, or GPIO handles are currently
+        orphaned on the target-side server.
+        """
+        response = self._stub['device'].cleanup(remote_device_pb2.CleanupRequest())
+        if response.msg:
+            raise RuntimeError(response.msg)
+        self._invalidate_client_caches()
+        return response
+
+    def close(self):
+        """Best-effort cleanup hook for orderly Python interpreter shutdown."""
+        if self._closed or not self.auto_cleanup:
+            return
+        self._closed = True
+        try:
+            self._invalidate_client_caches()
+            self.cleanup()
+        except Exception:
+            pass
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
+
+    def _invalidate_client_caches(self):
+        """Drop client-side objects whose remote handles were globally cleared."""
+        try:
+            from pynq.ps import Clocks
+
+            clock_device = getattr(Clocks, "device", None)
+            if hasattr(Clocks, "_real_instance") and clock_device is self:
+                del Clocks._real_instance
+        except Exception:
+            pass
 
     def download(self, bitstream, parser=None):
         """Download bitstream to the remote FPGA device
@@ -612,6 +671,7 @@ class RemoteGPIO:
         self.gpio_index = gpio_index
         self._direction = direction
         self._stub = device._stub['gpio']
+        self._released = False
         
         response = self._stub.get_gpio(
             gpio_pb2.GetGpioRequest(index=gpio_index, direction=direction)
@@ -667,9 +727,12 @@ class RemoteGPIO:
         None
 
         """
+        if self._released:
+            return
         response = self._stub.unexport(
             gpio_pb2.GpioUnexportRequest(gpio_id=self._gpio_id)
         )
+        self._released = True
         
     def release(self):
         """The method to release the GPIO.
@@ -679,8 +742,14 @@ class RemoteGPIO:
         None
 
         """
+        if self._released:
+            return
         self.unexport()
         
+    def close(self):
+        """Release the server-side GPIO object."""
+        self.release()
+
     def is_exported(self):
         """The method to check if a GPIO is still exported using
         Linux's GPIO Sysfs API.
@@ -691,11 +760,19 @@ class RemoteGPIO:
             True if the GPIO is still loaded.
 
         """
+        if self._released:
+            return False
         response = self._stub.is_exported(
             gpio_pb2.GpioIsExportedRequest(gpio_id=self._gpio_id)
         )
         return bool(response.is_exported)
     
+    def __del__(self):
+        try:
+            self.release()
+        except Exception:
+            pass
+
     @property
     def index(self):
         return self.gpio_index
@@ -990,17 +1067,37 @@ class RemoteMMIO:
         Length of memory-mapped region in bytes
     """
         self._stub = stub
+        self._closed = True
+        self.mmio_id = None
         response = self._stub.get_mmio(
             mmio_pb2.GetMmioRequest(base_addr=address, length=length)
         )
         if response.msg:
             raise RuntimeError(response.msg)
         self.mmio_id = response.mmio_id
+        self._closed = False
 
         self._hook = _AccessHook(address, self)
         stype = tnp._convert_dtype("u4", to="array")
         fake_buffer = tnp._FakeBuffer(length // 4, stype, hook=self._hook)
         self.array = tnp.ndarray(shape=(length // 4,), dtype="u4", buffer=fake_buffer)
+
+    def close(self):
+        """Release the server-side MMIO mapping."""
+        if self._closed:
+            return
+        response = self._stub.release_mmio(
+            mmio_pb2.ReleaseMmioRequest(mmio_id=self.mmio_id)
+        )
+        if response.msg:
+            raise RuntimeError(response.msg)
+        self._closed = True
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def read(self, offset=0, length=4, word_order="little"):
         if length not in [1, 2, 4, 8]:
@@ -1079,7 +1176,7 @@ class RemoteBuffer(np.ndarray):
         Whether the buffer is cache coherent. Always set to False for RemoteBuffer.
     stub: grpc stub
         gRPC stub for buffer operations.
-    buffer_id: int
+    buffer_id: str
         Unique identifier for the remote buffer.
     freed: bool
         Indicates whether the buffer has been freed.
@@ -1100,7 +1197,7 @@ class RemoteBuffer(np.ndarray):
             Data type of the buffer.
         stub : grpc stub
             gRPC stub for buffer operations.
-        buffer_id : int
+        buffer_id : str
             Unique identifier for the remote buffer.
         device : RemoteDevice, optional
             The remote device associated with this buffer. Default is None.
@@ -1130,13 +1227,22 @@ class RemoteBuffer(np.ndarray):
             self.stub = None
             self.buffer_id = None
             self.coherent = None
+            self.device = None
+
+    def _owner_buffer(self):
+        """Return the original allocation behind this array or one of its views."""
+        owner = self
+        while isinstance(getattr(owner, "base", None), RemoteBuffer):
+            owner = owner.base
+        return owner
 
     def __del__(self):
-        if hasattr(self, 'freed') and not self.freed:
-            try:
-                self.freebuffer()
-            except Exception:
-                pass
+        if self._owner_buffer() is not self or getattr(self, "freed", True):
+            return
+        try:
+            self.freebuffer()
+        except Exception:
+            pass
     
 
     def freebuffer(self):
@@ -1145,6 +1251,10 @@ class RemoteBuffer(np.ndarray):
         Explicitly releases the buffer memory on the remote device.
         Called automatically by destructor.
         """
+        owner = self._owner_buffer()
+        if owner is not self:
+            owner.freebuffer()
+            return
         if not self.freed:
             self.freed = True
             response = self.stub.freebuffer(

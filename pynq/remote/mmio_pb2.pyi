@@ -22,6 +22,20 @@ class GetMmioResponse(_message.Message):
     mmio_id: str
     def __init__(self, status: bool = ..., msg: _Optional[str] = ..., mmio_id: _Optional[str] = ...) -> None: ...
 
+class ReleaseMmioRequest(_message.Message):
+    __slots__ = ("mmio_id",)
+    MMIO_ID_FIELD_NUMBER: _ClassVar[int]
+    mmio_id: str
+    def __init__(self, mmio_id: _Optional[str] = ...) -> None: ...
+
+class ReleaseMmioResponse(_message.Message):
+    __slots__ = ("status", "msg")
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    MSG_FIELD_NUMBER: _ClassVar[int]
+    status: bool
+    msg: str
+    def __init__(self, status: bool = ..., msg: _Optional[str] = ...) -> None: ...
+
 class ReadRequest(_message.Message):
     __slots__ = ("mmio_id", "length", "offset", "word_order")
     MMIO_ID_FIELD_NUMBER: _ClassVar[int]

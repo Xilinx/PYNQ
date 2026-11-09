@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13remote_device.proto\x12\rremote_device\"$\n\x0fReadFileRequest\x12\x11\n\tfile_path\x18\x01 \x01(\t\" \n\x10ReadFileResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"3\n\x10WriteFileRequest\x12\x11\n\tfile_path\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"\x13\n\x11WriteFileResponse\"&\n\x11\x45xistsFileRequest\x12\x11\n\tfile_path\x18\x01 \x01(\t\"$\n\x12\x45xistsFileResponse\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\"A\n\x18SetBitstreamAttrsRequest\x12\x14\n\x0c\x62infile_name\x18\x01 \x01(\t\x12\x0f\n\x07partial\x18\x02 \x01(\x08\"+\n\x19SetBitstreamAttrsResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\"\x11\n\x0fShutdownRequest\"\"\n\x10ShutdownResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\"I\n\x0fSetPlClkRequest\x12\t\n\x01i\x18\x01 \x01(\x05\x12\x0c\n\x04\x64iv0\x18\x02 \x01(\x05\x12\x0c\n\x04\x64iv1\x18\x03 \x01(\x05\x12\x0f\n\x07\x63lk_mhz\x18\x04 \x01(\x05\"\"\n\x10SetPlClkResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\"!\n\x0f\x44ownloadRequest\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\"\"\n\x10\x44ownloadResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\x32\xe5\x04\n\x0cRemoteDevice\x12j\n\x13set_bitstream_attrs\x12\'.remote_device.SetBitstreamAttrsRequest\x1a(.remote_device.SetBitstreamAttrsResponse\"\x00\x12O\n\x08\x64ownload\x12\x1e.remote_device.DownloadRequest\x1a\x1f.remote_device.DownloadResponse\"\x00(\x01\x12O\n\nset_pl_clk\x12\x1e.remote_device.SetPlClkRequest\x1a\x1f.remote_device.SetPlClkResponse\"\x00\x12M\n\x08shutdown\x12\x1e.remote_device.ShutdownRequest\x1a\x1f.remote_device.ShutdownResponse\"\x00\x12O\n\x08readfile\x12\x1e.remote_device.ReadFileRequest\x1a\x1f.remote_device.ReadFileResponse\"\x00\x30\x01\x12R\n\twritefile\x12\x1f.remote_device.WriteFileRequest\x1a .remote_device.WriteFileResponse\"\x00(\x01\x12S\n\nexistsfile\x12 .remote_device.ExistsFileRequest\x1a!.remote_device.ExistsFileResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13remote_device.proto\x12\rremote_device\"$\n\x0fReadFileRequest\x12\x11\n\tfile_path\x18\x01 \x01(\t\" \n\x10ReadFileResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"3\n\x10WriteFileRequest\x12\x11\n\tfile_path\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"\x13\n\x11WriteFileResponse\"&\n\x11\x45xistsFileRequest\x12\x11\n\tfile_path\x18\x01 \x01(\t\"$\n\x12\x45xistsFileResponse\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\"A\n\x18SetBitstreamAttrsRequest\x12\x14\n\x0c\x62infile_name\x18\x01 \x01(\t\x12\x0f\n\x07partial\x18\x02 \x01(\x08\"+\n\x19SetBitstreamAttrsResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\"\x11\n\x0fShutdownRequest\"\"\n\x10ShutdownResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\"\x10\n\x0e\x43leanupRequest\";\n\x0f\x43leanupResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\x12\x10\n\x03msg\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\x06\n\x04_msg\"I\n\x0fSetPlClkRequest\x12\t\n\x01i\x18\x01 \x01(\x05\x12\x0c\n\x04\x64iv0\x18\x02 \x01(\x05\x12\x0c\n\x04\x64iv1\x18\x03 \x01(\x05\x12\x0f\n\x07\x63lk_mhz\x18\x04 \x01(\x05\"\"\n\x10SetPlClkResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\"!\n\x0f\x44ownloadRequest\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\"\"\n\x10\x44ownloadResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\x32\xb1\x05\n\x0cRemoteDevice\x12j\n\x13set_bitstream_attrs\x12\'.remote_device.SetBitstreamAttrsRequest\x1a(.remote_device.SetBitstreamAttrsResponse\"\x00\x12O\n\x08\x64ownload\x12\x1e.remote_device.DownloadRequest\x1a\x1f.remote_device.DownloadResponse\"\x00(\x01\x12O\n\nset_pl_clk\x12\x1e.remote_device.SetPlClkRequest\x1a\x1f.remote_device.SetPlClkResponse\"\x00\x12M\n\x08shutdown\x12\x1e.remote_device.ShutdownRequest\x1a\x1f.remote_device.ShutdownResponse\"\x00\x12J\n\x07\x63leanup\x12\x1d.remote_device.CleanupRequest\x1a\x1e.remote_device.CleanupResponse\"\x00\x12O\n\x08readfile\x12\x1e.remote_device.ReadFileRequest\x1a\x1f.remote_device.ReadFileResponse\"\x00\x30\x01\x12R\n\twritefile\x12\x1f.remote_device.WriteFileRequest\x1a .remote_device.WriteFileResponse\"\x00(\x01\x12S\n\nexistsfile\x12 .remote_device.ExistsFileRequest\x1a!.remote_device.ExistsFileResponse\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -41,14 +41,18 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_SHUTDOWNREQUEST']._serialized_end=391
   _globals['_SHUTDOWNRESPONSE']._serialized_start=393
   _globals['_SHUTDOWNRESPONSE']._serialized_end=427
-  _globals['_SETPLCLKREQUEST']._serialized_start=429
-  _globals['_SETPLCLKREQUEST']._serialized_end=502
-  _globals['_SETPLCLKRESPONSE']._serialized_start=504
-  _globals['_SETPLCLKRESPONSE']._serialized_end=538
-  _globals['_DOWNLOADREQUEST']._serialized_start=540
-  _globals['_DOWNLOADREQUEST']._serialized_end=573
-  _globals['_DOWNLOADRESPONSE']._serialized_start=575
-  _globals['_DOWNLOADRESPONSE']._serialized_end=609
-  _globals['_REMOTEDEVICE']._serialized_start=612
-  _globals['_REMOTEDEVICE']._serialized_end=1225
+  _globals['_CLEANUPREQUEST']._serialized_start=429
+  _globals['_CLEANUPREQUEST']._serialized_end=445
+  _globals['_CLEANUPRESPONSE']._serialized_start=447
+  _globals['_CLEANUPRESPONSE']._serialized_end=506
+  _globals['_SETPLCLKREQUEST']._serialized_start=508
+  _globals['_SETPLCLKREQUEST']._serialized_end=581
+  _globals['_SETPLCLKRESPONSE']._serialized_start=583
+  _globals['_SETPLCLKRESPONSE']._serialized_end=617
+  _globals['_DOWNLOADREQUEST']._serialized_start=619
+  _globals['_DOWNLOADREQUEST']._serialized_end=652
+  _globals['_DOWNLOADRESPONSE']._serialized_start=654
+  _globals['_DOWNLOADRESPONSE']._serialized_end=688
+  _globals['_REMOTEDEVICE']._serialized_start=691
+  _globals['_REMOTEDEVICE']._serialized_end=1380
 # @@protoc_insertion_point(module_scope)

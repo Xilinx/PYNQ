@@ -45,3 +45,25 @@ XrtBufferManager Class
    :undoc-members:
    :protected-members:
    :private-members:
+
+Remote Service Classes
+----------------------
+
+The target-side gRPC services own remote resource handles and implement
+per-resource and device-wide cleanup.
+
+.. doxygenclass:: RemoteDeviceImpl
+   :project: Device
+   :members:
+
+.. doxygenclass:: MMIOImpl
+   :project: Device
+   :members:
+
+.. doxygenclass:: BufferImpl
+   :project: Device
+   :members:
+
+.. doxygenclass:: GPIOImpl
+   :project: Device
+   :members:

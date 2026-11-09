@@ -66,6 +66,7 @@ class MMIO:
 
         self.base_addr = base_addr
         self.length = length
+        self._remote_map = None
 
         if self.device.has_capability("MEMORY_MAPPED"):
             self.read = self.read
@@ -77,12 +78,25 @@ class MMIO:
             self._hook = _AccessHook(self.base_addr, self.device)
             self.array = tnp.ndarray(shape=(length // 4,), dtype="u4", hook=self._hook)
         elif self.device.has_capability("REMOTE"):
-            map = self.device.mmap(base_addr, length)
-            self.read = map.read
-            self.write = map.write
-            self.array = map.array
+            # Keep the proxy so close() or deletion releases the server mapping.
+            self._remote_map = self.device.mmap(base_addr, length)
+            self.read = self._remote_map.read
+            self.write = self._remote_map.write
+            self.array = self._remote_map.array
         else:
             raise ValueError("Device does not have capabilities for MMIO")
+
+    def close(self):
+        """Release resources associated with the MMIO object."""
+        if self._remote_map is not None:
+            self._remote_map.close()
+            self._remote_map = None
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def read(self, offset=0, length=4, word_order="little"):
         """The method to read data from MMIO.

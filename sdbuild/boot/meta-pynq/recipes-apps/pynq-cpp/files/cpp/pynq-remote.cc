@@ -18,6 +18,8 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
 #include <numeric>
+#include <limits>
+#include <mutex>
 #include <sstream>
 #include <filesystem>
 
@@ -70,6 +72,8 @@ using grpc::Status;
 using mmio::GetMmioRequest;
 using mmio::GetMmioResponse;
 using mmio::Mmio;
+using mmio::ReleaseMmioRequest;
+using mmio::ReleaseMmioResponse;
 using mmio::ReadRequest;
 using mmio::ReadResponse;
 using mmio::WriteRequest;
@@ -83,6 +87,8 @@ using remote_device::SetPlClkRequest;
 using remote_device::SetPlClkResponse;
 using remote_device::ShutdownRequest;
 using remote_device::ShutdownResponse;
+using remote_device::CleanupRequest;
+using remote_device::CleanupResponse;
 using remote_device::ReadFileRequest;
 using remote_device::ReadFileResponse;
 using remote_device::WriteFileRequest;
@@ -131,21 +137,66 @@ using xrfdc::GetIMRPassModeResponse;
 using xrfdc::GetDACCompModeResponse;
 #endif
 
+namespace {
+
+class HandleGenerator
+{
+private:
+    uint64_t next_id_ = 0;
+    bool exhausted_ = false;
+
+public:
+    bool try_generate(std::string &id_out)
+    {
+        if (exhausted_)
+        {
+            return false;
+        }
+
+        id_out = std::to_string(next_id_);
+        if (next_id_ == std::numeric_limits<uint64_t>::max())
+        {
+            exhausted_ = true;
+        }
+        else
+        {
+            next_id_ += 1;
+        }
+        return true;
+    }
+};
+grpc::Status handle_not_found_status(
+    const std::string &resource,
+    const std::string &operation,
+    const std::string &id_name,
+    const std::string &handle_id)
+{
+    std::ostringstream message;
+    message << resource << " Object not found";
+    message << " while handling " << operation << "() for "
+            << id_name << "='" << handle_id << "'.";
+    return grpc::Status(grpc::StatusCode::NOT_FOUND, message.str());
+}
+
+} // namespace
+
 #define DEBUG
 
+/**
+ * @class BufferImpl
+ * @brief Implements the gRPC service for managing remote buffers.
+ *
+ * Buffer operations and cleanup are serialized so cleanup cannot destroy a
+ * buffer while an in-flight RPC is using it.
+ */
 class BufferImpl final : public RemoteBuffer::Service
 {
 private:
     xrt::device device;
     XrtBufferManager manager;
     std::unordered_map<std::string, std::unique_ptr<BufferRemote>> buffers_;
-
-    std::string generate_unique_id(const std::unique_ptr<BufferRemote> &buffer)
-    {
-        std::ostringstream oss;
-        oss << buffer.get();
-        return oss.str();
-    }
+    HandleGenerator handle_generator_;
+    std::mutex mutex_;
 
 public:
     std::string device_name = "";
@@ -156,6 +207,28 @@ public:
     {
         device_name = device.get_info<xrt::info::device::name>();
         std::cout << "device name: " << device_name << "\n";
+    }
+
+    /**
+     * @brief Release every buffer owned by the service.
+     * @return Number of buffers released.
+     */
+    std::size_t clearBuffers()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        std::size_t released = buffers_.size();
+        buffers_.clear();
+        return released;
+    }
+
+    Status bufferNotFoundStatus(const std::string &buffer_id, const std::string &operation)
+    {
+        return handle_not_found_status(
+            "Buffer",
+            operation,
+            "buffer_id",
+            buffer_id
+        );
     }
 
 private:
@@ -187,6 +260,7 @@ private:
      */
     Status allocate(ServerContext *context, const AllocateRequest *request, AllocateResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         #ifdef DEBUG
         std::cout << "Allocate Request Received: "
                   << "size=" << static_cast<size_t>(request->size()) << ", "
@@ -197,7 +271,14 @@ private:
         try
         {
             auto buffer = std::make_unique<BufferRemote>(static_cast<size_t>(request->size()), request->dtype(), manager, request->cacheable());
-            std::string buffer_id = generate_unique_id(buffer);
+            std::string buffer_id;
+            if (!handle_generator_.try_generate(buffer_id))
+            {
+                return grpc::Status(
+                    grpc::StatusCode::RESOURCE_EXHAUSTED,
+                    "Buffer ID space exhausted."
+                );
+            }
             buffers_[buffer_id] = std::move(buffer);
             response->set_buffer_id(buffer_id);
         }
@@ -229,6 +310,7 @@ private:
      */
     Status write(ServerContext *context, ServerReader<BufferWriteRequest> *reader, BufferWriteResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         #ifdef DEBUG
         std::cout << "Write Request Received" << std::endl;
         #endif
@@ -248,9 +330,9 @@ private:
                 auto it = buffers_.find(request.buffer_id());
                 if (it == buffers_.end())
                 {
-                    std::cerr << "Buffer not found: " << request.buffer_id() << std::endl;
-                    response->set_msg("Buffer not found.");
-                    return Status::OK;
+                    Status status = bufferNotFoundStatus(request.buffer_id(), "write");
+                    std::cerr << status.error_message() << std::endl;
+                    return status;
                 }
 
                 auto buffer = it->second.get();
@@ -298,6 +380,7 @@ private:
      */
     Status read(ServerContext *context, const BufferReadRequest *request, ServerWriter<BufferReadResponse> *writer) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
 #ifdef DEBUG
         std::cout << "Read Request Received: " << std::endl;
 #endif
@@ -305,8 +388,9 @@ private:
         auto it = buffers_.find(request->buffer_id());
         if (it == buffers_.end())
         {
-            std::cerr << "Buffer not found: " << request->buffer_id() << std::endl;
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "Buffer not found.");
+            Status status = bufferNotFoundStatus(request->buffer_id(), "read");
+            std::cerr << status.error_message() << std::endl;
+            return status;
         }
 
         auto buffer = it->second.get();
@@ -356,7 +440,8 @@ private:
      *
      * This function processes a request to free a buffer identified by its buffer ID.
      * It searches for the buffer in the internal map and removes it if found.
-     * If the buffer is not found, it returns a NOT_FOUND status.
+     * If the buffer is not found, the request succeeds because there is no
+     * resource to release.
      * 
      * @param context The server context for the request.
      * @param request The request containing the buffer ID to be freed.
@@ -365,15 +450,14 @@ private:
      */
     Status  freebuffer(ServerContext *context, const FreeBufferRequest *request, FreeBufferResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
 #ifdef DEBUG
         std::cout << "Freebuffer Request Received: " << request->buffer_id() << std::endl;
 #endif
-        // Find the buffer based on the buffer_id in the request
         auto it = buffers_.find(request->buffer_id());
         if (it == buffers_.end())
         {
-            std::cerr << "Buffer not found: " << request->buffer_id() << std::endl;
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "Buffer not found.");
+            return grpc::Status::OK;
         }
         else
         {
@@ -406,6 +490,7 @@ private:
      */
     Status flush(ServerContext *context, const FlushRequest *request, FlushResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
 #ifdef DEBUG
         std::cout << "Flush Request Received: " << request->buffer_id() << std::endl;
 #endif
@@ -413,8 +498,9 @@ private:
         auto it = buffers_.find(request->buffer_id());
         if (it == buffers_.end())
         {
-            std::cerr << "Buffer not found: " << request->buffer_id() << std::endl;
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "Buffer not found.");
+            Status status = bufferNotFoundStatus(request->buffer_id(), "flush");
+            std::cerr << status.error_message() << std::endl;
+            return status;
         }
         auto buffer = it->second.get();
         buffer->flush();
@@ -435,6 +521,7 @@ private:
      */
     Status invalidate(ServerContext *context, const InvalidateRequest *request, InvalidateResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
 #ifdef DEBUG
         std::cout << "Invalidate Request Received: " << request->buffer_id() << std::endl;
 #endif
@@ -442,8 +529,9 @@ private:
         auto it = buffers_.find(request->buffer_id());
         if (it == buffers_.end())
         {
-            std::cerr << "Buffer not found: " << request->buffer_id() << std::endl;
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "Buffer not found.");
+            Status status = bufferNotFoundStatus(request->buffer_id(), "invalidate");
+            std::cerr << status.error_message() << std::endl;
+            return status;
         }
         auto buffer = it->second.get();
         buffer->invalidate();
@@ -465,6 +553,7 @@ private:
      */
     Status physical_address(ServerContext *context, const AddressRequest *request, AddressResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
 #ifdef DEBUG
         std::cout << "Physical_address Request Received: " << request->buffer_id() << std::endl;
 #endif
@@ -472,8 +561,9 @@ private:
         auto it = buffers_.find(request->buffer_id());
         if (it == buffers_.end())
         {
-            std::cerr << "Buffer not found: " << request->buffer_id() << std::endl;
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "Buffer not found.");
+            Status status = bufferNotFoundStatus(request->buffer_id(), "physical_address");
+            std::cerr << status.error_message() << std::endl;
+            return status;
         }
         auto buffer = it->second.get();
         uint64_t paddr = buffer->physical_address();
@@ -499,6 +589,7 @@ private:
      */
     Status virtual_address(ServerContext *context, const AddressRequest *request, AddressResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
 #ifdef DEBUG
         std::cout << "Virtual_address Request Received: " << request->buffer_id() << std::endl;
 #endif
@@ -506,8 +597,9 @@ private:
         auto it = buffers_.find(request->buffer_id());
         if (it == buffers_.end())
         {
-            std::cerr << "Buffer not found: " << request->buffer_id() << std::endl;
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "Buffer not found.");
+            Status status = bufferNotFoundStatus(request->buffer_id(), "virtual_address");
+            std::cerr << status.error_message() << std::endl;
+            return status;
         }
         auto buffer = it->second.get();
         uint64_t vaddr = buffer->virtual_address();
@@ -533,6 +625,7 @@ private:
      */
     Status cacheable(ServerContext *context, const CacheableRequest *request, CacheableResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
 #ifdef DEBUG
         std::cout << "Cacheable Request Received: " << std::endl;
 #endif
@@ -540,8 +633,9 @@ private:
         auto it = buffers_.find(request->buffer_id());
         if (it == buffers_.end())
         {
-            std::cerr << "Buffer not found: " << request->buffer_id() << std::endl;
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "Buffer not found.");
+            Status status = bufferNotFoundStatus(request->buffer_id(), "cacheable");
+            std::cerr << status.error_message() << std::endl;
+            return status;
         }
         auto buffer = it->second.get();
         bool cacheable = buffer->cacheable();
@@ -555,10 +649,14 @@ class MMIOImpl final : public Mmio::Service
     /**
      * @class MMIOImpl
      * @brief Implements the gRPC service for managing MMIO objects.
+     *
+     * MMIO operations and cleanup are serialized so cleanup cannot destroy a
+     * mapping while an in-flight RPC is using it.
      */
 private:
     std::unordered_map<std::string, std::unique_ptr<MMIO>> mmios_; ///< Map to store MMIO objects
-    uint64_t count = 0;                                            ///< Counter for generating MMIO IDs
+    HandleGenerator handle_generator_;
+    std::mutex mutex_;
 
 public:
     /**
@@ -571,6 +669,33 @@ public:
     void addMMIO(uint64_t base_addr, uint64_t length, std::string mmio_id)
     {
         mmios_[mmio_id] = std::make_unique<MMIO>(base_addr, length);
+    }
+
+    bool releaseMMIO(const std::string &mmio_id)
+    {
+        return mmios_.erase(mmio_id) > 0;
+    }
+
+    /**
+     * @brief Release every MMIO mapping owned by the service.
+     * @return Number of mappings released.
+     */
+    std::size_t clearMMIOs()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        std::size_t released = mmios_.size();
+        mmios_.clear();
+        return released;
+    }
+
+    Status mmioNotFoundStatus(const std::string &mmio_id, const std::string &operation)
+    {
+        return handle_not_found_status(
+            "MMIO",
+            operation,
+            "mmio_id",
+            mmio_id
+        );
     }
 
     /**
@@ -599,16 +724,46 @@ public:
      */
     Status get_mmio(ServerContext *context, const GetMmioRequest *request, GetMmioResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         #ifdef DEBUG
         std::cout << "Function: get_mmio, "
                   << "base_addr=" << request->base_addr() << ", "
                   << "length=" << request->length()
                   << std::endl;
         #endif
-        std::string mmio_id = std::to_string(count);
+        std::string mmio_id;
+        if (!handle_generator_.try_generate(mmio_id))
+        {
+            return grpc::Status(
+                grpc::StatusCode::RESOURCE_EXHAUSTED,
+                "MMIO ID space exhausted."
+            );
+        }
         addMMIO(request->base_addr(), request->length(), mmio_id);
-        count += 1;
         response->set_mmio_id(mmio_id);
+        return grpc::Status::OK;
+    }
+
+    /**
+     * @brief Handles the ReleaseMmio gRPC request.
+     * Releases a server-side MMIO object by identifier. If the ID is not
+     * present, the request succeeds so object cleanup can follow global cleanup.
+     * @param context Server context for the request.
+     * @param request ReleaseMmioRequest message.
+     * @param response ReleaseMmioResponse message.
+     * @return gRPC status.
+     */
+    Status release_mmio(ServerContext *context, const ReleaseMmioRequest *request, ReleaseMmioResponse *response) override
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        bool released = releaseMMIO(request->mmio_id());
+#ifdef DEBUG
+        std::cout << "Function: release_mmio, "
+                  << "mmio_id=" << request->mmio_id() << ", "
+                  << "released=" << (released ? "true" : "false")
+                  << std::endl;
+#endif
+        response->set_status(true);
         return grpc::Status::OK;
     }
 
@@ -622,10 +777,13 @@ public:
      */
     Status read(ServerContext *context, const ReadRequest *request, ReadResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         MMIO *mmio = findMMIO(request->mmio_id());
         if (!mmio)
         {
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "MMIO Object not found.");
+            Status status = mmioNotFoundStatus(request->mmio_id(), "read");
+            std::cerr << status.error_message() << std::endl;
+            return status;
         }
         uint32_t data = mmio->read(request->offset());
         #ifdef DEBUG
@@ -649,6 +807,7 @@ public:
      */
     Status write(ServerContext *context, const WriteRequest *request, WriteResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         #ifdef DEBUG
         std::cout << "Function: write, "
                   << "mmio_id=" << request->mmio_id() << ", "
@@ -660,7 +819,9 @@ public:
         MMIO *mmio = findMMIO(request->mmio_id());
         if (!mmio)
         {
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "MMIO Object not found.");
+            Status status = mmioNotFoundStatus(request->mmio_id(), "write");
+            std::cerr << status.error_message() << std::endl;
+            return status;
         }
         uint32_t value;
         std::memcpy(&value, request->data().data(), sizeof(value));
@@ -674,10 +835,14 @@ class GPIOImpl final : public Gpio::Service
     /**
      * @class GPIOImpl
      * @brief Implements the gRPC service for managing GPIO objects.
+     *
+     * GPIO operations and cleanup are serialized so cleanup cannot destroy a
+     * GPIO object while an in-flight RPC is using it.
      */
 private:
     std::unordered_map<std::string, std::unique_ptr<GPIO>> gpios_; ///< Map to store GPIO objects
-    uint64_t count = 0;                                            ///< Counter for generating GPIO IDs}
+    HandleGenerator handle_generator_;
+    std::mutex mutex_;
 
 public:
     /**
@@ -690,6 +855,28 @@ public:
     void addGPIO(uint32_t index, std::string direction, std::string gpio_id)
     {
         gpios_[gpio_id] = std::make_unique<GPIO>(index, direction);
+    }
+
+    /**
+     * @brief Release every GPIO object owned by the service.
+     * @return Number of GPIO objects released.
+     */
+    std::size_t clearGPIOs()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        std::size_t released = gpios_.size();
+        gpios_.clear();
+        return released;
+    }
+
+    Status gpioNotFoundStatus(const std::string &gpio_id, const std::string &operation)
+    {
+        return handle_not_found_status(
+            "GPIO",
+            operation,
+            "gpio_id",
+            gpio_id
+        );
     }
 
     /**
@@ -718,15 +905,22 @@ public:
      */
     Status get_gpio(ServerContext *context, const GetGpioRequest *request, GetGpioResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         #ifdef DEBUG
         std::cout << "Function: get_gpio, "
                   << "index=" << request->index() << ", "
                   << "direction=" << request->direction()
                   << std::endl;
         #endif
-        std::string gpio_id = std::to_string(count);
+        std::string gpio_id;
+        if (!handle_generator_.try_generate(gpio_id))
+        {
+            return grpc::Status(
+                grpc::StatusCode::RESOURCE_EXHAUSTED,
+                "GPIO ID space exhausted."
+            );
+        }
         addGPIO(request->index(), request->direction(), gpio_id);
-        count += 1;
         response->set_gpio_id(gpio_id);
         return grpc::Status::OK;
     }
@@ -741,10 +935,13 @@ public:
      */
     Status read(ServerContext *context, const GpioReadRequest *request, GpioReadResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         GPIO *gpio = findGPIO(request->gpio_id());
         if (!gpio)
         {
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "GPIO Object not found.");
+            Status status = gpioNotFoundStatus(request->gpio_id(), "read");
+            std::cerr << status.error_message() << std::endl;
+            return status;
         }
         uint32_t data = gpio->read();
         #ifdef DEBUG
@@ -767,6 +964,7 @@ public:
      */
     Status write(ServerContext *context, const GpioWriteRequest *request, GpioWriteResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         #ifdef DEBUG
         std::cout << "Function: write, "
                   << "gpio_id=" << request->gpio_id() << ", "
@@ -777,7 +975,9 @@ public:
         GPIO *gpio = findGPIO(request->gpio_id());
         if (!gpio)
         {
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "GPIO Object not found.");
+            Status status = gpioNotFoundStatus(request->gpio_id(), "write");
+            std::cerr << status.error_message() << std::endl;
+            return status;
         }
         gpio->write(request->value());
         return grpc::Status::OK;
@@ -786,6 +986,8 @@ public:
     /**
      * @brief Handles the Unexport gRPC request.
      * Releases the specified GPIO object based on the request parameters.
+     * If the ID is not present, the request succeeds so object cleanup can
+     * follow global cleanup.
      * @param context Server context for the request.
      * @param request GpioUnexportRequest message.
      * @param response GpioUnexportResponse message.
@@ -793,6 +995,7 @@ public:
      */
     Status unexport(ServerContext *context, const GpioUnexportRequest *request, GpioUnexportResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         #ifdef DEBUG
         std::cout << "Function: unexport, "
                   << "gpio_id=" << request->gpio_id()
@@ -802,9 +1005,9 @@ public:
         GPIO *gpio = findGPIO(request->gpio_id());
         if (!gpio)
         {
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, "GPIO Object not found.");
+            return grpc::Status::OK;
         }
-        gpio->unexport();
+        // Erasing the owning pointer invokes GPIO::~GPIO(), which unexports it.
         gpios_.erase(request->gpio_id());
         return grpc::Status::OK;
     }
@@ -819,6 +1022,7 @@ public:
      */
     Status is_exported(ServerContext *context, const GpioIsExportedRequest *request, GpioIsExportedResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         #ifdef DEBUG
         std::cout << "Function: is_exported, "
                   << "gpio_id=" << request->gpio_id()
@@ -895,6 +1099,9 @@ class RemoteDeviceImpl final : public RemoteDevice::Service
 private:
     const std::string FIRMWARE = "/lib/firmware/";                               ///< Directory for bitstream files
     Device remote_device_;
+    BufferImpl* buffer_service_ = nullptr; ///< Cleared when a client starts a new overlay/session.
+    MMIOImpl* mmio_service_ = nullptr;     ///< Cleared when a client starts a new overlay/session.
+    GPIOImpl* gpio_service_ = nullptr;     ///< Cleared when a client starts a new overlay/session.
 #ifdef RFSOC
     XrfdcImpl* xrfdc_service_ = nullptr;   ///< Notified on bitstream download so it can drop its stale RFDC mapping.
     XrfclkImpl* xrfclk_service_ = nullptr; ///< Notified on bitstream download so it can drop its cached clock-device state.
@@ -913,6 +1120,19 @@ public:
             std::filesystem::create_directories(FIRMWARE);
             std::cout << "Created directory: " << FIRMWARE << std::endl;
         }
+    }
+
+    /**
+     * @brief Register resource-owning service impls for cleanup requests.
+     *
+     * These pointers are non-owning; the services live in RunServer's stack
+     * frame for the lifetime of the gRPC server.
+     */
+    void set_resource_services(BufferImpl* buffer, MMIOImpl* mmio, GPIOImpl* gpio)
+    {
+        buffer_service_ = buffer;
+        mmio_service_ = mmio;
+        gpio_service_ = gpio;
     }
 
 #ifdef RFSOC
@@ -978,6 +1198,50 @@ public:
 
         return grpc::Status::OK;
     }
+
+    /**
+     * @brief Handles the Cleanup gRPC request.
+     *
+     * Clears server-side resource handles that may have been orphaned by a
+     * host Python kernel restart or by stale overlay objects. Each resource
+     * service waits for its in-flight operations before destroying objects.
+     *
+     * @param context Server context for the request.
+     * @param request Empty cleanup request.
+     * @param response Cleanup completion status.
+     * @return gRPC status.
+     */
+    Status cleanup(ServerContext *context, const CleanupRequest *request, CleanupResponse *response) override
+    {
+        uint64_t buffers_freed = 0;
+        uint64_t mmios_freed = 0;
+        uint64_t gpios_freed = 0;
+
+        if (buffer_service_)
+        {
+            buffers_freed = buffer_service_->clearBuffers();
+        }
+        if (mmio_service_)
+        {
+            mmios_freed = mmio_service_->clearMMIOs();
+        }
+        if (gpio_service_)
+        {
+            gpios_freed = gpio_service_->clearGPIOs();
+        }
+
+#ifdef DEBUG
+        std::cout << "Cleanup Request Received: "
+                  << "buffers_freed=" << buffers_freed << ", "
+                  << "mmios_freed=" << mmios_freed << ", "
+                  << "gpios_freed=" << gpios_freed
+                  << std::endl;
+#endif
+
+        response->set_status(true);
+        return grpc::Status::OK;
+    }
+
     /**
      * @brief Handles the ExistsFile gRPC request.
      * Checks if the specified file exists.
@@ -1080,6 +1344,7 @@ void RunServer(uint16_t port)
     MMIOImpl mmio_service;                  // Create MMIO rpc handler
     BufferImpl buffer_service;              // Create Buffer rpc handler
     GPIOImpl gpio_service;                  // Create Gpio rpc handler
+    remote_device_service.set_resource_services(&buffer_service, &mmio_service, &gpio_service);
 #ifdef RFSOC
     XrfclkImpl xrfclk_service;              // Create Xrfclk rpc handler
     XrfdcImpl xrfdc_service;                // Create Xrfdc rpc handler

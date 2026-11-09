@@ -114,6 +114,7 @@ class Register:
         self.width = width
         self.debug = debug
         self.access = access
+        self._mmio = None
 
         if width == 32:
             register_type = 'u4'
@@ -125,6 +126,7 @@ class Register:
         if buffer is None:
             from .mmio import MMIO
             mmio = MMIO(address, np.dtype(register_type).itemsize, device=device)
+            self._mmio = mmio
             array = mmio.array
         elif hasattr(buffer, 'view'):
             array = buffer
