@@ -37,6 +37,10 @@
 	};
 };
 
+&gpio0 {
+	status = "okay";
+};
+
 &i2c1 {
 	i2c-mux@74 {
 		compatible = "nxp,pca9548";

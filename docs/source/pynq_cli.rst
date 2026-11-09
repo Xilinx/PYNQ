@@ -144,3 +144,37 @@ be listed by printing the help message:
     pynq-get-notebooks --help
 
 Please refer to the help message for more info about these options.
+
+Installing Overlay Packages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``pynq install`` installs an overlay package and its notebooks.
+
+.. code:: bash
+
+    pynq install <requirement> [--board <BOARD>] [--path <path>] [--force]
+
+``<requirement>`` can be a package name, release archive URL, Git URL or local
+path. The command uses ``pip``, or ``uv pip`` if ``pip`` is unavailable.
+
+``-b BOARD``, ``--board BOARD``
+    The target board name, for example ``ZCU104``. Required on a remote host.
+    On a PYNQ board, omit it to install locally. Supplying it explicitly uses
+    the remote installation layout, with separate files for each board type.
+
+``-p PATH``, ``--path PATH``
+    The notebook destination. Remote installs use ``<path>/<BOARD>/``, with
+    ``./pynq-notebooks`` as the default path. Local installs use the path
+    directly, defaulting to ``PYNQ_JUPYTER_NOTEBOOKS`` or ``./pynq-notebooks``.
+
+``-f``, ``--force``
+    Replace previously installed notebooks.
+
+For example, on a remote host:
+
+.. code:: bash
+
+    pynq install pynq-helloworld --board ZCU104
+
+The notebooks go to ``pynq-notebooks/ZCU104/pynq-helloworld``. Run the command
+again with another ``--board`` to install for another supported board type.

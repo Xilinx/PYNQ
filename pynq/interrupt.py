@@ -1,14 +1,47 @@
-#   Copyright (c) 2017, Xilinx, Inc.
+#   Copyright (c) 2017-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 
 import asyncio
 import weakref
-import warnings
-from .pl import PL
-from .ps import CPU_ARCH, ZU_ARCH, ZYNQ_ARCH
+from .pl_server.device import Device
+from .pl_server.global_state import (
+    global_state_file_exists, load_global_state,
+)
 from .mmio import MMIO
 from .uio import get_uio_device, UioController
+
+
+def _metadata(device):
+    """Use this device's metadata, including the classic saved-metadata path."""
+    if getattr(device, "interrupt_pins", None) is not None:
+        return device
+    metadata = device.dict_views
+    if metadata is None:
+        raise RuntimeError("No interrupt metadata available for this device")
+    return metadata
+
+
+def _timestamp(device):
+    if hasattr(device, "timestamp"):
+        return device.timestamp
+    tag = getattr(device, "_state_tag", "")
+    if global_state_file_exists(tag):
+        return load_global_state(tag).timestamp
+    return None
+
+
+def _controller_state(device):
+    timestamp = _timestamp(device)
+    state = getattr(device, "_interrupt_state", None)
+    if state is None:
+        state = {"timestamp": timestamp, "controllers": {}, "uio": {}}
+        device._interrupt_state = state
+    elif state["timestamp"] != timestamp:
+        state["controllers"].clear()
+        state["timestamp"] = timestamp
+    return state
 
 
 
@@ -49,7 +82,14 @@ class Interrupt(object):
     signal goes high. If the Overlay is changed or re-downloaded this
     object is invalidated and waiting results in undefined behaviour."""
 
-    def __init__(self, pinname):
+    def __new__(cls, pinname, device=None):
+        device = device if device is not None else Device.active_device
+        backend = getattr(device, "_interrupt_class", cls)
+        if backend is not cls and backend is not Interrupt:
+            return backend(pinname, device=device)
+        return super().__new__(cls)
+
+    def __init__(self, pinname, device=None):
         """Initialise an Interrupt object attached to the specified pin
 
         Parameters
@@ -57,14 +97,19 @@ class Interrupt(object):
         pinname : string
             Fully qualified name of the pin in the block diagram of the
             for ${cell}/${pin}. Raises an exception if the pin cannot
-            be found in the currently active Overlay
+            be found in the selected device's overlay.
+        device : Device, optional
+            Target device. Defaults to the active device at construction.
 
         """
-        if pinname not in PL.interrupt_pins:
+        self.device = device if device is not None else Device.active_device
+        pins = _metadata(self.device).interrupt_pins
+        if pinname not in pins:
             raise ValueError("No Pin of name {} found".format(pinname))
         parent, self.number = _InterruptController.get_parent(
-            PL.interrupt_pins[pinname])
+            pins[pinname], self.device)
 
+        self._timestamp = _timestamp(self.device)
         self.parent = weakref.ref(parent)
         self.event = asyncio.Event()
         self.waiting = False
@@ -75,7 +120,10 @@ class Interrupt(object):
         May raise an exception if the Overlay has been changed since
         initialisation.
         """
+        _controller_state(self.device)
         parent = self.parent()
+        if self._timestamp != _timestamp(self.device):
+            raise RuntimeError("Interrupt invalidated by Overlay change")
         if parent is None:
             raise RuntimeError("Interrupt invalidated by Overlay change")
         if not self.waiting:
@@ -94,15 +142,11 @@ class _InterruptController(object):
     creation and registration of _InterruptController instances
 
     """
-    _controllers = []
-    _uio_devices = {}
-    _last_timestamp = None
-
     @staticmethod
-    def get_controller(name):
+    def get_controller(name, device=None):
         """Returns the _InterruptController corresponding to the AXI interrupt
-        controller with the specified name. Will invalidate all interrupt
-        controllers if the Overlay has been changed. Should not be accessed
+        controller with the specified name. Will invalidate this device's
+        interrupt controllers if its overlay has changed. Should not be accessed
         by user code.
 
         Parameters
@@ -111,20 +155,16 @@ class _InterruptController(object):
             Name of the interrupt controller to return
 
         """
-        bitstream_timestamp = PL.timestamp
-        if bitstream_timestamp != _InterruptController._last_timestamp:
-            _InterruptController._controllers.clear()
-            _InterruptController._last_timestamp = bitstream_timestamp
-
-        for con in _InterruptController._controllers:
-            if con.name == name:
-                return con
-        ret = _InterruptController(name)
-        _InterruptController._controllers.append(ret)
+        device = device if device is not None else Device.active_device
+        controllers = _controller_state(device)["controllers"]
+        if name in controllers:
+            return controllers[name]
+        ret = _InterruptController(name, device)
+        controllers[name] = ret
         return ret
 
     @staticmethod
-    def get_parent(entry):
+    def get_parent(entry, device=None):
         """Return the parent and index of an interrupt.
 
         This can either be an interrupt controller or a UIO interface
@@ -135,23 +175,25 @@ class _InterruptController(object):
             The entry in the interrupt_pins dict for the pin
 
         """
+        device = device if device is not None else Device.active_device
+        state = _controller_state(device)
         parent = entry['parent'] if 'parent' in entry else entry['controller']
         number = entry['index']
         if parent == "":
             raw_irq = entry['raw_irq']
-            if raw_irq in _InterruptController._uio_devices:
-                return _InterruptController._uio_devices[raw_irq], 0
+            if raw_irq in state["uio"]:
+                return state["uio"][raw_irq], 0
             uiodev = get_uio_irq(raw_irq)
             if uiodev is None:
                 raise ValueError('Could not find UIO device for interrupt pin '
                                  'for IRQ number {}'.format(raw_irq))
             dev = UioController(uiodev)
-            _InterruptController._uio_devices[raw_irq] = dev
+            state["uio"][raw_irq] = dev
             return dev, 0
         else:
-            return _InterruptController.get_controller(parent), number
+            return _InterruptController.get_controller(parent, device), number
 
-    def __init__(self, name):
+    def __init__(self, name, device=None):
         """Return a new _InterruptController
 
         Returns a new _InterruptController. As these are singleton objects,
@@ -164,8 +206,10 @@ class _InterruptController(object):
             Name of the interrupt controller to return
 
         """
+        self.device = device if device is not None else Device.active_device
+        metadata = _metadata(self.device)
         self.name = name
-        self.mmio = MMIO(PL.ip_dict[name]['phys_addr'], 32)
+        self.mmio = MMIO(metadata.ip_dict[name]['phys_addr'], 32, device=self.device)
         self.wait_handles = [[] for _ in range(32)]
         self.event_number = 0
         self.waiting = False
@@ -174,7 +218,7 @@ class _InterruptController(object):
         self.mmio.write(0x08, 0)
 
         self.parent, self.number = _InterruptController.get_parent(
-            PL.interrupt_controllers[name])
+            metadata.interrupt_controllers[name], self.device)
 
     def set(self):
         """Mimics the set function of an event. Should not be called by

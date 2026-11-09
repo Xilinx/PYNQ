@@ -20,6 +20,7 @@
 #include <numeric>
 #include <sstream>
 #include <filesystem>
+#include <cerrno>
 
 
 #include <remote_device.grpc.pb.h>
@@ -89,6 +90,10 @@ using remote_device::WriteFileRequest;
 using remote_device::WriteFileResponse;
 using remote_device::ExistsFileRequest;
 using remote_device::ExistsFileResponse;
+using remote_device::MakeDirRequest;
+using remote_device::MakeDirResponse;
+using remote_device::RemoveDirRequest;
+using remote_device::RemoveDirResponse;
 using gpio::GetGpioRequest;
 using gpio::GetGpioResponse;
 using gpio::GpioReadRequest;
@@ -1016,20 +1021,34 @@ public:
             return grpc::Status::OK;
         }
 
-        std::ifstream file(request->file_path(), std::ios::binary);
-        if (!file.is_open())
+        int fd = ::open(request->file_path().c_str(), O_RDONLY);
+        if (fd < 0)
         {
             return grpc::Status(grpc::StatusCode::NOT_FOUND, "File not found");
         }
 
         ReadFileResponse response;
-        char buffer[1024];
-        while (file.read(buffer, sizeof(buffer)) || file.gcount() > 0)
+        // Configfs DTBO attributes require a buffer for the full blob (up to 1 MiB).
+        std::vector<char> buffer(1024 * 1024);
+        ssize_t count;
+        while ((count = ::read(fd, buffer.data(), buffer.size())) != 0)
         {
-            response.set_data(buffer, file.gcount());
-            writer->Write(response);
+            if (count < 0)
+            {
+                if (errno == EINTR)
+                    continue;
+                std::string error = std::strerror(errno);
+                ::close(fd);
+                return grpc::Status(grpc::StatusCode::INTERNAL, error);
+            }
+            response.set_data(buffer.data(), count);
+            if (!writer->Write(response))
+            {
+                ::close(fd);
+                return grpc::Status(grpc::StatusCode::CANCELLED, "File read cancelled");
+            }
         }
-        file.close();
+        ::close(fd);
         return grpc::Status::OK;
     }
     /**
@@ -1060,9 +1079,62 @@ public:
         do
         {
             file.write(request.data().data(), request.data().size());
+            if (!file)
+                return grpc::Status(grpc::StatusCode::INTERNAL, "Failed to write file");
         } while (reader->Read(&request));
 
         file.close();
+        if (!file)
+            return grpc::Status(grpc::StatusCode::INTERNAL, "Failed to close file after writing");
+        return grpc::Status::OK;
+    }
+
+    /**
+     * @brief Handles the MakeDir gRPC request.
+     * Creates the directory specified by dir_path, including any missing parents.
+     * @param context Server context for the request.
+     * @param request MakeDirRequest message containing the directory path.
+     * @param reply MakeDirResponse message.
+     * @return gRPC status.
+     */
+    Status makedir(ServerContext *context, const MakeDirRequest *request, MakeDirResponse *reply) override
+    {
+        #ifdef DEBUG
+        std::cout << "MakeDir Request Received: " << request->dir_path() << std::endl;
+        #endif
+        std::error_code ec;
+        std::filesystem::create_directories(request->dir_path(), ec);
+        if (ec)
+        {
+            return grpc::Status(grpc::StatusCode::INTERNAL, ec.message());
+        }
+        return grpc::Status::OK;
+    }
+
+    /**
+     * @brief Handles the RemoveDir gRPC request.
+     * Removes the directory specified by dir_path. Configfs directories are
+     * removed with their attributes; any other directory must be empty.
+     * @param context Server context for the request.
+     * @param request RemoveDirRequest message containing the directory path.
+     * @param reply RemoveDirResponse message.
+     * @return gRPC status.
+     */
+    Status removedir(ServerContext *context, const RemoveDirRequest *request, RemoveDirResponse *reply) override
+    {
+        #ifdef DEBUG
+        std::cout << "RemoveDir Request Received: " << request->dir_path() << std::endl;
+        #endif
+        std::error_code ec;
+        if (!std::filesystem::is_directory(request->dir_path(), ec))
+        {
+            return grpc::Status(grpc::StatusCode::NOT_FOUND, "Directory not found");
+        }
+        std::filesystem::remove(request->dir_path(), ec);
+        if (ec)
+        {
+            return grpc::Status(grpc::StatusCode::INTERNAL, ec.message());
+        }
         return grpc::Status::OK;
     }
 };

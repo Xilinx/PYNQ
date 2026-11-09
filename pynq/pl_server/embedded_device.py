@@ -1,5 +1,5 @@
 # Copyright (C) 2022 Xilinx, Inc
-# Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc.
+# Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -8,15 +8,18 @@ import struct
 from pathlib import Path
 import datetime
 import platform
+import warnings
 
 import numpy as np
 from pynqmetadata.frontends import Metadata
 
 from pynqmetadata.views.runtime import RuntimeMetadataParser
+from .arch import VersalArch, ZynqArch, ZynqUltrascaleArch, _arch_class
 from .xrt_device import XrtDevice, XrtMemory
 from .global_state import GlobalState, save_global_state
 from .global_state import initial_global_state_file_boot_check, load_global_state
 from .global_state import bitstream_hash, global_state_file_exists, clear_global_state
+from .global_state import _get_metadata_path
 
 DEFAULT_XCLBIN = (Path(__file__).parent / "default.xclbin").read_bytes()
 
@@ -137,8 +140,9 @@ class BitstreamHandler:
 
     """
 
-    def __init__(self, filepath):
+    def __init__(self, filepath, device_tag=""):
         self._filepath = Path(filepath)
+        self._device_tag = device_tag
 
     def get_bin_data(self):
         """Get the binary data of the bitstream in a form suitable
@@ -190,22 +194,22 @@ class BitstreamHandler:
     def _cache_exists(self)->bool:
         """ Checks to see if this bitstream is already on the system and
         use the cached metadata """
-        if global_state_file_exists():
-            glob_state = load_global_state()
+        if global_state_file_exists(self._device_tag):
+            glob_state = load_global_state(self._device_tag)
             return glob_state.bitfile_hash == bitstream_hash(self._filepath)
         return False
              
 
     def _clear_cache(self):
         """ Clears the cache file """
-        metadata_state_file = Path(f"{os.path.dirname(__file__)}/_current_metadata.pkl")
+        metadata_state_file = _get_metadata_path(self._device_tag)
         if os.path.isfile(metadata_state_file):
             os.remove(metadata_state_file)
 
     def _get_cache(self):
         """ Tries to return the Cached data """
         if self._cache_exists():
-            metadata_state_file = Path(f"{os.path.dirname(__file__)}/_current_metadata.pkl")
+            metadata_state_file = _get_metadata_path(self._device_tag)
             if os.path.isfile(metadata_state_file):
                 try:
                     parser = pickle.load(open(metadata_state_file, "rb"))
@@ -224,7 +228,7 @@ class BitstreamHandler:
                     self._clear_cache()
                     raise CacheMetadataError(f"Global state file exists, but pickled metadata cannot be found")
             else:
-                clear_global_state()
+                clear_global_state(self._device_tag)
                 raise CacheMetadataError(f"Global state file exists, but pickled metadata cannot be found")
         else:
             raise CacheMetadataError(f"No cached metadata present")
@@ -457,54 +461,6 @@ def _create_xclbin(mem_dict):
         return (td / "t.xclbin").read_bytes()
 
 
-ZU_FPD_SLCR_REG = {
-    "C_MAXIGP0_DATA_WIDTH": {
-        "FPD_SLCR.AXI_FS.DW_SS0_SEL": {"addr": 0xFD615000, "field": [9, 8]}
-    },
-    "C_MAXIGP1_DATA_WIDTH": {
-        "FPD_SLCR.AXI_FS.DW_SS1_SEL": {"addr": 0xFD615000, "field": [11, 10]}
-    },
-    "C_MAXIGP2_DATA_WIDTH": {
-        "LPD_SLCR.AXI_FS.DW_SS2_SEL": {"addr": 0xFF419000, "field": [9, 8]}
-    },
-}
-
-ZU_FPD_SLCR_VALUE = {"32": 0, "64": 1, "128": 2}
-
-ZU_AXIFM_REG = {
-    "C_SAXIGP0_DATA_WIDTH": {
-        "AFIFM0.AFIFM_RDCTRL.FABRIC_WIDTH": {"addr": 0xFD360000, "field": [1, 0]},
-        "AFIFM0.AFIFM_WRCTRL.FABRIC_WIDTH": {"addr": 0xFD360014, "field": [1, 0]},
-    },
-    "C_SAXIGP1_DATA_WIDTH": {
-        "AFIFM1.AFIFM_RDCTRL.FABRIC_WIDTH": {"addr": 0xFD370000, "field": [1, 0]},
-        "AFIFM1.AFIFM_WRCTRL.FABRIC_WIDTH": {"addr": 0xFD370014, "field": [1, 0]},
-    },
-    "C_SAXIGP2_DATA_WIDTH": {
-        "AFIFM2.AFIFM_RDCTRL.FABRIC_WIDTH": {"addr": 0xFD380000, "field": [1, 0]},
-        "AFIFM2.AFIFM_WRCTRL.FABRIC_WIDTH": {"addr": 0xFD380014, "field": [1, 0]},
-    },
-    "C_SAXIGP3_DATA_WIDTH": {
-        "AFIFM3.AFIFM_RDCTRL.FABRIC_WIDTH": {"addr": 0xFD390000, "field": [1, 0]},
-        "AFIFM3.AFIFM_WRCTRL.FABRIC_WIDTH": {"addr": 0xFD390014, "field": [1, 0]},
-    },
-    "C_SAXIGP4_DATA_WIDTH": {
-        "AFIFM4.AFIFM_RDCTRL.FABRIC_WIDTH": {"addr": 0xFD3A0000, "field": [1, 0]},
-        "AFIFM4.AFIFM_WRCTRL.FABRIC_WIDTH": {"addr": 0xFD3A0014, "field": [1, 0]},
-    },
-    "C_SAXIGP5_DATA_WIDTH": {
-        "AFIFM5.AFIFM_RDCTRL.FABRIC_WIDTH": {"addr": 0xFD3B0000, "field": [1, 0]},
-        "AFIFM5.AFIFM_WRCTRL.FABRIC_WIDTH": {"addr": 0xFD3B0014, "field": [1, 0]},
-    },
-    "C_SAXIGP6_DATA_WIDTH": {
-        "AFIFM6.AFIFM_RDCTRL.FABRIC_WIDTH": {"addr": 0xFF9B0000, "field": [1, 0]},
-        "AFIFM6.AFIFM_WRCTRL.FABRIC_WIDTH": {"addr": 0xFF9B0014, "field": [1, 0]},
-    },
-}
-
-ZU_AXIFM_VALUE = {"32": 2, "64": 1, "128": 0}
-
-
 class EmbeddedXrtMemory(XrtMemory):
     def __init__(self, device, desc):
         super().__init__(device, desc)
@@ -548,6 +504,10 @@ class EmbeddedDevice(XrtDevice):
     Note that a bitstream will need to be loaded before any allocation
     can occur.
 
+    Constructing `EmbeddedDevice` returns the subclass for the board's
+    architecture. Subclasses should inherit the matching class from
+    `pynq.pl_server.arch`.
+
     """
 
     BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
@@ -561,6 +521,23 @@ class EmbeddedDevice(XrtDevice):
             return [EmbeddedDevice()]
         else:
             return []
+
+    def __new__(cls, *args, **kwargs):
+        arch = _arch_class()
+        if cls is EmbeddedDevice:
+            from .versal_device import VersalDevice
+
+            cls = {
+                ZynqArch: ZynqDevice,
+                ZynqUltrascaleArch: ZynqUltrascaleDevice,
+                VersalArch: VersalDevice,
+            }.get(arch, cls)
+        elif arch is not None and not issubclass(cls, arch):
+            warnings.warn(
+                f"{cls.__name__} does not inherit {arch.__name__}, "
+                f"the architecture of this board"
+            )
+        return super().__new__(cls)
 
     @property
     def default_memory(self):
@@ -586,6 +563,18 @@ class EmbeddedDevice(XrtDevice):
         self.capabilities["MEMORY_MAPPED"] = True
         self.capabilities["CALLABLE"] = False
         self.arch = platform.machine()
+
+    @property
+    def _gpio_class(self):
+        from pynq.gpio import GPIO
+
+        return GPIO
+
+    @property
+    def _interrupt_class(self):
+        from pynq.interrupt import Interrupt
+
+        return Interrupt
 
     def get_memory(self, description):
         return EmbeddedXrtMemory(self, description)
@@ -616,66 +605,28 @@ class EmbeddedDevice(XrtDevice):
         array = np.frombuffer(mem, np.uint32, length >> 2, virt_offset)
         return array
 
-    def set_axi_port_width(self, parser):
-        """This method will set the AXI port width.
-
-        This is useful to resolve discrepancy between the PS configurations
-        during boot and the PS configurations required by the bitstream. It
-        is usually to be resolved for full bitstream reconfiguration.
-
-        Check https://www.xilinx.com/support/answers/66295.html for more
-        information on the meaning of register values.
-
-        Currently only zynq ultrascale devices support data width changes.
-
-        """
-        from pynq.registers import Register
-
-        if not hasattr(parser, "ps_name"):
-            # Setting port widths not supported for xclbin-only designs
-            return
-        parameter_dict = parser.ip_dict[parser.ps_name]["parameters"]
-        if parser.family_ps == "zynq_ultra_ps_e":
-            for para in ZU_FPD_SLCR_REG:
-                if para in parameter_dict:
-                    width = parameter_dict[para]
-                    for reg_name in ZU_FPD_SLCR_REG[para]:
-                        addr = ZU_FPD_SLCR_REG[para][reg_name]["addr"]
-                        f = ZU_FPD_SLCR_REG[para][reg_name]["field"]
-                        Register(addr, device=self)[f[0] : f[1]] = ZU_FPD_SLCR_VALUE[width]
-            for para in ZU_AXIFM_REG:
-                if para in parameter_dict:
-                    width = parameter_dict[para]
-                    for reg_name in ZU_AXIFM_REG[para]:
-                        addr = ZU_AXIFM_REG[para][reg_name]["addr"]
-                        f = ZU_AXIFM_REG[para][reg_name]["field"]
-                        Register(addr, device=self)[f[0] : f[1]] = ZU_AXIFM_VALUE[width]
-
     def gen_cache(self, bitstream, parser=None):
         """ Generates the cache of the metadata even if no download occurred """
-        if not hasattr(parser, "_from_cache"):
-            t = datetime.datetime.now()
-            ts = "{}/{}/{} {}:{}:{} +{}".format(
-                t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond
-            )
-            
-            if os.path.exists(bitstream.bitfile_name):
-                gs=GlobalState(bitfile_name=str(bitstream.bitfile_name),
-                                 bitfile_hash=bitstream_hash(bitstream.bitfile_name),
-                                 timestamp=ts,
-                                 active_name=self.name,
-                                 psddr=parser.mem_dict.get("PSDDR", {}))
-                ip=parser.ip_dict
-                for sd_name, details in ip.items():
-                    if details["type"] in ["xilinx.com:ip:pr_axi_shutdown_manager:1.0",
-                                           "xilinx.com:ip:dfx_axi_shutdown_manager:1.0",]:
-                        gs.add(name=sd_name, addr=details["phys_addr"])
-                save_global_state(gs)
+        t = datetime.datetime.now()
+        ts = "{}/{}/{} {}:{}:{} +{}".format(
+            t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond
+        )
+        if os.path.exists(bitstream.bitfile_name):
+            gs=GlobalState(bitfile_name=str(bitstream.bitfile_name),
+                             bitfile_hash=bitstream_hash(bitstream.bitfile_name),
+                             timestamp=ts,
+                             active_name=self.name,
+                             psddr=parser.mem_dict.get("PSDDR", {}))
+            ip=parser.ip_dict
+            for sd_name, details in ip.items():
+                if details["type"] in ["xilinx.com:ip:pr_axi_shutdown_manager:1.0",
+                                       "xilinx.com:ip:dfx_axi_shutdown_manager:1.0",]:
+                    gs.add(name=sd_name, addr=details["phys_addr"])
+            save_global_state(gs)
 
-            if hasattr(parser, "systemgraph"):
-                if not parser.systemgraph is None:
-                    STATE_DIR = os.path.dirname(__file__)
-                    pickle.dump(parser, open(f"{STATE_DIR}/_current_metadata.pkl", "wb"))
+        if not hasattr(parser, "_from_cache") and hasattr(parser, "systemgraph"):
+            if not parser.systemgraph is None:
+                pickle.dump(parser, open(_get_metadata_path(), "wb"))
 
     def write_fpga_manager(self, attribute, value):
         """Write a value to an FPGA Manager sysfs attribute.
@@ -721,3 +672,11 @@ class EmbeddedDevice(XrtDevice):
         if parser is None:
             raise RuntimeError("Unable to find metadata for bitstream")
         return parser
+
+
+class ZynqDevice(ZynqArch, EmbeddedDevice):
+    """Device for Zynq-7000 SoCs"""
+
+
+class ZynqUltrascaleDevice(ZynqUltrascaleArch, EmbeddedDevice):
+    """Device for Zynq UltraScale+ MPSoCs and RFSoCs"""

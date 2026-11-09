@@ -74,32 +74,13 @@ Install the required dependencies in your Python virtual environment:
 
    pip install jupyterlab matplotlib pillow wheel
 
-Install the PYNQ-HelloWorld overlay. Set the ``BOARD`` environment variable
-before installation so that PYNQ-Utils knows which board you are targeting:
-
-**Windows:**
+Install the overlay and its notebooks:
 
 .. code-block:: bash
 
-   # PowerShell:
-   $env:BOARD="ZCU104"; pip install --no-build-isolation pynq-helloworld
+   pynq install pynq-helloworld --board ZCU104
 
-   # Command Prompt:
-   set BOARD=ZCU104 && pip install --no-build-isolation pynq-helloworld
-
-**Linux/macOS:**
-
-.. code-block:: bash
-
-   BOARD=ZCU104 pip install --no-build-isolation pynq-helloworld
-
-Download the notebooks and overlay files:
-
-.. code-block:: bash
-
-   pynq get-notebooks pynq-helloworld -d ZCU104
-
-The ``-d`` argument tells ``pynq get-notebooks`` which board package to use.
+The notebooks are installed in ``pynq-notebooks/ZCU104/pynq-helloworld``.
 
 Start Jupyter Lab:
 
@@ -132,3 +113,19 @@ imports cell before ``from pynq import allocate, Overlay``.
 
 Once this change is made, you should be able to run through the entire notebook
 and resize images completely remotely using PYNQ.remote.
+
+Installing Overlays for Several Boards
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Run ``pynq install`` for each board type. For example:
+
+.. code-block:: bash
+
+   pynq install <overlay-package> --board RFSoC4x2
+   pynq install <overlay-package> --board ZCU208
+
+Use a package that supports both boards. Each board gets its own notebooks
+folder under ``pynq-notebooks/<BOARD>/``.
+
+See :ref:`pynq-cli` for install options and :ref:`remote_device` for using
+several remote boards in one Python session.

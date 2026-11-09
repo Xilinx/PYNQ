@@ -1,5 +1,5 @@
-#   Copyright (c) 2016-2021, Xilinx, Inc.
-#   Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc.
+#   Copyright (c) 2016-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -20,12 +20,8 @@ from .mmio import MMIO
 from .ps import Clocks
 from .registers import RegisterMap
 
-if os.environ.get("PYNQ_REMOTE_DEVICES", False):
-    from .pl_server.remote_device import RemoteGPIO as GPIO
-    from .pl_server.remote_device import RemoteInterrupt as Interrupt
-else:
-    from .gpio import GPIO
-    from .interrupt import Interrupt
+from .gpio import GPIO
+from .interrupt import Interrupt
 
 
 DRIVERS_GROUP = "pynq.lib"
@@ -419,6 +415,7 @@ class Overlay(Bitstream):
             The path of the dtbo file.
 
         """
+        Clocks.set_device(self.device)
         for i in self.clock_dict:
             if "enable" in self.clock_dict[i]:
                 if self.clock_dict[i]["enable"]:
@@ -705,13 +702,13 @@ class DefaultIP(metaclass=RegisterIP):
             self._gpio = {}
         for interrupt, details in self._interrupts.items():
             try:
-                setattr(self, interrupt, Interrupt(details["fullpath"]))
+                setattr(self, interrupt, Interrupt(details["fullpath"], device=self.device))
             except ValueError as e:
                 warnings.warn("Interrupt {} not created: {}".format(interrupt, str(e)))
                 setattr(self, interrupt, None)
         for gpio, entry in self._gpio.items():
-            gpio_number = GPIO.get_gpio_pin(entry["index"])
-            setattr(self, gpio, GPIO(gpio_number, "out"))
+            gpio_number = GPIO.get_gpio_pin(entry["index"], device=self.device)
+            setattr(self, gpio, GPIO(gpio_number, "out", device=self.device))
         if "registers" in description:
             self._registers = description["registers"]
             self._fullpath = description["fullpath"]
@@ -810,13 +807,17 @@ class _IPMap:
             setattr(self, key, driver)
             return driver
         elif key in self._description["interrupts"]:
-            interrupt = Interrupt(self._description["interrupts"][key]["fullpath"])
+            interrupt = Interrupt(
+                self._description["interrupts"][key]["fullpath"],
+                device=self._description["device"],
+            )
             setattr(self, key, interrupt)
             return interrupt
         elif key in self._description["gpio"]:
             gpio_index = self._description["gpio"][key]["index"]
-            gpio_number = GPIO.get_gpio_pin(gpio_index)
-            gpio = GPIO(gpio_number, "out")
+            device = self._description["device"]
+            gpio_number = GPIO.get_gpio_pin(gpio_index, device=device)
+            gpio = GPIO(gpio_number, "out", device=device)
             setattr(self, key, gpio)
             return gpio
         elif key in self._description["memories"]:

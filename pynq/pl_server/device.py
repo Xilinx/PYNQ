@@ -1,4 +1,5 @@
-#   Copyright (c) 2021, Xilinx, Inc.
+#   Copyright (c) 2021-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 
@@ -10,6 +11,7 @@ from copy import deepcopy
 from pynq.devicetree import DeviceTreeSegment, get_dtbo_base_name
 
 from .hwh_parser import HWH, get_hwh_name
+from .global_state import _get_metadata_path
 
 
 class DeviceMeta(type):
@@ -106,6 +108,8 @@ class Device(metaclass=DeviceMeta):
         The unique identifier associated with the device
     """
 
+    _state_tag = ""
+
     def __init__(self, tag, warn=False):
         # Args validation
         if type(tag) is not str:
@@ -113,9 +117,46 @@ class Device(metaclass=DeviceMeta):
         self.tag = tag
         self.parser = None
 
+    @property
+    def _clocks_class(self):
+        """Default clock implementation selected from the device architecture."""
+        from pynq import ps
+
+        if self.arch == ps.ZYNQ_ARCH:
+            return ps._ClocksZynq
+        if self.arch == ps.ZU_ARCH:
+            if ps._is_versal(self):
+                return ps._ClocksVersal
+            return ps._ClocksUltrascale
+        raise RuntimeError("Architecture not supported for Clocks")
+
+    @property
+    def dict_views(self):
+        """Saved metadata dictionaries for this device."""
+        if hasattr(self, "_dict_view_cache"):
+            return self._dict_view_cache
+        metadata_state_file = _get_metadata_path(self._state_tag)
+        if os.path.isfile(metadata_state_file):
+            try:
+                with open(metadata_state_file, "rb") as stream:
+                    metadata = pickle.load(stream)
+            except Exception:
+                os.remove(metadata_state_file)
+                return None
+            self._dict_view_cache = metadata
+            return metadata
+        return None
+
     def set_bitfile_name(self, bitfile_name: str) -> None:
+        self.__dict__.pop("_dict_view_cache", None)
         self.bitfile_name = bitfile_name
         self.parser = self.get_bitfile_metadata(self.bitfile_name)
+        ps = getattr(self.parser, "ps", None)
+        if ps is not None and not isinstance(ps, getattr(self, "_ps_core", object)):
+            warnings.warn(
+                f"{bitfile_name} was built for {ps.ps_name}, "
+                f"not for a {type(self).__name__}"
+            )
         self.mem_dict = self.parser.mem_dict
         self.ip_dict = self.parser.ip_dict
         self.gpio_dict = self.parser.gpio_dict
@@ -167,6 +208,7 @@ class Device(metaclass=DeviceMeta):
             The bitfile being loaded as part of the reset
 
         """
+        self.__dict__.pop("_dict_view_cache", None)
         if parser is not None:
             self.ip_dict = parser.ip_dict
             self.gpio_dict = parser.gpio_dict
@@ -275,7 +317,7 @@ class Device(metaclass=DeviceMeta):
         merged_ip_dict = deepcopy(self.ip_dict)
         if type(parser) is HWH:
             for k in merged_ip_dict.copy():
-                if k.startswith(hier):
+                if k == hier or k.startswith(hier + "/"):
                     merged_ip_dict.pop(k)
             for k, v in parser.ip_dict.items():
                 merged_ip_dict[v['fullpath']] = v
@@ -363,9 +405,12 @@ class Device(metaclass=DeviceMeta):
         dtbo_base_name = get_dtbo_base_name(abs_dtbo)
         if not hasattr(self, "devicetree_dict"):
             self.devicetree_dict = {}
-        self.devicetree_dict[dtbo_base_name] = DeviceTreeSegment(abs_dtbo)
+        self.devicetree_dict[dtbo_base_name] = self._devicetree_segment(abs_dtbo)
         self.devicetree_dict[dtbo_base_name].remove()
         self.devicetree_dict[dtbo_base_name].insert()
+
+    def _devicetree_segment(self, abs_dtbo):
+        return DeviceTreeSegment(abs_dtbo)
 
     def remove_device_tree(self, abs_dtbo):
         """Remove device tree segment for the overlay.
@@ -421,6 +466,12 @@ class Device(metaclass=DeviceMeta):
             )
             self.reset(parser, bitstream.timestamp, bitstream.bitfile_name)
 
+    def set_axi_port_width(self, parser):
+        """Set the PS AXI port widths required by the bitstream metadata
+
+        Architectures that need it override this method.
+
+        """
 
     def has_capability(self, cap):
         """Test if the device as a desired capability

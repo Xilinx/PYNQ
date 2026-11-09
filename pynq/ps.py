@@ -1,4 +1,5 @@
 #   Copyright (c) 2016-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import platform
@@ -405,16 +406,7 @@ class _ClocksMeta(type):
                 # If device is not set, default to active device
                 from pynq.pl_server.device import Device
                 cls.device = Device.active_device
-            if cls.device.arch == ZYNQ_ARCH:
-                cls._real_instance = _ClocksZynq(device=cls.device)
-            elif cls.device.arch == ZU_ARCH:
-                # Versal is also aarch64, but has no CRL_APB/CRF_APB.
-                if _is_versal(cls.device):
-                    cls._real_instance = _ClocksVersal(device=cls.device)
-                else:
-                    cls._real_instance = _ClocksUltrascale(device=cls.device)
-            else:
-                raise RuntimeError('Architecture not supported for Clocks')
+            cls._real_instance = cls.device._clocks_class(device=cls.device)
         return cls._real_instance
 
 
@@ -948,5 +940,8 @@ class Clocks(metaclass=_ClocksMeta):
         device : Device
 
         """
-        cls.device = device
+        if device is not cls.device:
+            cls.device = device
+            if hasattr(cls, '_real_instance'):
+                del cls._real_instance
 

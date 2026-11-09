@@ -7,6 +7,7 @@
 set -euo pipefail
 
 BOARD="${BOARD:?BOARD must be set}"
+export PYNQ_BOARDNAME="${BOARD}"
 BOARD_PATH="${BOARD_PATH:?BOARD_PATH must be set}"
 REMOTE_ROOTFS_OUT="${REMOTE_ROOTFS_OUT:?REMOTE_ROOTFS_OUT must be set}"
 # Per-board device tree, kernel config, and u-boot overlay, matching the boot build.

@@ -1,23 +1,27 @@
 import os
+import posixpath
 from pathlib import Path
 import pickle
+import re
 import datetime
 import warnings
 import numpy as np
 
 import pynq._3rdparty.tinynumpy as tnp
+from pynq.devicetree import SYSTEM_DEVICE_TREE_PATH, DeviceTreeSegment
 from pynqmetadata.views.runtime import RuntimeMetadataParser
 from pynqmetadata.frontends import Metadata
+from .arch import VersalArch, ZynqArch, ZynqUltrascaleArch, _arch_class
 from .device import Device
 from .embedded_device import (
     _unify_dictionaries, DEFAULT_XCLBIN, CacheMetadataError,
     BitstreamHandler, bit2bin,
-    ZU_FPD_SLCR_REG, ZU_FPD_SLCR_VALUE, ZU_AXIFM_REG, ZU_AXIFM_VALUE, 
 )
 from .global_state import (
     GlobalState,
     save_global_state, load_global_state,
     global_state_file_exists, clear_global_state,
+    _get_metadata_path,
     bitstream_hash
 )
 from pynq.remote import (
@@ -29,12 +33,12 @@ from pynq.remote import (
 
 import grpc
 
-from pynq.ps import _is_versal
-
 PYNQ_PORT = 7967
 BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
 BS_FPGA_MAN_FLAGS = "/sys/class/fpga_manager/fpga0/flags"
 FIRMWARE = "/lib/firmware/"
+BOOT_ID = "/proc/sys/kernel/random/boot_id"
+PL_MARKER = "/tmp/pynq_pl_state"
 
 class GrpcChannel:
     """gRPC Channel wrapper for remote device communication
@@ -66,8 +70,8 @@ class RemoteBitstreamHandler(BitstreamHandler):
     for remote PYNQ devices. Uses default XCLBIN data for remote operations.
     """
     
-    def __init__(self, filepath):
-        super().__init__(filepath)
+    def __init__(self, filepath, device_tag=""):
+        super().__init__(filepath, device_tag)
 
     def get_parser(self, partial:bool=False):
         """Returns a parser object for the remote bitstream
@@ -152,11 +156,11 @@ _bitstream_handlers = {
 }
 
 
-def _get_bitstream_handler(bitfile_name):
+def _get_bitstream_handler(bitfile_name, device_tag=""):
     filetype = Path(bitfile_name).suffix
     if filetype not in _bitstream_handlers:
         raise RuntimeError("Unknown file format")
-    return _bitstream_handlers[filetype](bitfile_name)
+    return _bitstream_handlers[filetype](bitfile_name, device_tag)
 
 class RemoteDevice(Device):
     """Device class for interacting with remote PYNQ devices via gRPC
@@ -168,9 +172,14 @@ class RemoteDevice(Device):
     The device supports multiple bitstream formats (.bit, .bin, .xsa) and
     handles metadata parsing, caching, and AXI port width configuration
     remotely.
+
+    Constructing `RemoteDevice` returns the subclass for the board's
+    architecture. Subclasses should inherit the matching class from
+    `pynq.pl_server.arch`.
     """
 
     _probe_priority_ = 100
+    _last_overlay_device = None
     
     @classmethod
     def _probe_(cls):
@@ -187,6 +196,7 @@ class RemoteDevice(Device):
         super().__init__(tag.format(index))
         self.ip_addr = ip_addr
         self.port = port
+        self._state_tag = re.sub(r"[^\w.-]", "_", f"{ip_addr}_{port}")
         self.client = GrpcChannel(self.ip_addr, self.port)
         self._stub = {
             'device': remote_device_pb2_grpc.RemoteDeviceStub(self.client.channel),
@@ -201,6 +211,26 @@ class RemoteDevice(Device):
         self.capabilities = {
             "REMOTE": True,
         }
+        arch = _arch_class(self)
+        if type(self) is RemoteDevice:
+            self.__class__ = {
+                ZynqArch: RemoteZynqDevice,
+                ZynqUltrascaleArch: RemoteZynqUltrascaleDevice,
+                VersalArch: RemoteVersalDevice,
+            }.get(arch, RemoteDevice)
+        elif arch is not None and not isinstance(self, arch):
+            warnings.warn(
+                f"{type(self).__name__} does not inherit {arch.__name__}, "
+                f"the architecture of {self.ip_addr}"
+            )
+
+    @property
+    def _gpio_class(self):
+        return RemoteGPIO
+
+    @property
+    def _interrupt_class(self):
+        return RemoteInterrupt
 
     def get_board_name(self):
         board_name_path = "/proc/device-tree/chosen/pynq_board"
@@ -232,7 +262,7 @@ class RemoteDevice(Device):
                 return "aarch64"
             return "armv7l"
         else:
-            raise RuntimeError(f"Unable to obtain architecture information for {self.addr}")  
+            raise RuntimeError(f"Unable to obtain architecture information for {self.ip_addr}")
 
     def exists_file(self, file_path):
         """Check if a file/directory exists on the remote device
@@ -304,73 +334,76 @@ class RemoteDevice(Device):
         response = self._stub['device'].writefile(iter(requests))
         return response 
 
+    def make_dir(self, dir_path):
+        """Create a directory, and any missing parents, on the remote device
+
+        Parameters
+        ----------
+        dir_path : str
+            The path to the directory on the remote device
+        """
+        try:
+            self._stub['device'].makedir(
+                remote_device_pb2.MakeDirRequest(dir_path=dir_path)
+            )
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.UNIMPLEMENTED:
+                raise RuntimeError(
+                    f"The PYNQ remote server on {self.ip_addr} cannot create "
+                    "directories; update the remote image"
+                ) from e
+            raise
+
+    def remove_dir(self, dir_path):
+        """Remove a directory from the remote device
+
+        Parameters
+        ----------
+        dir_path : str
+            The path to the directory on the remote device
+        """
+        self._stub['device'].removedir(
+            remote_device_pb2.RemoveDirRequest(dir_path=dir_path)
+        )
+
+    def _devicetree_segment(self, abs_dtbo):
+        return RemoteDeviceTreeSegment(abs_dtbo, self)
+
+    def set_bitfile_name(self, bitfile_name: str) -> None:
+        super().set_bitfile_name(bitfile_name)
+        RemoteDevice._last_overlay_device = self
+
     def get_bitfile_metadata(self, bitfile_name:str, partial:bool=False):
-        parser = _get_bitstream_handler(bitfile_name).get_parser(partial=partial)
+        if not partial:
+            self.initial_global_state_file_boot_check()
+        parser = _get_bitstream_handler(bitfile_name, self._state_tag).get_parser(partial=partial)
         if parser is None:
             raise RuntimeError("Unable to find metadata for bitstream")
         return parser
 
-    def set_axi_port_width(self, parser):
-        """Set the AXI port width on the remote device
-
-        This method configures AXI port widths to resolve discrepancies between 
-        PS configurations during boot and those required by the bitstream. 
-        It is usually required for full bitstream reconfiguration.
-
-        For remote execution, register operations are performed via gRPC calls.
-
-        Check https://www.xilinx.com/support/answers/66295.html for more
-        information on the meaning of register values.
-
-        Currently only Zynq UltraScale+ devices support data width changes.
-        """
-        from pynq.registers import Register
-        if not hasattr(parser, "ps_name"):
-            # Setting port widths not supported for xclbin-only designs
-            return
-        parameter_dict = parser.ip_dict[parser.ps_name]["parameters"]
-        if parser.family_ps == "zynq_ultra_ps_e":
-            for para in ZU_FPD_SLCR_REG:
-                if para in parameter_dict:
-                    width = parameter_dict[para]
-                    for reg_name in ZU_FPD_SLCR_REG[para]:
-                        addr = ZU_FPD_SLCR_REG[para][reg_name]["addr"]
-                        f = ZU_FPD_SLCR_REG[para][reg_name]["field"]
-                        Register(addr)[f[0] : f[1]] = ZU_FPD_SLCR_VALUE[width]
-
-            for para in ZU_AXIFM_REG:
-                if para in parameter_dict:
-                    width = parameter_dict[para]
-                    for reg_name in ZU_AXIFM_REG[para]:
-                        addr = ZU_AXIFM_REG[para][reg_name]["addr"]
-                        f = ZU_AXIFM_REG[para][reg_name]["field"]
-                        Register(addr)[f[0] : f[1]] = ZU_AXIFM_VALUE[width]
-
     def gen_cache(self, bitstream, parser=None):
         """ Generates the cache of the metadata even if no download occurred """
-        if not hasattr(parser, "_from_cache"):
-            t = datetime.datetime.now()
-            ts = "{}/{}/{} {}:{}:{} +{}".format(
-                t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond
-            )
-            
-            if os.path.exists(bitstream.bitfile_name):
-                gs=GlobalState(bitfile_name=str(bitstream.bitfile_name),
-                                 bitfile_hash=bitstream_hash(bitstream.bitfile_name),
-                                 timestamp=ts,
-                                 active_name=self.name,
-                                 psddr=parser.mem_dict.get("PSDDR", {}))
-                ip=parser.ip_dict
-                for sd_name, details in ip.items():
-                    if details["type"] in ["xilinx.com:ip:pr_axi_shutdown_manager:1.0",
-                                           "xilinx.com:ip:dfx_axi_shutdown_manager:1.0",]:
-                        gs.add(name=sd_name, addr=details["phys_addr"])
-                save_global_state(gs)
+        t = datetime.datetime.now()
+        ts = "{}/{}/{} {}:{}:{} +{}".format(
+            t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond
+        )
+        if os.path.exists(bitstream.bitfile_name):
+            gs=GlobalState(bitfile_name=str(bitstream.bitfile_name),
+                             bitfile_hash=bitstream_hash(bitstream.bitfile_name),
+                             timestamp=ts,
+                             active_name=self.name,
+                             psddr=parser.mem_dict.get("PSDDR", {}),
+                             boot_id=self._boot_id())
+            ip=parser.ip_dict
+            for sd_name, details in ip.items():
+                if details["type"] in ["xilinx.com:ip:pr_axi_shutdown_manager:1.0",
+                                       "xilinx.com:ip:dfx_axi_shutdown_manager:1.0",]:
+                    gs.add(name=sd_name, addr=details["phys_addr"])
+            save_global_state(gs, self._state_tag)
 
-            if hasattr(parser, "systemgraph"):
-                if not parser.systemgraph is None:
-                    STATE_DIR = os.path.dirname(__file__)
-                    pickle.dump(parser, open(f"{STATE_DIR}/_current_metadata.pkl", "wb"))
+        if not hasattr(parser, "_from_cache") and hasattr(parser, "systemgraph"):
+            if not parser.systemgraph is None:
+                pickle.dump(parser, open(_get_metadata_path(self._state_tag), "wb"))
 
     def mmap(self, address, length):
         """Create memory mapped I/O object for remote device
@@ -388,6 +421,10 @@ class RemoteDevice(Device):
             Memory mapped I/O object for remote access
         """
         return RemoteMMIO(self._stub['mmio'], address, length)
+
+    @property
+    def default_memory(self):
+        return self.get_memory(None)
 
     def get_memory(self, description):
         """Create a memory object for a memory in the overlay
@@ -426,7 +463,12 @@ class RemoteDevice(Device):
             
         if not bitstream.binfile_name:
             bitstream.binfile_name = Path(bitstream.bitfile_name).stem + ".bin"
-            
+
+        bin_data = getattr(parser, "bin_data", None)
+        if bin_data is None:
+            bin_data = _get_bitstream_handler(bitstream.bitfile_name).get_bin_data()
+        self.write_file(FIRMWARE + bitstream.binfile_name, bin_data)
+
         if not bitstream.partial:
             self.shutdown()
             self.gen_cache(bitstream, parser)
@@ -443,32 +485,41 @@ class RemoteDevice(Device):
         if not response:
             warnings.warn("Remote device failed to set bitstream attributes")
 
-        response = self.exists_file(FIRMWARE + bitstream.binfile_name)
-        if not response.exists:
-            self.write_file(FIRMWARE + bitstream.binfile_name, parser.bin_data)
-                
         self.write_file(BS_FPGA_MAN_FLAGS, flag.encode())
         self.write_file(BS_FPGA_MAN, bitstream.binfile_name.encode())
+        if not bitstream.partial:
+            token = ""
+            if global_state_file_exists(self._state_tag):
+                token = load_global_state(self._state_tag).timestamp
+            self.write_file(PL_MARKER, token.encode())
 
         self.set_axi_port_width(parser)
         super().post_download(bitstream, parser, self.name)
     
+    def _boot_id(self):
+        return self.read_file(BOOT_ID).decode("utf-8").strip()
+
+    def _pl_marker(self):
+        if self.exists_file(PL_MARKER).exists:
+            return self.read_file(PL_MARKER).decode("utf-8")
+        return None
+
     def initial_global_state_file_boot_check(self):
-        """Check and clear global state based on FPGA manager status
-        
-        Reads the FPGA manager state and flags from the remote device to
-        determine if global state should be cleared. Currently clears
-        global state by default for remote devices.
+        """Clear the global state unless it still describes the remote PL
+
+        The remote FPGA Manager always reports "operating", so the kernel
+        boot ID identifies a reboot, and a marker written after each full
+        download identifies a bitstream loaded by another client.
         """
-        pl_state_file:str = "/sys/class/fpga_manager/fpga0/state"
-        pl_flags_file:str = "/sys/class/fpga_manager/fpga0/flags"
-        state = self.read_file(pl_state_file, output_as_string=True).decode('utf-8').strip()
-        flags = self.read_file(pl_flags_file, output_as_string=True).decode('utf-8').strip()
-        # if (state[0:7] == "unknown") or flags[0:3] == "100":
-        #     clear_global_state()
-        # seeing issue where pynq.remote image state is always "operating"
-        # clearing global state by default for now
-        clear_global_state()
+        if global_state_file_exists(self._state_tag):
+            gs = load_global_state(self._state_tag)
+            rebooted = gs.boot_id != self._boot_id()
+            if rebooted:
+                from pynq.ps import Clocks
+                if Clocks.device is self and hasattr(Clocks, '_real_instance'):
+                    del Clocks._real_instance
+            if rebooted or self._pl_marker() != gs.timestamp:
+                clear_global_state(self._state_tag)
 
     def shutdown(self):
         """Shutdown the AXI connections to the PL remotely
@@ -479,8 +530,8 @@ class RemoteDevice(Device):
         """
         self.initial_global_state_file_boot_check()
 
-        if global_state_file_exists():
-            gs = load_global_state()
+        if global_state_file_exists(self._state_tag):
+            gs = load_global_state(self._state_tag)
             for sd_ip in gs.shutdown_ips.values():
                 mmio = self.mmap(sd_ip.base_addr, length=4)
                 # Request shutdown
@@ -536,7 +587,62 @@ class RemoteDevice(Device):
             buffer_id=buffer_id,
         )
         return ar
-            
+
+
+class RemoteZynqDevice(ZynqArch, RemoteDevice):
+    """Remote device for Zynq-7000 SoCs"""
+
+
+class RemoteZynqUltrascaleDevice(ZynqUltrascaleArch, RemoteDevice):
+    """Remote device for Zynq UltraScale+ MPSoCs and RFSoCs"""
+
+
+class RemoteVersalDevice(VersalArch, RemoteDevice):
+    """Remote device for Versal adaptive SoCs"""
+
+
+class RemoteDeviceTreeSegment(DeviceTreeSegment):
+    """Device tree segment applied to a remote device
+
+    Parameters
+    ----------
+    dtbo_path : str
+        The path to the dtbo file on this machine.
+    device : RemoteDevice
+        The remote device the segment is applied to.
+    """
+
+    def __init__(self, dtbo_path, device):
+        super().__init__(dtbo_path)
+        self.device = device
+        self.sysfs_dir = posixpath.join(SYSTEM_DEVICE_TREE_PATH, self.dtbo_name)
+
+    def is_dtbo_applied(self):
+        status = posixpath.join(self.sysfs_dir, "status")
+        if not self.device.exists_file(status).exists:
+            return False
+        return self.device.read_file(status) == b"applied\n"
+
+    def insert(self):
+        with open(self.dtbo_path, "rb") as f:
+            dtbo_data = f.read()
+        self.device.make_dir(self.sysfs_dir)
+        try:
+            path = posixpath.join(self.sysfs_dir, "dtbo")
+            self.device.write_file(path, dtbo_data)
+            if self.device.read_file(path) != dtbo_data or not self.is_dtbo_applied():
+                raise RuntimeError(
+                    "Failed to apply device-tree overlay {}.".format(self.dtbo_name)
+                )
+        except Exception:
+            self.remove()
+            getattr(self.device, "devicetree_dict", {}).pop(self.dtbo_name, None)
+            raise
+
+    def remove(self):
+        if self.device.exists_file(self.sysfs_dir).exists:
+            self.device.remove_dir(self.sysfs_dir)
+
 
 class RemoteMemory:
     """Remote Memory placeholder class
@@ -592,8 +698,6 @@ class RemoteGPIO:
         Input/output direction of the GPIO.
     """
 
-    _GPIO_MIN_USER_PIN = {'versal_gpio': 26, 'pmc_gpio': 52}
-    
     def __init__(self, gpio_index, direction, device=None):
         """Return a new RemoteGPIO object.
 
@@ -604,10 +708,11 @@ class RemoteGPIO:
         direction : 'str'
             Input/output direction of the GPIO.
         device : RemoteDevice
-            Device object for RemoteGPIO operations
+            Device object for RemoteGPIO operations. Defaults to
+            `Device.active_device`.
         """
         if device is None:
-            raise RuntimeError("RemoteGPIO requires a RemoteDevice instance")
+            device = Device.active_device
         self.device = device
         self.gpio_index = gpio_index
         self._direction = direction
@@ -617,6 +722,7 @@ class RemoteGPIO:
             gpio_pb2.GetGpioRequest(index=gpio_index, direction=direction)
         )
         self._gpio_id = response.gpio_id
+        self._exported = True
         
     def read(self):
         """The method to read a value from the GPIO.
@@ -670,6 +776,7 @@ class RemoteGPIO:
         response = self._stub.unexport(
             gpio_pb2.GpioUnexportRequest(gpio_id=self._gpio_id)
         )
+        self._exported = False
         
     def release(self):
         """The method to release the GPIO.
@@ -691,6 +798,8 @@ class RemoteGPIO:
             True if the GPIO is still loaded.
 
         """
+        if not self._exported:
+            return False
         response = self._stub.is_exported(
             gpio_pb2.GpioIsExportedRequest(gpio_id=self._gpio_id)
         )
@@ -730,7 +839,8 @@ class RemoteGPIO:
             The label of the GPIO driver to look for, as defined in a
             device tree entry.
         device : RemoteDevice
-            Remote device object for RemoteGPIO operations
+            Remote device object for RemoteGPIO operations. Defaults to
+            `Device.active_device`.
 
         Returns
         -------
@@ -739,8 +849,8 @@ class RemoteGPIO:
 
         """
         if device is None:
-            raise RuntimeError("get_gpio_base_path requires a RemoteDevice instance.")
-        if target_label is None and _is_versal(device):
+            device = Device.active_device
+        if target_label is None and isinstance(device, VersalArch):
             raise ValueError(
                 "target_label must be specified on Versal; use "
                 "'versal_gpio' or 'pmc_gpio'."
@@ -778,7 +888,8 @@ class RemoteGPIO:
             The label of the GPIO driver to look for, as defined in a
             device tree entry.
         device : RemoteDevice
-            Remote device object for RemoteGPIO operations
+            Remote device object for RemoteGPIO operations. Defaults to
+            `Device.active_device`.
 
         Returns
         -------
@@ -786,9 +897,6 @@ class RemoteGPIO:
             The GPIO index of the base.
 
         """
-        if device is None:
-            raise RuntimeError("get_gpio_base requires a RemoteDevice instance.")
-        
         base_path = RemoteGPIO.get_gpio_base_path(target_label=target_label, device=device)
         if base_path is not None:
             return int(''.join(x for x in base_path if x.isdigit()))
@@ -814,6 +922,9 @@ class RemoteGPIO:
         target_label : str
             The label of the GPIO driver to look for, as defined in a
             device tree entry.
+        device : RemoteDevice
+            Remote device object for RemoteGPIO operations. Defaults to
+            `Device.active_device`.
 
         Returns
         -------
@@ -822,22 +933,19 @@ class RemoteGPIO:
 
         """
         if device is None:
-            raise RuntimeError("get_gpio_pin requires a RemoteDevice instance.")
+            device = Device.active_device
         
-        if _is_versal(device):
-            if target_label not in RemoteGPIO._GPIO_MIN_USER_PIN:
+        if isinstance(device, VersalArch):
+            if target_label not in device._GPIO_MIN_USER_PIN:
                 raise ValueError(
                     "target_label must be specified on Versal; use "
                     "'versal_gpio' or 'pmc_gpio'."
                 )
-            GPIO_OFFSET = RemoteGPIO._GPIO_MIN_USER_PIN[target_label]
+            GPIO_OFFSET = device._GPIO_MIN_USER_PIN[target_label]
         elif target_label is not None:
             GPIO_OFFSET = 0
         else:
-            if device.arch == "aarch64":
-                GPIO_OFFSET = 78
-            else:
-                GPIO_OFFSET = 54
+            GPIO_OFFSET = device._GPIO_MIN_USER_PIN
         return (RemoteGPIO.get_gpio_base(target_label=target_label, device=device) +
                 GPIO_OFFSET +
                 gpio_user_index)
@@ -863,7 +971,8 @@ class RemoteGPIO:
             The label of the GPIO driver to look for, as defined in a
             device tree entry.
         device : RemoteDevice
-            Remote device object for RemoteGPIO operations
+            Remote device object for RemoteGPIO operations. Defaults to
+            `Device.active_device`.
 
         Returns
         -------
@@ -872,7 +981,7 @@ class RemoteGPIO:
 
         """
         if device is None:
-            raise RuntimeError("get_gpio_npins requires a RemoteDevice instance.")
+            device = Device.active_device
         
         stub = device._stub['gpio']
         response = stub.get_gpio_npins(
@@ -894,8 +1003,9 @@ class RemoteInterrupt:
         Full path to interrupt device
     """
     
-    def __init__(self, fullpath=None):
+    def __init__(self, fullpath=None, device=None):
         self.fullpath = fullpath
+        self.device = device if device is not None else Device.active_device
         warnings.warn(f"Interrupts are not yet implemented for remote devices")
         
     def wait(self, timeout=None):

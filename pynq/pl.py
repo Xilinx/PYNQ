@@ -1,5 +1,5 @@
-#   Copyright (c) 2016, Xilinx, Inc.
-#   Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc.
+#   Copyright (c) 2016-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -8,7 +8,6 @@ import warnings
 from copy import deepcopy
 from datetime import datetime
 from multiprocessing.connection import Client, Listener
-from pathlib import Path
 
 import numpy as np
 
@@ -19,6 +18,10 @@ from .pl_server.global_state import clear_global_state, load_global_state, globa
 from .pl_server.hwh_parser import HWH, get_hwh_name
 from .ps import CPU_ARCH, CPU_ARCH_IS_SUPPORTED, ZU_ARCH, ZYNQ_ARCH
 
+
+def _active_state_tag():
+    """State tag of the active device; empty if the active device is None."""
+    return getattr(Device.active_device, "_state_tag", "")
 
 
 class PLMeta(type):
@@ -52,8 +55,9 @@ class PLMeta(type):
             if not Device.active_device.bitfile_name is None:
                 return Device.active_device.bitfile_name
         
-        if global_state_file_exists():
-            gs = load_global_state()
+        tag = _active_state_tag()
+        if global_state_file_exists(tag):
+            gs = load_global_state(tag)
             return gs.bitfile_name
 
     @property
@@ -69,33 +73,15 @@ class PLMeta(type):
         if hasattr(Device.active_device, "timestamp"):
             return Device.active_device.timestamp
         
-        if global_state_file_exists():
-            gs = load_global_state()
+        tag = _active_state_tag()
+        if global_state_file_exists(tag):
+            gs = load_global_state(tag)
             return gs.timestamp
 
     @property
     def dict_views(cls):
-        """ 
-            Getter attribute for the `systemgraph`
-            First checks to see if the metadata file is where it is expected.
-            If it is, parses it, and create a runtime_views object for it 
-        """
-        if hasattr(cls, "_dict_views_cached"):
-            return cls._dict_view_cache
-        else:
-            import os
-            import pickle
-            metadata_state_file = Path(f"{os.path.dirname(__file__)}/pl_server/_current_metadata.pkl")
-            if os.path.isfile(metadata_state_file):
-                cls._dict_views_cached = True
-                try:
-                    cls._dict_view_cache = pickle.load(open(metadata_state_file, "rb"))
-                    return cls._dict_view_cache 
-                except:
-                    os.remove(metadata_state_file)
-                    return None
-            else:
-                return None
+        """Saved metadata dictionaries for the active device."""
+        return Device.active_device.dict_views
 
     @property
     def ip_dict(cls):
@@ -250,6 +236,7 @@ class PLMeta(type):
 
         """
         clear_global_state()
+        clear_global_state(_active_state_tag())
         if not cls.mem_dict is None:
             for i in cls.mem_dict.values():
                 i['state'] = None

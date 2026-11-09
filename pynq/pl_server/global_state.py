@@ -1,4 +1,5 @@
 # Copyright (C) 2022 Xilinx, Inc
+# Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 import json
@@ -36,6 +37,7 @@ class GlobalState(BaseModel):
     bitfile_hash : str = ""
     shutdown_ips: Dict[str, ShutdownIP] = {}
     psddr: Dict = {}
+    boot_id: str = ""
 
     def add(self, name: str, addr: int) -> None:
         """
@@ -62,6 +64,12 @@ def initial_global_state_file_boot_check(device_tag="")->None:
 def _get_state_path(device_tag=""):
     """Get the path to the state file for a specific device"""
     return Path(f"{STATE_DIR}/global_pl_state_{device_tag}.json") 
+
+def _get_metadata_path(device_tag=""):
+    """Get the path to the pickled metadata for a specific device"""
+    if not device_tag:
+        return Path(f"{STATE_DIR}/_current_metadata.pkl")
+    return Path(f"{STATE_DIR}/_current_metadata_{device_tag}.pkl")
 
 def global_state_file_exists(device_tag="") -> bool:
     """Returns true if the global_pl_state file is present in the system

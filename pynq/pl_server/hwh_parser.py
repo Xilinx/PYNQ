@@ -118,7 +118,7 @@ class _HWHABC(metaclass=abc.ABCMeta):
     """
 
     family_ps = ""
-    family_irq = ""
+    family_irq = {}
     family_gpio = ""
 
     def __init__(self, hwh_name=None, hwh_data=None):
