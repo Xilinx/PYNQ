@@ -112,6 +112,18 @@ def test_pynq_overlay(tmpdir, device, monkeypatch):
     assert bs.bitfile_name == os.path.join(overlay_path, BITSTREAM_FILE)
 
 
+def test_bitstream_handler_uses_requested_suffix_for_xsa(tmpdir):
+    from pynq.pl_server.embedded_device import BitstreamHandler
+
+    bit_path = os.path.join(tmpdir, BITSTREAM_FILE)
+    xsa_path = os.path.join(tmpdir, "testbitstream.xsa")
+    create_file(bit_path, BITSTREAM_DATA)
+    create_file(xsa_path, "An XSA file")
+
+    assert BitstreamHandler(bit_path).is_xsa() is False
+    assert BitstreamHandler(xsa_path).is_xsa() is True
+
+
 def test_missing_dtbo(tmpdir, device):
     create_file(os.path.join(tmpdir, BITSTREAM_FILE), BITSTREAM_DATA)
     with pytest.raises(IOError):

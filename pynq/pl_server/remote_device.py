@@ -103,7 +103,7 @@ class RemoteBitstreamHandler(BitstreamHandler):
                 try:
                     parser = self._get_cache() 
                 except CacheMetadataError:
-                    parser = RuntimeMetadataParser(Metadata(input=self._filepath.with_suffix(".hwh")))
+                    parser = RuntimeMetadataParser(Metadata(input=str(self._filepath.with_suffix(".hwh"))))
                 except:
                     raise RuntimeError(f"Unable to parse metadata")
 
@@ -113,7 +113,7 @@ class RemoteBitstreamHandler(BitstreamHandler):
             if not partial:
                 parser.refresh_hierarchy_dict()
         elif is_xsa:
-            parser = RuntimeMetadataParser(Metadata(input=self._filepath))
+            parser = RuntimeMetadataParser(Metadata(input=str(self._filepath)))
             xclbin_parser = XclBin(xclbin_data=xclbin_data)
             _unify_dictionaries(parser, xclbin_parser)
             parser.refresh_hierarchy_dict()

@@ -182,10 +182,7 @@ class BitstreamHandler:
 
     def is_xsa(self):
         """Returns true if this is an XSA file, false otherwise"""
-        xsa_file = self._filepath.with_suffix(".xsa")
-        if xsa_file.exists():
-            return True
-        return False
+        return self._filepath.suffix == ".xsa"
 
     def _cache_exists(self)->bool:
         """ Checks to see if this bitstream is already on the system and
@@ -253,7 +250,7 @@ class BitstreamHandler:
                 try:
                     parser = self._get_cache() 
                 except CacheMetadataError:
-                    parser = RuntimeMetadataParser(Metadata(input=self._filepath.with_suffix(".hwh")))
+                    parser = RuntimeMetadataParser(Metadata(input=str(self._filepath.with_suffix(".hwh"))))
                 except:
                     raise RuntimeError(f"Unable to parse metadata")
 
@@ -267,7 +264,7 @@ class BitstreamHandler:
         elif xclbin_data is not None:
             parser = XclBin(xclbin_data=xclbin_data)
         elif is_xsa:
-            parser = RuntimeMetadataParser(Metadata(input=self._filepath))
+            parser = RuntimeMetadataParser(Metadata(input=str(self._filepath)))
             if xclbin_data is None:
                 xclbin_data = _create_xclbin(parser.mem_dict)
             xclbin_parser = XclBin(xclbin_data=xclbin_data)
