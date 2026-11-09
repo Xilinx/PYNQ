@@ -1,4 +1,5 @@
-#   Copyright (c) 2019, Xilinx, Inc.
+#   Copyright (c) 2019-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 
@@ -12,7 +13,7 @@ long_description = (''.join(readme_lines))
 
 setup(
     name="xrfdc",
-    version='1.0',
+    version='2.0',
     description="Driver for the RFSoC RF Data Converter IP",
     long_description=long_description,
     long_description_content_type='text/markdown',

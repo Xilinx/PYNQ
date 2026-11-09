@@ -1,5 +1,6 @@
 /******************************************************************************
-* Copyright (C) 2021 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2021-2022 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -52,33 +53,80 @@ typedef struct {
 * ClkIntraTile Settings.
 */
 typedef struct {
+	u8 SourceType;
 	u8 SourceTile;
-	u8 PLLEnable;
-	XRFdc_PLL_Settings PLLSettings;
+	u32 PLLEnable;
+	double RefClkFreq;
+	double SampleRate;
 	u8 DivisionFactor;
-	u8 Delay;
 	u8 DistributedClock;
+	u8 Delay;
 } XRFdc_Tile_Clock_Settings;
-/**
-* Clk Distribution.
-*/
-typedef struct {
-	u8 Enabled;
-	u8 DistributionSource;
-	u8 UpperBound;
-	u8 LowerBound;
-	u8 MaxDelay;
-	u8 MinDelay;
-	u8 IsDelayBalanced;
-} XRFdc_Distribution;
 /**
 * Clk Distribution Settings.
 */
 typedef struct {
-	XRFdc_Tile_Clock_Settings DAC[4];
-	XRFdc_Tile_Clock_Settings ADC[4];
-	XRFdc_Distribution DistributionStatus[8];
+	u8 MaxDelay;
+	u8 MinDelay;
+	u8 IsDelayBalanced;
+	u8 Source;
+	u8 UpperBound;
+	u8 LowerBound;
+	XRFdc_Tile_Clock_Settings ClkSettings[2][4]; /*[Type][Tile] e.g. ClkSettings[XRFDC_ADC_TILE][1] for ADC1*/
+} XRFdc_Distribution_Info;
+
+typedef struct {
+	u32 SourceType;
+	u32 SourceTileId;
+	u32 EdgeTileIds[2];
+	u32 EdgeTypes[2];
+	double DistRefClkFreq;
+	u32 DistributedClock;
+	double SampleRates[2][4]; /*[Type][Tile] e.g. ClkSettings[XRFDC_ADC_TILE][1] for ADC1*/
+	u32 ShutdownMode;
+	XRFdc_Distribution_Info Info;
 } XRFdc_Distribution_Settings;
+typedef struct {
+	XRFdc_Distribution_Settings Distributions[8];
+} XRFdc_Distribution_System_Settings;
+
+/**
+ * MTS DTC Settings.
+ */
+typedef struct {
+	u32 RefTile;
+	u32 IsPLL;
+	int Target[4];
+	int Scan_Mode;
+	int DTC_Code[4];
+	int Num_Windows[4];
+	int Max_Gap[4];
+	int Min_Gap[4];
+	int Max_Overlap[4];
+} XRFdc_MTS_DTC_Settings;
+
+/**
+ * MTS Sync Settings.
+ */
+typedef struct {
+	u32 RefTile;
+	u32 Tiles;
+	int Target_Latency;
+	int Offset[4];
+	int Latency[4];
+	int Marker_Delay;
+	int SysRef_Enable;
+	XRFdc_MTS_DTC_Settings DTC_Set_PLL;
+	XRFdc_MTS_DTC_Settings DTC_Set_T1;
+} XRFdc_MultiConverter_Sync_Config;
+
+/**
+ * MTS Marker Struct.
+ */
+typedef struct {
+	u32 Count[4];
+	u32 Loc[4];
+} XRFdc_MTS_Marker;
 
 /**
  * ADC Signal Detect Settings.
@@ -88,12 +136,9 @@ typedef struct {
 	u8 TimeConstant;
 	u8 Flush;
 	u8 EnableIntegrator;
-	u16 HighThreshold;
-	u16 LowThreshold;
-	u16 HighThreshOnTriggerCnt; /* the number of times value must exceed HighThreshold before turning on*/
-	u16 HighThreshOffTriggerCnt; /* the number of times value must be less than HighThreshold before turning off*/
-	u16 LowThreshOnTriggerCnt; /* the number of times value must exceed LowThreshold before turning on*/
-	u16 LowThreshOffTriggerCnt; /* the number of times value must be less than LowThreshold before turning off*/
+	u16 Threshold;
+	u16 ThreshOnTriggerCnt; /* the number of times value must exceed Threshold before turning on*/
+	u16 ThreshOffTriggerCnt; /* the number of times value must be less than Threshold before turning off*/
 	u8 HysteresisEnable;
 } XRFdc_Signal_Detector_Settings;
 /**
@@ -234,6 +279,7 @@ typedef struct {
 	u32 FifoEnable;
 	u32 AdderEnable;
 	u32 MixerType;
+	double NCOFreq;
 } XRFdc_DACBlock_DigitalDataPath_Config;
 
 /**
@@ -253,6 +299,7 @@ typedef struct {
 	u32 DecimationMode;
 	u32 FifoEnable;
 	u32 MixerType;
+	double NCOFreq;
 } XRFdc_ADCBlock_DigitalDataPath_Config;
 
 /**
@@ -270,6 +317,7 @@ typedef struct {
 	u32 MultibandConfig;
 	double MaxSampleRate;
 	u32 NumSlices;
+	u32 LinkCoupling;
 	XRFdc_DACBlock_AnalogDataPath_Config DACBlock_Analog_Config[4];
 	XRFdc_DACBlock_DigitalDataPath_Config DACBlock_Digital_Config[4];
 } XRFdc_DACTile_Config;
@@ -423,6 +471,8 @@ u32 XRFdc_CfgInitialize(XRFdc *InstancePtr, XRFdc_Config *ConfigPtr);
 u32 XRFdc_StartUp(XRFdc *InstancePtr, u32 Type, int Tile_Id);
 u32 XRFdc_Shutdown(XRFdc *InstancePtr, u32 Type, int Tile_Id);
 u32 XRFdc_Reset(XRFdc *InstancePtr, u32 Type, int Tile_Id);
+u32 XRFdc_CustomStartUp(XRFdc *InstancePtr, u32 Type, int Tile_Id, u32 StartState, u32 EndState);
+u32 XRFdc_WaitForState(XRFdc *InstancePtr, u32 Type, u32 Tile, u32 State);
 u32 XRFdc_GetIPStatus(XRFdc *InstancePtr, XRFdc_IPStatus *IPStatusPtr);
 u32 XRFdc_GetBlockStatus(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id, XRFdc_BlockStatus *BlockStatusPtr);
 u32 XRFdc_SetMixerSettings(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id,
@@ -490,12 +540,13 @@ u32 XRFdc_DynamicPLLConfig(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u8 Source,
 			   double SamplingRate);
 u32 XRFdc_SetInvSincFIR(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id, u16 Mode);
 u32 XRFdc_GetInvSincFIR(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id, u16 *ModePtr);
+u32 XRFdc_GetCoupling(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id, u32 *ModePtr);
 u32 XRFdc_GetLinkCoupling(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id, u32 *ModePtr);
 u32 XRFdc_GetFabClkOutDiv(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u16 *FabClkDivPtr);
 u32 XRFdc_SetDither(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id, u32 Mode);
 u32 XRFdc_GetDither(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id, u32 *ModePtr);
 u32 XRFdc_SetClkDistribution(XRFdc *InstancePtr, XRFdc_Distribution_Settings *DistributionSettingsPtr);
-u32 XRFdc_GetClkDistribution(XRFdc *InstancePtr, XRFdc_Distribution_Settings *DistributionSettingsPtr);
+u32 XRFdc_GetClkDistribution(XRFdc *InstancePtr, XRFdc_Distribution_System_Settings *DistributionArrayPtr);
 u32 XRFdc_SetDataPathMode(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id, u32 Mode);
 u32 XRFdc_GetDataPathMode(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id, u32 *ModePtr);
 u32 XRFdc_SetIMRPassMode(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id, u32 Mode);
@@ -518,3 +569,42 @@ u32 XRFdc_SetPwrMode(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id, XR
 u32 XRFdc_GetPwrMode(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id, XRFdc_Pwr_Mode_Settings *SettingsPtr);
 u32 XRFdc_ResetInternalFIFOWidth(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
 u32 XRFdc_ResetInternalFIFOWidthObs(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id);
+void XRFdc_ClrSetReg(XRFdc *InstancePtr, u32 BaseAddr, u32 RegAddr, u16 Mask, u16 Data);
+void XRFdc_ClrReg(XRFdc *InstancePtr, u32 BaseAddr, u32 RegAddr, u16 Mask);
+u16 XRFdc_RDReg(XRFdc *InstancePtr, u32 BaseAddr, u32 RegAddr, u16 Mask);
+u32 XRFdc_IsHighSpeedADC(XRFdc *InstancePtr, u32 Tile);
+u32 XRFdc_IsDACBlockEnabled(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_IsADCBlockEnabled(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_IsDACDigitalPathEnabled(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_IsADCDigitalPathEnabled(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_CheckDigitalPathEnabled(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_Get_IPBaseAddr(XRFdc *InstancePtr);
+u32 XRFdc_Get_TileBaseAddr(XRFdc *InstancePtr, u32 Type, u32 Tile_Id);
+u32 XRFdc_Get_BlockBaseAddr(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_GetNoOfDACBlock(XRFdc *InstancePtr, u32 Tile_Id);
+u32 XRFdc_GetNoOfADCBlocks(XRFdc *InstancePtr, u32 Tile_Id);
+u32 XRFdc_GetDataType(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_GetDataWidth(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_GetInverseSincFilter(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_GetMixedMode(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_GetMasterTile(XRFdc *InstancePtr, u32 Type);
+u32 XRFdc_GetSysRefSource(XRFdc *InstancePtr, u32 Type);
+double XRFdc_GetFabClkFreq(XRFdc *InstancePtr, u32 Type, u32 Tile_Id);
+u32 XRFdc_IsFifoEnabled(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+void XRFdc_SetConnectedIQData(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id, int ConnectedIData,
+			      int ConnectedQData);
+u32 XRFdc_GetMultibandConfig(XRFdc *InstancePtr, u32 Type, u32 Tile_Id);
+u32 XRFdc_CheckBlockEnabled(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+u32 XRFdc_CheckTileEnabled(XRFdc *InstancePtr, u32 Type, u32 Tile_Id);
+u32 XRFdc_GetMaxSampleRate(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, double *MaxSampleRatePtr);
+u32 XRFdc_GetMinSampleRate(XRFdc *InstancePtr, u32 Type, u32 Tile_Id, double *MinSampleRatePtr);
+double XRFdc_GetDriverVersion(void);
+u32 XRFdc_MultiConverter_Sync(XRFdc *InstancePtr, u32 Type, XRFdc_MultiConverter_Sync_Config *ConfigPtr);
+u32 XRFdc_MultiConverter_Init(XRFdc_MultiConverter_Sync_Config *ConfigPtr, int *PLL_CodesPtr, int *T1_CodesPtr,
+			      u32 RefTile);
+u32 XRFdc_MTS_Sysref_Config(XRFdc *InstancePtr, XRFdc_MultiConverter_Sync_Config *DACSyncConfigPtr,
+			    XRFdc_MultiConverter_Sync_Config *ADCSyncConfigPtr, u32 SysRefEnable);
+u32 XRFdc_GetMTSEnable(XRFdc *InstancePtr, u32 Type, u32 Tile, u32 *EnablePtr);
+u32 XRFdc_SetDACDataScaler(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id, u32 Enable);
+u32 XRFdc_GetDACDataScaler(XRFdc *InstancePtr, u32 Tile_Id, u32 Block_Id, u32 *EnablePtr);
+u8 XRFdc_GetTileLayout(XRFdc *InstancePtr);

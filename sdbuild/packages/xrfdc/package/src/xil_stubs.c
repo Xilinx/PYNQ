@@ -1,4 +1,5 @@
-// Copyright (C) 2021 Xilinx, Inc
+// Copyright (C) 2021-2022 Xilinx, Inc
+// Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include <stdio.h>
@@ -18,3 +19,8 @@ void Xil_Assert(const char* file, int line) {
 	printf("Assertion failed at %s:%d\n", file, line);
 	exit(1);
 }
+
+unsigned char XGetCoreId(void) { return 0; }
+unsigned int Xil_IsSpinLockEnabled(void) { return 0; }
+unsigned int Xil_SpinLock(void) { return 0; }
+unsigned int Xil_SpinUnlock(void) { return 0; }

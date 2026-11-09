@@ -98,6 +98,54 @@ service Xrfdc {
 
       rpc GetClkDistribution(GetClkDistributionRequest) returns (GetClkDistributionResponse);
       rpc SetClkDistribution(SetClkDistributionRequest) returns (TileControlResponse);
+
+      rpc GetCoupling(BlockRequest) returns (ValueResponse);
+      rpc GetLinkCoupling(BlockRequest) returns (ValueResponse);
+      rpc GetSignalDetector(BlockRequest) returns (GetSignalDetectorResponse);
+      rpc SetSignalDetector(SetSignalDetectorRequest) returns (TileControlResponse);
+      rpc GetDACDataScaler(BlockRequest) returns (ValueResponse);
+      rpc SetDACDataScaler(BlockValueRequest) returns (TileControlResponse);
+      rpc GetConnectedIQData(BlockRequest) returns (GetConnectedIQDataResponse);
+      rpc SetConnectedIQData(SetConnectedIQDataRequest) returns (TileControlResponse);
+      rpc GetDataType(BlockRequest) returns (ValueResponse);
+      rpc GetDataWidth(BlockRequest) returns (ValueResponse);
+      rpc IsFifoEnabled(BlockRequest) returns (ValueResponse);
+      rpc CheckBlockEnabled(BlockRequest) returns (ValueResponse);
+      rpc CheckDigitalPathEnabled(BlockRequest) returns (ValueResponse);
+      rpc Get_BlockBaseAddr(BlockRequest) returns (ValueResponse);
+      rpc IsDACBlockEnabled(BlockRequest) returns (ValueResponse);
+      rpc IsDACDigitalPathEnabled(BlockRequest) returns (ValueResponse);
+      rpc GetInverseSincFilter(BlockRequest) returns (ValueResponse);
+      rpc GetMixedMode(BlockRequest) returns (ValueResponse);
+      rpc IsADCBlockEnabled(BlockRequest) returns (ValueResponse);
+      rpc IsADCDigitalPathEnabled(BlockRequest) returns (ValueResponse);
+
+      rpc CustomStartUp(CustomStartUpRequest) returns (TileControlResponse);
+      rpc WaitForState(WaitForStateRequest) returns (TileControlResponse);
+      rpc MultiBand(MultiBandRequest) returns (TileControlResponse);
+      rpc GetFabClkFreq(TileRequest) returns (DoubleResponse);
+      rpc GetMultibandConfig(TileRequest) returns (ValueResponse);
+      rpc CheckTileEnabled(TileRequest) returns (ValueResponse);
+      rpc Get_TileBaseAddr(TileRequest) returns (ValueResponse);
+      rpc GetNoOfDACBlock(TileRequest) returns (ValueResponse);
+      rpc GetNoOfADCBlocks(TileRequest) returns (ValueResponse);
+      rpc IsHighSpeedADC(TileRequest) returns (ValueResponse);
+      rpc GetMTSEnable(TileRequest) returns (ValueResponse);
+      rpc GetMaxSampleRate(TileRequest) returns (DoubleResponse);
+      rpc GetMinSampleRate(TileRequest) returns (DoubleResponse);
+
+      rpc GetDriverVersion(RFdcRequest) returns (DoubleResponse);
+      rpc GetTileLayout(RFdcRequest) returns (ValueResponse);
+      rpc Get_IPBaseAddr(RFdcRequest) returns (ValueResponse);
+      rpc GetMasterTile(TileTypeRequest) returns (ValueResponse);
+      rpc GetSysRefSource(TileTypeRequest) returns (ValueResponse);
+      rpc RDReg(RegRequest) returns (ValueResponse);
+      rpc ClrSetReg(RegRequest) returns (TileControlResponse);
+      rpc ClrReg(RegRequest) returns (TileControlResponse);
+
+      rpc MultiConverter_Init(MultiConverterInitRequest) returns (MultiConverterSyncResponse);
+      rpc MultiConverter_Sync(MultiConverterSyncRequest) returns (MultiConverterSyncResponse);
+      rpc MTS_Sysref_Config(MTSSysrefConfigRequest) returns (TileControlResponse);
 }
 
 message Status {
@@ -149,6 +197,7 @@ message DACBlockDigitalDataPathConfig {
     uint32 fifo_enable = 4;
     uint32 adder_enable = 5;
     uint32 mixer_type = 6;
+    double nco_freq = 7;
 }
 
 message ADCBlockAnalogDataPathConfig {
@@ -162,6 +211,7 @@ message ADCBlockDigitalDataPathConfig {
     uint32 decimation_mode = 3;
     uint32 fifo_enable = 4;
     uint32 mixer_type = 5;
+    double nco_freq = 6;
 }
 
 message DACTileConfig {
@@ -178,6 +228,7 @@ message DACTileConfig {
     uint32 num_slices = 11;
     repeated DACBlockAnalogDataPathConfig dac_block_analog_config = 12; // 4 blocks
     repeated DACBlockDigitalDataPathConfig dac_block_digital_config = 13; // 4 blocks
+    uint32 link_coupling = 14;
 }
 
 message ADCTileConfig {
@@ -704,6 +755,7 @@ message Distribution {
     uint32 max_delay = 4;
     uint32 min_delay = 5;
     uint32 is_delay_balanced = 6;
+    repeated TileClockSettings clk_settings = 7; // [type][tile], 2x4
 }
 
 message TileClockSettings {
@@ -718,16 +770,158 @@ message TileClockSettings {
 }
 
 message ClkDistributionSettings {
-    repeated TileClockSettings dac = 1;
-    repeated TileClockSettings adc = 2;
+    reserved 1, 2;
     Distribution distribution_info = 3;
+    uint32 source_type = 4;
+    uint32 source_tile_id = 5;
+    repeated uint32 edge_tile_ids = 6; // 2
+    repeated uint32 edge_types = 7; // 2
+    double dist_ref_clk_freq = 8;
+    uint32 distributed_clock = 9;
+    repeated double sample_rates = 10; // [type][tile], 2x4
+    uint32 shutdown_mode = 11;
 }
 
 message GetClkDistributionResponse {
     Status status = 1;
-    ClkDistributionSettings settings = 2;
+    reserved 2;
+    repeated ClkDistributionSettings distributions = 3; // 8
 }
 
 message SetClkDistributionRequest {
     ClkDistributionSettings settings = 1;
+}
+
+message ValueResponse {
+    Status status = 1;
+    uint32 value = 2;
+}
+
+message DoubleResponse {
+    Status status = 1;
+    double value = 2;
+}
+
+message BlockValueRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+    uint32 value = 4;
+}
+
+message RFdcRequest {
+}
+
+message TileTypeRequest {
+    uint32 tile_type = 1;
+}
+
+message SignalDetectorSettings {
+    uint32 mode = 1;
+    uint32 time_constant = 2;
+    uint32 flush = 3;
+    uint32 enable_integrator = 4;
+    uint32 threshold = 5;
+    uint32 thresh_on_trigger_cnt = 6;
+    uint32 thresh_off_trigger_cnt = 7;
+    uint32 hysteresis_enable = 8;
+}
+
+message GetSignalDetectorResponse {
+    Status status = 1;
+    SignalDetectorSettings settings = 2;
+}
+
+message SetSignalDetectorRequest {
+    uint32 tile_id = 1;
+    uint32 block_id = 2;
+    SignalDetectorSettings settings = 3;
+}
+
+message GetConnectedIQDataResponse {
+    Status status = 1;
+    int32 connected_i_data = 2;
+    int32 connected_q_data = 3;
+}
+
+message SetConnectedIQDataRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 block_id = 3;
+    int32 connected_i_data = 4;
+    int32 connected_q_data = 5;
+}
+
+message CustomStartUpRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 start_state = 3;
+    uint32 end_state = 4;
+}
+
+message WaitForStateRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 state = 3;
+}
+
+message MultiBandRequest {
+    uint32 tile_type = 1;
+    uint32 tile_id = 2;
+    uint32 digital_data_path_mask = 3;
+    uint32 mixer_in_out_data_type = 4;
+    uint32 data_converter_mask = 5;
+}
+
+message RegRequest {
+    uint32 base_addr = 1;
+    uint32 reg_addr = 2;
+    uint32 mask = 3;
+    uint32 data = 4;
+}
+
+message MTSDTCSettings {
+    uint32 ref_tile = 1;
+    uint32 is_pll = 2;
+    repeated int32 target = 3; // 4
+    int32 scan_mode = 4;
+    repeated int32 dtc_code = 5; // 4
+    repeated int32 num_windows = 6; // 4
+    repeated int32 max_gap = 7; // 4
+    repeated int32 min_gap = 8; // 4
+    repeated int32 max_overlap = 9; // 4
+}
+
+message MultiConverterSyncConfig {
+    uint32 ref_tile = 1;
+    uint32 tiles = 2;
+    int32 target_latency = 3;
+    repeated int32 offset = 4; // 4
+    repeated int32 latency = 5; // 4
+    int32 marker_delay = 6;
+    int32 sys_ref_enable = 7;
+    MTSDTCSettings dtc_set_pll = 8;
+    MTSDTCSettings dtc_set_t1 = 9;
+}
+
+message MultiConverterInitRequest {
+    uint32 ref_tile = 1;
+    repeated int32 pll_codes = 2; // 4, or empty
+    repeated int32 t1_codes = 3; // 4, or empty
+}
+
+message MultiConverterSyncRequest {
+    uint32 tile_type = 1;
+    MultiConverterSyncConfig config = 2;
+}
+
+message MultiConverterSyncResponse {
+    Status status = 1;
+    MultiConverterSyncConfig config = 2;
+}
+
+message MTSSysrefConfigRequest {
+    MultiConverterSyncConfig dac_sync_config = 1;
+    MultiConverterSyncConfig adc_sync_config = 2;
+    uint32 sys_ref_enable = 3;
 }

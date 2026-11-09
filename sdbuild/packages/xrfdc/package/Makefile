@@ -1,11 +1,12 @@
-# Copyright (C) 2021 Xilinx, Inc
+# Copyright (C) 2021-2022 Xilinx, Inc
+# Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 EMBEDDEDSW_DIR ?= embeddedsw
 PACKAGE := xrfdc
 ESW_LIBS := rfdc scugic
 LIBRARY := lib$(PACKAGE).so
-ESW_VERSION  := xilinx-v2020.2
+ESW_VERSION  := xilinx_v2025.2
 LIB_METAL_DIR := $(EMBEDDEDSW_DIR)/ThirdParty/sw_services/libmetal/src/libmetal
 LIB_METAL_INC := $(LIB_METAL_DIR)/build-libmetal/lib/include
 ESW_SRC := $(filter-out %_g.c, $(foreach lib, $(ESW_LIBS), $(wildcard $(EMBEDDEDSW_DIR)/XilinxProcessorIPLib/drivers/$(lib)/src/*.c)))

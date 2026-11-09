@@ -114,8 +114,52 @@ public:
     typedef u32 (*XRFdc_SetupFIFOObs_t)(XRFdc* InstancePtr, u32 Type, int Tile_Id, u8 Enable);
     typedef u32 (*XRFdc_SetupFIFOBoth_t)(XRFdc* InstancePtr, u32 Type, int Tile_Id, u8 Enable);
     typedef u32 (*XRFdc_GetFIFOStatusObs_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u8* EnablePtr);
-    typedef u32 (*XRFdc_GetClkDistribution_t)(XRFdc* InstancePtr, XRFdc_Distribution_Settings* DistributionSettingsPtr);
+    typedef u32 (*XRFdc_GetClkDistribution_t)(XRFdc* InstancePtr, XRFdc_Distribution_System_Settings* DistributionArrayPtr);
     typedef u32 (*XRFdc_SetClkDistribution_t)(XRFdc* InstancePtr, XRFdc_Distribution_Settings* DistributionSettingsPtr);
+    typedef u32 (*XRFdc_GetCoupling_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id, u32* ModePtr);
+    typedef u32 (*XRFdc_GetLinkCoupling_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id, u32* ModePtr);
+    typedef u32 (*XRFdc_GetSignalDetector_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id, XRFdc_Signal_Detector_Settings* SettingsPtr);
+    typedef u32 (*XRFdc_SetSignalDetector_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id, XRFdc_Signal_Detector_Settings* SettingsPtr);
+    typedef u32 (*XRFdc_GetDACDataScaler_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id, u32* EnablePtr);
+    typedef u32 (*XRFdc_SetDACDataScaler_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id, u32 Enable);
+    typedef u32 (*XRFdc_GetConnectedIQData_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id, int* ConnectedIData, int* ConnectedQData);
+    typedef void (*XRFdc_SetConnectedIQData_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id, int ConnectedIData, int ConnectedQData);
+    typedef u32 (*XRFdc_GetDataType_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_GetDataWidth_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_IsFifoEnabled_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_CheckBlockEnabled_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_CheckDigitalPathEnabled_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_Get_BlockBaseAddr_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_IsDACBlockEnabled_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_IsDACDigitalPathEnabled_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_GetInverseSincFilter_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_GetMixedMode_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_IsADCBlockEnabled_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_IsADCDigitalPathEnabled_t)(XRFdc* InstancePtr, u32 Tile_Id, u32 Block_Id);
+    typedef u32 (*XRFdc_CustomStartUp_t)(XRFdc* InstancePtr, u32 Type, int Tile_Id, u32 StartState, u32 EndState);
+    typedef u32 (*XRFdc_WaitForState_t)(XRFdc* InstancePtr, u32 Type, u32 Tile, u32 State);
+    typedef u32 (*XRFdc_MultiBand_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, u8 DigitalDataPathMask, u32 MixerInOutDataType, u32 DataConverterMask);
+    typedef double (*XRFdc_GetFabClkFreq_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id);
+    typedef u32 (*XRFdc_GetMultibandConfig_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id);
+    typedef u32 (*XRFdc_CheckTileEnabled_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id);
+    typedef u32 (*XRFdc_Get_TileBaseAddr_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id);
+    typedef u32 (*XRFdc_GetNoOfDACBlock_t)(XRFdc* InstancePtr, u32 Tile_Id);
+    typedef u32 (*XRFdc_GetNoOfADCBlocks_t)(XRFdc* InstancePtr, u32 Tile_Id);
+    typedef u32 (*XRFdc_IsHighSpeedADC_t)(XRFdc* InstancePtr, u32 Tile);
+    typedef u32 (*XRFdc_GetMTSEnable_t)(XRFdc* InstancePtr, u32 Type, u32 Tile, u32* EnablePtr);
+    typedef u32 (*XRFdc_GetMaxSampleRate_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, double* MaxSampleRatePtr);
+    typedef u32 (*XRFdc_GetMinSampleRate_t)(XRFdc* InstancePtr, u32 Type, u32 Tile_Id, double* MinSampleRatePtr);
+    typedef double (*XRFdc_GetDriverVersion_t)(void);
+    typedef u8 (*XRFdc_GetTileLayout_t)(XRFdc* InstancePtr);
+    typedef u32 (*XRFdc_Get_IPBaseAddr_t)(XRFdc* InstancePtr);
+    typedef u32 (*XRFdc_GetMasterTile_t)(XRFdc* InstancePtr, u32 Type);
+    typedef u32 (*XRFdc_GetSysRefSource_t)(XRFdc* InstancePtr, u32 Type);
+    typedef u16 (*XRFdc_RDReg_t)(XRFdc* InstancePtr, u32 BaseAddr, u32 RegAddr, u16 Mask);
+    typedef void (*XRFdc_ClrSetReg_t)(XRFdc* InstancePtr, u32 BaseAddr, u32 RegAddr, u16 Mask, u16 Data);
+    typedef void (*XRFdc_ClrReg_t)(XRFdc* InstancePtr, u32 BaseAddr, u32 RegAddr, u16 Mask);
+    typedef u32 (*XRFdc_MultiConverter_Init_t)(XRFdc_MultiConverter_Sync_Config* ConfigPtr, int* PLL_CodesPtr, int* T1_CodesPtr, u32 RefTile);
+    typedef u32 (*XRFdc_MultiConverter_Sync_t)(XRFdc* InstancePtr, u32 Type, XRFdc_MultiConverter_Sync_Config* ConfigPtr);
+    typedef u32 (*XRFdc_MTS_Sysref_Config_t)(XRFdc* InstancePtr, XRFdc_MultiConverter_Sync_Config* DACSyncConfigPtr, XRFdc_MultiConverter_Sync_Config* ADCSyncConfigPtr, u32 SysRefEnable);
 
     XRFdc_LookupConfig_t XRFdc_LookupConfig;
     XRFdc_CfgInitialize_t XRFdc_CfgInitialize;
@@ -195,6 +239,50 @@ public:
     XRFdc_GetFIFOStatusObs_t XRFdc_GetFIFOStatusObs;
     XRFdc_GetClkDistribution_t XRFdc_GetClkDistribution;
     XRFdc_SetClkDistribution_t XRFdc_SetClkDistribution;
+    XRFdc_GetCoupling_t XRFdc_GetCoupling;
+    XRFdc_GetLinkCoupling_t XRFdc_GetLinkCoupling;
+    XRFdc_GetSignalDetector_t XRFdc_GetSignalDetector;
+    XRFdc_SetSignalDetector_t XRFdc_SetSignalDetector;
+    XRFdc_GetDACDataScaler_t XRFdc_GetDACDataScaler;
+    XRFdc_SetDACDataScaler_t XRFdc_SetDACDataScaler;
+    XRFdc_GetConnectedIQData_t XRFdc_GetConnectedIQData;
+    XRFdc_SetConnectedIQData_t XRFdc_SetConnectedIQData;
+    XRFdc_GetDataType_t XRFdc_GetDataType;
+    XRFdc_GetDataWidth_t XRFdc_GetDataWidth;
+    XRFdc_IsFifoEnabled_t XRFdc_IsFifoEnabled;
+    XRFdc_CheckBlockEnabled_t XRFdc_CheckBlockEnabled;
+    XRFdc_CheckDigitalPathEnabled_t XRFdc_CheckDigitalPathEnabled;
+    XRFdc_Get_BlockBaseAddr_t XRFdc_Get_BlockBaseAddr;
+    XRFdc_IsDACBlockEnabled_t XRFdc_IsDACBlockEnabled;
+    XRFdc_IsDACDigitalPathEnabled_t XRFdc_IsDACDigitalPathEnabled;
+    XRFdc_GetInverseSincFilter_t XRFdc_GetInverseSincFilter;
+    XRFdc_GetMixedMode_t XRFdc_GetMixedMode;
+    XRFdc_IsADCBlockEnabled_t XRFdc_IsADCBlockEnabled;
+    XRFdc_IsADCDigitalPathEnabled_t XRFdc_IsADCDigitalPathEnabled;
+    XRFdc_CustomStartUp_t XRFdc_CustomStartUp;
+    XRFdc_WaitForState_t XRFdc_WaitForState;
+    XRFdc_MultiBand_t XRFdc_MultiBand;
+    XRFdc_GetFabClkFreq_t XRFdc_GetFabClkFreq;
+    XRFdc_GetMultibandConfig_t XRFdc_GetMultibandConfig;
+    XRFdc_CheckTileEnabled_t XRFdc_CheckTileEnabled;
+    XRFdc_Get_TileBaseAddr_t XRFdc_Get_TileBaseAddr;
+    XRFdc_GetNoOfDACBlock_t XRFdc_GetNoOfDACBlock;
+    XRFdc_GetNoOfADCBlocks_t XRFdc_GetNoOfADCBlocks;
+    XRFdc_IsHighSpeedADC_t XRFdc_IsHighSpeedADC;
+    XRFdc_GetMTSEnable_t XRFdc_GetMTSEnable;
+    XRFdc_GetMaxSampleRate_t XRFdc_GetMaxSampleRate;
+    XRFdc_GetMinSampleRate_t XRFdc_GetMinSampleRate;
+    XRFdc_GetDriverVersion_t XRFdc_GetDriverVersion;
+    XRFdc_GetTileLayout_t XRFdc_GetTileLayout;
+    XRFdc_Get_IPBaseAddr_t XRFdc_Get_IPBaseAddr;
+    XRFdc_GetMasterTile_t XRFdc_GetMasterTile;
+    XRFdc_GetSysRefSource_t XRFdc_GetSysRefSource;
+    XRFdc_RDReg_t XRFdc_RDReg;
+    XRFdc_ClrSetReg_t XRFdc_ClrSetReg;
+    XRFdc_ClrReg_t XRFdc_ClrReg;
+    XRFdc_MultiConverter_Init_t XRFdc_MultiConverter_Init;
+    XRFdc_MultiConverter_Sync_t XRFdc_MultiConverter_Sync;
+    XRFdc_MTS_Sysref_Config_t XRFdc_MTS_Sysref_Config;
 };
 
 // ============================================================================
@@ -447,7 +535,7 @@ public:
     u32 ResetInternalFIFOWidthObs(u32 tile_type, u32 tile_id, u32 block_id);
     u32 SetCalCoefficients(u32 tile_id, u32 block_id, u32 calibration_block, const XRFdc_Calibration_Coefficients* coeffs);
     u32 GetCalCoefficients(u32 tile_id, u32 block_id, u32 calibration_block, XRFdc_Calibration_Coefficients* coeffs);
-    u32 GetClkDistribution(XRFdc_Distribution_Settings* settings);
+    u32 GetClkDistribution(XRFdc_Distribution_System_Settings* settings);
     u32 SetClkDistribution(const XRFdc_Distribution_Settings* settings);
 
     /**
@@ -458,6 +546,15 @@ public:
      * Does not unload librfdc.so.
      */
     void Invalidate();
+
+    const libxrfdcManager& lib() const { return lib_manager_; }
+    size_t mapped_size() const { return mapped_size_; }
+
+    template <typename Fn, typename... Args>
+    auto Call(const char* name, Fn fn, Args... args) -> decltype(fn(nullptr, args...)) {
+        if (!rfdc_inst_ || !fn) throw std::runtime_error(std::string(name) + " not available");
+        return fn(rfdc_inst_, args...);
+    }
 };
 
 class XrfdcImpl final : public xrfdc::Xrfdc::Service
@@ -466,6 +563,26 @@ private:
     std::unique_ptr<::XrfdcRemote> rfdc_remote_;
     bool initialized_;
     std::mutex mu_;
+
+    template <typename Response, typename Fn>
+    grpc::Status Run(const char* operation, Response* response, Fn fn) {
+        std::lock_guard<std::mutex> lk(mu_);
+        if (!initialized_) {
+            auto* status = response->mutable_status();
+            status->set_code(1);
+            status->set_message("RFDC not initialized. Call CfgInitialize first.");
+            return grpc::Status(grpc::StatusCode::FAILED_PRECONDITION, "RFDC not initialized");
+        }
+        try {
+            fn();
+            return grpc::Status::OK;
+        } catch (const std::exception& e) {
+            auto* status = response->mutable_status();
+            status->set_code(1);
+            status->set_message(std::string(operation) + " failed: " + e.what());
+            return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+        }
+    }
 
 public:
     XrfdcImpl();
@@ -558,6 +675,50 @@ public:
     grpc::Status GetCalCoefficients(grpc::ServerContext* context, const xrfdc::GetCalCoefficientsRequest* request, xrfdc::GetCalCoefficientsResponse* response) override;
     grpc::Status GetClkDistribution(grpc::ServerContext* context, const xrfdc::GetClkDistributionRequest* request, xrfdc::GetClkDistributionResponse* response) override;
     grpc::Status SetClkDistribution(grpc::ServerContext* context, const xrfdc::SetClkDistributionRequest* request, xrfdc::TileControlResponse* response) override;
+    grpc::Status GetCoupling(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetLinkCoupling(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetSignalDetector(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::GetSignalDetectorResponse* response) override;
+    grpc::Status SetSignalDetector(grpc::ServerContext* context, const xrfdc::SetSignalDetectorRequest* request, xrfdc::TileControlResponse* response) override;
+    grpc::Status GetDACDataScaler(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status SetDACDataScaler(grpc::ServerContext* context, const xrfdc::BlockValueRequest* request, xrfdc::TileControlResponse* response) override;
+    grpc::Status GetConnectedIQData(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::GetConnectedIQDataResponse* response) override;
+    grpc::Status SetConnectedIQData(grpc::ServerContext* context, const xrfdc::SetConnectedIQDataRequest* request, xrfdc::TileControlResponse* response) override;
+    grpc::Status GetDataType(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetDataWidth(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status IsFifoEnabled(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status CheckBlockEnabled(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status CheckDigitalPathEnabled(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status Get_BlockBaseAddr(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status IsDACBlockEnabled(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status IsDACDigitalPathEnabled(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetInverseSincFilter(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetMixedMode(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status IsADCBlockEnabled(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status IsADCDigitalPathEnabled(grpc::ServerContext* context, const xrfdc::BlockRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status CustomStartUp(grpc::ServerContext* context, const xrfdc::CustomStartUpRequest* request, xrfdc::TileControlResponse* response) override;
+    grpc::Status WaitForState(grpc::ServerContext* context, const xrfdc::WaitForStateRequest* request, xrfdc::TileControlResponse* response) override;
+    grpc::Status MultiBand(grpc::ServerContext* context, const xrfdc::MultiBandRequest* request, xrfdc::TileControlResponse* response) override;
+    grpc::Status GetFabClkFreq(grpc::ServerContext* context, const xrfdc::TileRequest* request, xrfdc::DoubleResponse* response) override;
+    grpc::Status GetMultibandConfig(grpc::ServerContext* context, const xrfdc::TileRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status CheckTileEnabled(grpc::ServerContext* context, const xrfdc::TileRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status Get_TileBaseAddr(grpc::ServerContext* context, const xrfdc::TileRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetNoOfDACBlock(grpc::ServerContext* context, const xrfdc::TileRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetNoOfADCBlocks(grpc::ServerContext* context, const xrfdc::TileRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status IsHighSpeedADC(grpc::ServerContext* context, const xrfdc::TileRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetMTSEnable(grpc::ServerContext* context, const xrfdc::TileRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetMaxSampleRate(grpc::ServerContext* context, const xrfdc::TileRequest* request, xrfdc::DoubleResponse* response) override;
+    grpc::Status GetMinSampleRate(grpc::ServerContext* context, const xrfdc::TileRequest* request, xrfdc::DoubleResponse* response) override;
+    grpc::Status GetDriverVersion(grpc::ServerContext* context, const xrfdc::RFdcRequest* request, xrfdc::DoubleResponse* response) override;
+    grpc::Status GetTileLayout(grpc::ServerContext* context, const xrfdc::RFdcRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status Get_IPBaseAddr(grpc::ServerContext* context, const xrfdc::RFdcRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetMasterTile(grpc::ServerContext* context, const xrfdc::TileTypeRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status GetSysRefSource(grpc::ServerContext* context, const xrfdc::TileTypeRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status RDReg(grpc::ServerContext* context, const xrfdc::RegRequest* request, xrfdc::ValueResponse* response) override;
+    grpc::Status ClrSetReg(grpc::ServerContext* context, const xrfdc::RegRequest* request, xrfdc::TileControlResponse* response) override;
+    grpc::Status ClrReg(grpc::ServerContext* context, const xrfdc::RegRequest* request, xrfdc::TileControlResponse* response) override;
+    grpc::Status MultiConverter_Init(grpc::ServerContext* context, const xrfdc::MultiConverterInitRequest* request, xrfdc::MultiConverterSyncResponse* response) override;
+    grpc::Status MultiConverter_Sync(grpc::ServerContext* context, const xrfdc::MultiConverterSyncRequest* request, xrfdc::MultiConverterSyncResponse* response) override;
+    grpc::Status MTS_Sysref_Config(grpc::ServerContext* context, const xrfdc::MTSSysrefConfigRequest* request, xrfdc::TileControlResponse* response) override;
 };
 
 #endif // XRFDC_H

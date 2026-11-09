@@ -424,6 +424,226 @@ class XrfdcStub(object):
                 request_serializer=xrfdc__pb2.SetClkDistributionRequest.SerializeToString,
                 response_deserializer=xrfdc__pb2.TileControlResponse.FromString,
                 _registered_method=True)
+        self.GetCoupling = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetCoupling',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetLinkCoupling = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetLinkCoupling',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetSignalDetector = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetSignalDetector',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.GetSignalDetectorResponse.FromString,
+                _registered_method=True)
+        self.SetSignalDetector = channel.unary_unary(
+                '/xrfdc.Xrfdc/SetSignalDetector',
+                request_serializer=xrfdc__pb2.SetSignalDetectorRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.TileControlResponse.FromString,
+                _registered_method=True)
+        self.GetDACDataScaler = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetDACDataScaler',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.SetDACDataScaler = channel.unary_unary(
+                '/xrfdc.Xrfdc/SetDACDataScaler',
+                request_serializer=xrfdc__pb2.BlockValueRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.TileControlResponse.FromString,
+                _registered_method=True)
+        self.GetConnectedIQData = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetConnectedIQData',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.GetConnectedIQDataResponse.FromString,
+                _registered_method=True)
+        self.SetConnectedIQData = channel.unary_unary(
+                '/xrfdc.Xrfdc/SetConnectedIQData',
+                request_serializer=xrfdc__pb2.SetConnectedIQDataRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.TileControlResponse.FromString,
+                _registered_method=True)
+        self.GetDataType = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetDataType',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetDataWidth = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetDataWidth',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.IsFifoEnabled = channel.unary_unary(
+                '/xrfdc.Xrfdc/IsFifoEnabled',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.CheckBlockEnabled = channel.unary_unary(
+                '/xrfdc.Xrfdc/CheckBlockEnabled',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.CheckDigitalPathEnabled = channel.unary_unary(
+                '/xrfdc.Xrfdc/CheckDigitalPathEnabled',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.Get_BlockBaseAddr = channel.unary_unary(
+                '/xrfdc.Xrfdc/Get_BlockBaseAddr',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.IsDACBlockEnabled = channel.unary_unary(
+                '/xrfdc.Xrfdc/IsDACBlockEnabled',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.IsDACDigitalPathEnabled = channel.unary_unary(
+                '/xrfdc.Xrfdc/IsDACDigitalPathEnabled',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetInverseSincFilter = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetInverseSincFilter',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetMixedMode = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetMixedMode',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.IsADCBlockEnabled = channel.unary_unary(
+                '/xrfdc.Xrfdc/IsADCBlockEnabled',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.IsADCDigitalPathEnabled = channel.unary_unary(
+                '/xrfdc.Xrfdc/IsADCDigitalPathEnabled',
+                request_serializer=xrfdc__pb2.BlockRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.CustomStartUp = channel.unary_unary(
+                '/xrfdc.Xrfdc/CustomStartUp',
+                request_serializer=xrfdc__pb2.CustomStartUpRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.TileControlResponse.FromString,
+                _registered_method=True)
+        self.WaitForState = channel.unary_unary(
+                '/xrfdc.Xrfdc/WaitForState',
+                request_serializer=xrfdc__pb2.WaitForStateRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.TileControlResponse.FromString,
+                _registered_method=True)
+        self.MultiBand = channel.unary_unary(
+                '/xrfdc.Xrfdc/MultiBand',
+                request_serializer=xrfdc__pb2.MultiBandRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.TileControlResponse.FromString,
+                _registered_method=True)
+        self.GetFabClkFreq = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetFabClkFreq',
+                request_serializer=xrfdc__pb2.TileRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.DoubleResponse.FromString,
+                _registered_method=True)
+        self.GetMultibandConfig = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetMultibandConfig',
+                request_serializer=xrfdc__pb2.TileRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.CheckTileEnabled = channel.unary_unary(
+                '/xrfdc.Xrfdc/CheckTileEnabled',
+                request_serializer=xrfdc__pb2.TileRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.Get_TileBaseAddr = channel.unary_unary(
+                '/xrfdc.Xrfdc/Get_TileBaseAddr',
+                request_serializer=xrfdc__pb2.TileRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetNoOfDACBlock = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetNoOfDACBlock',
+                request_serializer=xrfdc__pb2.TileRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetNoOfADCBlocks = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetNoOfADCBlocks',
+                request_serializer=xrfdc__pb2.TileRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.IsHighSpeedADC = channel.unary_unary(
+                '/xrfdc.Xrfdc/IsHighSpeedADC',
+                request_serializer=xrfdc__pb2.TileRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetMTSEnable = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetMTSEnable',
+                request_serializer=xrfdc__pb2.TileRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetMaxSampleRate = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetMaxSampleRate',
+                request_serializer=xrfdc__pb2.TileRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.DoubleResponse.FromString,
+                _registered_method=True)
+        self.GetMinSampleRate = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetMinSampleRate',
+                request_serializer=xrfdc__pb2.TileRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.DoubleResponse.FromString,
+                _registered_method=True)
+        self.GetDriverVersion = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetDriverVersion',
+                request_serializer=xrfdc__pb2.RFdcRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.DoubleResponse.FromString,
+                _registered_method=True)
+        self.GetTileLayout = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetTileLayout',
+                request_serializer=xrfdc__pb2.RFdcRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.Get_IPBaseAddr = channel.unary_unary(
+                '/xrfdc.Xrfdc/Get_IPBaseAddr',
+                request_serializer=xrfdc__pb2.RFdcRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetMasterTile = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetMasterTile',
+                request_serializer=xrfdc__pb2.TileTypeRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.GetSysRefSource = channel.unary_unary(
+                '/xrfdc.Xrfdc/GetSysRefSource',
+                request_serializer=xrfdc__pb2.TileTypeRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.RDReg = channel.unary_unary(
+                '/xrfdc.Xrfdc/RDReg',
+                request_serializer=xrfdc__pb2.RegRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.ValueResponse.FromString,
+                _registered_method=True)
+        self.ClrSetReg = channel.unary_unary(
+                '/xrfdc.Xrfdc/ClrSetReg',
+                request_serializer=xrfdc__pb2.RegRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.TileControlResponse.FromString,
+                _registered_method=True)
+        self.ClrReg = channel.unary_unary(
+                '/xrfdc.Xrfdc/ClrReg',
+                request_serializer=xrfdc__pb2.RegRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.TileControlResponse.FromString,
+                _registered_method=True)
+        self.MultiConverter_Init = channel.unary_unary(
+                '/xrfdc.Xrfdc/MultiConverter_Init',
+                request_serializer=xrfdc__pb2.MultiConverterInitRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.MultiConverterSyncResponse.FromString,
+                _registered_method=True)
+        self.MultiConverter_Sync = channel.unary_unary(
+                '/xrfdc.Xrfdc/MultiConverter_Sync',
+                request_serializer=xrfdc__pb2.MultiConverterSyncRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.MultiConverterSyncResponse.FromString,
+                _registered_method=True)
+        self.MTS_Sysref_Config = channel.unary_unary(
+                '/xrfdc.Xrfdc/MTS_Sysref_Config',
+                request_serializer=xrfdc__pb2.MTSSysrefConfigRequest.SerializeToString,
+                response_deserializer=xrfdc__pb2.TileControlResponse.FromString,
+                _registered_method=True)
 
 
 class XrfdcServicer(object):
@@ -891,6 +1111,270 @@ class XrfdcServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetCoupling(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetLinkCoupling(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetSignalDetector(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetSignalDetector(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetDACDataScaler(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetDACDataScaler(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetConnectedIQData(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetConnectedIQData(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetDataType(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetDataWidth(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def IsFifoEnabled(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CheckBlockEnabled(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CheckDigitalPathEnabled(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Get_BlockBaseAddr(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def IsDACBlockEnabled(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def IsDACDigitalPathEnabled(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetInverseSincFilter(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMixedMode(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def IsADCBlockEnabled(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def IsADCDigitalPathEnabled(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CustomStartUp(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def WaitForState(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MultiBand(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetFabClkFreq(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMultibandConfig(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CheckTileEnabled(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Get_TileBaseAddr(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetNoOfDACBlock(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetNoOfADCBlocks(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def IsHighSpeedADC(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMTSEnable(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMaxSampleRate(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMinSampleRate(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetDriverVersion(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetTileLayout(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Get_IPBaseAddr(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMasterTile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetSysRefSource(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RDReg(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ClrSetReg(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ClrReg(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MultiConverter_Init(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MultiConverter_Sync(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MTS_Sysref_Config(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_XrfdcServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -1277,6 +1761,226 @@ def add_XrfdcServicer_to_server(servicer, server):
             'SetClkDistribution': grpc.unary_unary_rpc_method_handler(
                     servicer.SetClkDistribution,
                     request_deserializer=xrfdc__pb2.SetClkDistributionRequest.FromString,
+                    response_serializer=xrfdc__pb2.TileControlResponse.SerializeToString,
+            ),
+            'GetCoupling': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetCoupling,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetLinkCoupling': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetLinkCoupling,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetSignalDetector': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetSignalDetector,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.GetSignalDetectorResponse.SerializeToString,
+            ),
+            'SetSignalDetector': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetSignalDetector,
+                    request_deserializer=xrfdc__pb2.SetSignalDetectorRequest.FromString,
+                    response_serializer=xrfdc__pb2.TileControlResponse.SerializeToString,
+            ),
+            'GetDACDataScaler': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetDACDataScaler,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'SetDACDataScaler': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetDACDataScaler,
+                    request_deserializer=xrfdc__pb2.BlockValueRequest.FromString,
+                    response_serializer=xrfdc__pb2.TileControlResponse.SerializeToString,
+            ),
+            'GetConnectedIQData': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetConnectedIQData,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.GetConnectedIQDataResponse.SerializeToString,
+            ),
+            'SetConnectedIQData': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetConnectedIQData,
+                    request_deserializer=xrfdc__pb2.SetConnectedIQDataRequest.FromString,
+                    response_serializer=xrfdc__pb2.TileControlResponse.SerializeToString,
+            ),
+            'GetDataType': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetDataType,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetDataWidth': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetDataWidth,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'IsFifoEnabled': grpc.unary_unary_rpc_method_handler(
+                    servicer.IsFifoEnabled,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'CheckBlockEnabled': grpc.unary_unary_rpc_method_handler(
+                    servicer.CheckBlockEnabled,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'CheckDigitalPathEnabled': grpc.unary_unary_rpc_method_handler(
+                    servicer.CheckDigitalPathEnabled,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'Get_BlockBaseAddr': grpc.unary_unary_rpc_method_handler(
+                    servicer.Get_BlockBaseAddr,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'IsDACBlockEnabled': grpc.unary_unary_rpc_method_handler(
+                    servicer.IsDACBlockEnabled,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'IsDACDigitalPathEnabled': grpc.unary_unary_rpc_method_handler(
+                    servicer.IsDACDigitalPathEnabled,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetInverseSincFilter': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetInverseSincFilter,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetMixedMode': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMixedMode,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'IsADCBlockEnabled': grpc.unary_unary_rpc_method_handler(
+                    servicer.IsADCBlockEnabled,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'IsADCDigitalPathEnabled': grpc.unary_unary_rpc_method_handler(
+                    servicer.IsADCDigitalPathEnabled,
+                    request_deserializer=xrfdc__pb2.BlockRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'CustomStartUp': grpc.unary_unary_rpc_method_handler(
+                    servicer.CustomStartUp,
+                    request_deserializer=xrfdc__pb2.CustomStartUpRequest.FromString,
+                    response_serializer=xrfdc__pb2.TileControlResponse.SerializeToString,
+            ),
+            'WaitForState': grpc.unary_unary_rpc_method_handler(
+                    servicer.WaitForState,
+                    request_deserializer=xrfdc__pb2.WaitForStateRequest.FromString,
+                    response_serializer=xrfdc__pb2.TileControlResponse.SerializeToString,
+            ),
+            'MultiBand': grpc.unary_unary_rpc_method_handler(
+                    servicer.MultiBand,
+                    request_deserializer=xrfdc__pb2.MultiBandRequest.FromString,
+                    response_serializer=xrfdc__pb2.TileControlResponse.SerializeToString,
+            ),
+            'GetFabClkFreq': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetFabClkFreq,
+                    request_deserializer=xrfdc__pb2.TileRequest.FromString,
+                    response_serializer=xrfdc__pb2.DoubleResponse.SerializeToString,
+            ),
+            'GetMultibandConfig': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMultibandConfig,
+                    request_deserializer=xrfdc__pb2.TileRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'CheckTileEnabled': grpc.unary_unary_rpc_method_handler(
+                    servicer.CheckTileEnabled,
+                    request_deserializer=xrfdc__pb2.TileRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'Get_TileBaseAddr': grpc.unary_unary_rpc_method_handler(
+                    servicer.Get_TileBaseAddr,
+                    request_deserializer=xrfdc__pb2.TileRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetNoOfDACBlock': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNoOfDACBlock,
+                    request_deserializer=xrfdc__pb2.TileRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetNoOfADCBlocks': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNoOfADCBlocks,
+                    request_deserializer=xrfdc__pb2.TileRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'IsHighSpeedADC': grpc.unary_unary_rpc_method_handler(
+                    servicer.IsHighSpeedADC,
+                    request_deserializer=xrfdc__pb2.TileRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetMTSEnable': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMTSEnable,
+                    request_deserializer=xrfdc__pb2.TileRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetMaxSampleRate': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMaxSampleRate,
+                    request_deserializer=xrfdc__pb2.TileRequest.FromString,
+                    response_serializer=xrfdc__pb2.DoubleResponse.SerializeToString,
+            ),
+            'GetMinSampleRate': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMinSampleRate,
+                    request_deserializer=xrfdc__pb2.TileRequest.FromString,
+                    response_serializer=xrfdc__pb2.DoubleResponse.SerializeToString,
+            ),
+            'GetDriverVersion': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetDriverVersion,
+                    request_deserializer=xrfdc__pb2.RFdcRequest.FromString,
+                    response_serializer=xrfdc__pb2.DoubleResponse.SerializeToString,
+            ),
+            'GetTileLayout': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetTileLayout,
+                    request_deserializer=xrfdc__pb2.RFdcRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'Get_IPBaseAddr': grpc.unary_unary_rpc_method_handler(
+                    servicer.Get_IPBaseAddr,
+                    request_deserializer=xrfdc__pb2.RFdcRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetMasterTile': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMasterTile,
+                    request_deserializer=xrfdc__pb2.TileTypeRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'GetSysRefSource': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetSysRefSource,
+                    request_deserializer=xrfdc__pb2.TileTypeRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'RDReg': grpc.unary_unary_rpc_method_handler(
+                    servicer.RDReg,
+                    request_deserializer=xrfdc__pb2.RegRequest.FromString,
+                    response_serializer=xrfdc__pb2.ValueResponse.SerializeToString,
+            ),
+            'ClrSetReg': grpc.unary_unary_rpc_method_handler(
+                    servicer.ClrSetReg,
+                    request_deserializer=xrfdc__pb2.RegRequest.FromString,
+                    response_serializer=xrfdc__pb2.TileControlResponse.SerializeToString,
+            ),
+            'ClrReg': grpc.unary_unary_rpc_method_handler(
+                    servicer.ClrReg,
+                    request_deserializer=xrfdc__pb2.RegRequest.FromString,
+                    response_serializer=xrfdc__pb2.TileControlResponse.SerializeToString,
+            ),
+            'MultiConverter_Init': grpc.unary_unary_rpc_method_handler(
+                    servicer.MultiConverter_Init,
+                    request_deserializer=xrfdc__pb2.MultiConverterInitRequest.FromString,
+                    response_serializer=xrfdc__pb2.MultiConverterSyncResponse.SerializeToString,
+            ),
+            'MultiConverter_Sync': grpc.unary_unary_rpc_method_handler(
+                    servicer.MultiConverter_Sync,
+                    request_deserializer=xrfdc__pb2.MultiConverterSyncRequest.FromString,
+                    response_serializer=xrfdc__pb2.MultiConverterSyncResponse.SerializeToString,
+            ),
+            'MTS_Sysref_Config': grpc.unary_unary_rpc_method_handler(
+                    servicer.MTS_Sysref_Config,
+                    request_deserializer=xrfdc__pb2.MTSSysrefConfigRequest.FromString,
                     response_serializer=xrfdc__pb2.TileControlResponse.SerializeToString,
             ),
     }
@@ -3358,6 +4062,1194 @@ class Xrfdc(object):
             target,
             '/xrfdc.Xrfdc/SetClkDistribution',
             xrfdc__pb2.SetClkDistributionRequest.SerializeToString,
+            xrfdc__pb2.TileControlResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetCoupling(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetCoupling',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetLinkCoupling(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetLinkCoupling',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetSignalDetector(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetSignalDetector',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.GetSignalDetectorResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SetSignalDetector(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/SetSignalDetector',
+            xrfdc__pb2.SetSignalDetectorRequest.SerializeToString,
+            xrfdc__pb2.TileControlResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetDACDataScaler(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetDACDataScaler',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SetDACDataScaler(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/SetDACDataScaler',
+            xrfdc__pb2.BlockValueRequest.SerializeToString,
+            xrfdc__pb2.TileControlResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetConnectedIQData(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetConnectedIQData',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.GetConnectedIQDataResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SetConnectedIQData(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/SetConnectedIQData',
+            xrfdc__pb2.SetConnectedIQDataRequest.SerializeToString,
+            xrfdc__pb2.TileControlResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetDataType(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetDataType',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetDataWidth(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetDataWidth',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def IsFifoEnabled(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/IsFifoEnabled',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CheckBlockEnabled(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/CheckBlockEnabled',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CheckDigitalPathEnabled(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/CheckDigitalPathEnabled',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Get_BlockBaseAddr(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/Get_BlockBaseAddr',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def IsDACBlockEnabled(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/IsDACBlockEnabled',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def IsDACDigitalPathEnabled(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/IsDACDigitalPathEnabled',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetInverseSincFilter(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetInverseSincFilter',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMixedMode(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetMixedMode',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def IsADCBlockEnabled(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/IsADCBlockEnabled',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def IsADCDigitalPathEnabled(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/IsADCDigitalPathEnabled',
+            xrfdc__pb2.BlockRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CustomStartUp(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/CustomStartUp',
+            xrfdc__pb2.CustomStartUpRequest.SerializeToString,
+            xrfdc__pb2.TileControlResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def WaitForState(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/WaitForState',
+            xrfdc__pb2.WaitForStateRequest.SerializeToString,
+            xrfdc__pb2.TileControlResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MultiBand(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/MultiBand',
+            xrfdc__pb2.MultiBandRequest.SerializeToString,
+            xrfdc__pb2.TileControlResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetFabClkFreq(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetFabClkFreq',
+            xrfdc__pb2.TileRequest.SerializeToString,
+            xrfdc__pb2.DoubleResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMultibandConfig(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetMultibandConfig',
+            xrfdc__pb2.TileRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CheckTileEnabled(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/CheckTileEnabled',
+            xrfdc__pb2.TileRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Get_TileBaseAddr(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/Get_TileBaseAddr',
+            xrfdc__pb2.TileRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetNoOfDACBlock(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetNoOfDACBlock',
+            xrfdc__pb2.TileRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetNoOfADCBlocks(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetNoOfADCBlocks',
+            xrfdc__pb2.TileRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def IsHighSpeedADC(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/IsHighSpeedADC',
+            xrfdc__pb2.TileRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMTSEnable(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetMTSEnable',
+            xrfdc__pb2.TileRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMaxSampleRate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetMaxSampleRate',
+            xrfdc__pb2.TileRequest.SerializeToString,
+            xrfdc__pb2.DoubleResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMinSampleRate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetMinSampleRate',
+            xrfdc__pb2.TileRequest.SerializeToString,
+            xrfdc__pb2.DoubleResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetDriverVersion(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetDriverVersion',
+            xrfdc__pb2.RFdcRequest.SerializeToString,
+            xrfdc__pb2.DoubleResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetTileLayout(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetTileLayout',
+            xrfdc__pb2.RFdcRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Get_IPBaseAddr(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/Get_IPBaseAddr',
+            xrfdc__pb2.RFdcRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMasterTile(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetMasterTile',
+            xrfdc__pb2.TileTypeRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetSysRefSource(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/GetSysRefSource',
+            xrfdc__pb2.TileTypeRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RDReg(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/RDReg',
+            xrfdc__pb2.RegRequest.SerializeToString,
+            xrfdc__pb2.ValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ClrSetReg(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/ClrSetReg',
+            xrfdc__pb2.RegRequest.SerializeToString,
+            xrfdc__pb2.TileControlResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ClrReg(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/ClrReg',
+            xrfdc__pb2.RegRequest.SerializeToString,
+            xrfdc__pb2.TileControlResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MultiConverter_Init(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/MultiConverter_Init',
+            xrfdc__pb2.MultiConverterInitRequest.SerializeToString,
+            xrfdc__pb2.MultiConverterSyncResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MultiConverter_Sync(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/MultiConverter_Sync',
+            xrfdc__pb2.MultiConverterSyncRequest.SerializeToString,
+            xrfdc__pb2.MultiConverterSyncResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MTS_Sysref_Config(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/xrfdc.Xrfdc/MTS_Sysref_Config',
+            xrfdc__pb2.MTSSysrefConfigRequest.SerializeToString,
             xrfdc__pb2.TileControlResponse.FromString,
             options,
             channel_credentials,

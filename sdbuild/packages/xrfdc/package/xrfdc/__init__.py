@@ -1,4 +1,5 @@
-#   Copyright (c) 2018, Xilinx, Inc.
+#   Copyright (c) 2018-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 
@@ -26,11 +27,13 @@ _lib = _ffi.dlopen(os.path.join(_THIS_DIR, 'libxrfdc.so'))
 # function in the library and the return code and throws an exception if either
 # fails.
 
-def _safe_wrapper(name, *args, **kwargs):
+def _safe_wrapper(name, *args, check=True):
     with pipes() as (c1, c2):
         if not hasattr(_lib, name):
             raise RuntimeError(f"Function {name} not in library")
-        ret = getattr(_lib, name)(*args, **kwargs)
+        ret = getattr(_lib, name)(*args)
+    if not check:
+        return ret
     if ret:
         message = f"Function {name} call failed"
         stdout = c1.read()
@@ -57,7 +60,8 @@ _block_props = [
     ("CoarseDelaySettings", "XRFdc_CoarseDelay_Settings", False                     ),
     ("NyquistZone"        , "u32"                       , False                     ),
     ("EnabledInterrupts"  , "u32"                       , True                      ),
-    ("PwrMode"            , "XRFdc_Pwr_Mode_Settings"   , False                     )
+    ("PwrMode"            , "XRFdc_Pwr_Mode_Settings"   , False                     ),
+    ("Coupling"           , "u32"                       , True                      )
 ]
 
 _adc_props = [
@@ -70,19 +74,22 @@ _adc_props = [
     ("FabWrVldWordsObs"   , "u32"                       , True , False, False, False),
     ("Dither"             , "u32"                       , False, False, True , True ),
     ("CalFreeze"          , "XRFdc_Cal_Freeze_Settings" , False, False, True , True ),
-    ("DSA"                , "XRFdc_DSA_Settings"        , False, False, True , True )
+    ("DSA"                , "XRFdc_DSA_Settings"        , False, False, True , True ),
+    ("SignalDetector"     , "XRFdc_Signal_Detector_Settings", False, False, True , True ),
+    ("LinkCoupling"       , "u32"                       , True , False, True , True )
 ]
 
 _dac_props = [
     ("InterpolationFactor", "u32"                       , False, False, True , True ),
     ("DecoderMode"        , "u32"                       , False, False, True , True ),
-    ("OutputCurr"         , "int"                       , True , False, True , True ),
+    ("OutputCurr"         , "u32"                       , True , False, True , True ),
     ("InvSincFIR"         , "u16"                       , False, False, True , True ),
     ("FabRdVldWords"      , "u32"                       , True , False, False, False),
     ("FabWrVldWords"      , "u32"                       , False, False, False, True ),
     ("DataPathMode"       , "u32"                       , False, False, True , True ),
     ("IMRPassMode"        , "u32"                       , False, False, True , True ),
-    ("DACCompMode"        , "u32"                       , False, False, True , True )
+    ("DACCompMode"        , "u32"                       , False, False, True , True ),
+    ("DACDataScaler"      , "u32"                       , False, False, True , True )
 ]
 
 _tile_props = [
@@ -90,12 +97,15 @@ _tile_props = [
     ("FIFOStatus"         , "u8"                        , True                      ),
     ("ClockSource"        , "u32"                       , True                      ),
     ("PLLLockStatus"      , "u32"                       , True                      ),
-    ("PLLConfig"          , "XRFdc_PLL_Settings"        , True                      )
+    ("PLLConfig"          , "XRFdc_PLL_Settings"        , True                      ),
+    ("MTSEnable"          , "u32"                       , True                      ),
+    ("MaxSampleRate"      , "double"                    , True                      ),
+    ("MinSampleRate"      , "double"                    , True                      )
 ]
 
 _rfdc_props = [
     ("IPStatus"           , "XRFdc_IPStatus"             , True                      ),
-    ("ClkDistribution"    , "XRFdc_Distribution_Settings", False                     )
+    ("ClkDistribution"    , "XRFdc_Distribution_System_Settings", True              )
 ]
 
 # Next we define some helper functions for creating properties and
@@ -122,17 +132,14 @@ class PropertyDict(dict):
 
 def _pack_value(typename, value):
     if isinstance(value, dict):
-        c_value = _ffi.new(f"{typename}*")
-        for k, v in value.items():
-            setattr(c_value, k, v)
-        value = c_value
+        value = _ffi.new(f"{typename}*", value)
     return value
 
 
 def _unpack_value(value):
     
     # Guard against python primitives
-    if type(value) in [int,str,bool]:
+    if type(value) in [int,float,str,bool]:
         return value
 
     ctype = _ffi.typeof(value)
@@ -175,7 +182,7 @@ def _create_c_property(name, typename, readonly, writeonly=False, implicit_read=
             self._call_function_implicit
         c_func(f"Get{name}", value)
         value = _unpack_value(value)
-        if isinstance(value, PropertyDict):
+        if isinstance(value, PropertyDict) and not readonly:
             value.set_callback(lambda value: c_func(
                 f"Set{name}", _pack_value(typename, value)))
         return value
@@ -243,8 +250,8 @@ class RFdcBlock:
         self._parent = parent
         self._index = index
 
-    def _call_function(self, name, *args):
-        return self._parent._call_function(name, self._index, *args)
+    def _call_function(self, name, *args, **kwargs):
+        return self._parent._call_function(name, self._index, *args, **kwargs)
     
     def ResetNCOPhase(self):
         self._call_function("ResetNCOPhase")
@@ -256,21 +263,59 @@ class RFdcBlock:
         self._call_function("ResetInternalFIFOWidth")
         
     def GetConnectedIData(self):
-        self._call_function("GetConnectedIData")
+        return self._call_function("GetConnectedIData", check=False)
         
     def GetConnectedQData(self):
-        self._call_function("GetConnectedQData")
+        return self._call_function("GetConnectedQData", check=False)
+
+    def GetConnectedIQData(self):
+        i_data, q_data = _ffi.new("int*"), _ffi.new("int*")
+        self._call_function("GetConnectedIQData", i_data, q_data)
+        return i_data[0], q_data[0]
+
+    def SetConnectedIQData(self, ConnectedIData, ConnectedQData):
+        self._call_function("SetConnectedIQData", ConnectedIData, ConnectedQData)
+
+    def GetDataType(self):
+        return self._call_function("GetDataType", check=False)
+
+    def GetDataWidth(self):
+        return self._call_function("GetDataWidth", check=False)
+
+    def IsFifoEnabled(self):
+        return self._call_function("IsFifoEnabled", check=False)
+
+    def CheckBlockEnabled(self):
+        return self._call_function("CheckBlockEnabled", check=False)
+
+    def CheckDigitalPathEnabled(self):
+        return self._call_function("CheckDigitalPathEnabled", check=False)
+
+    def Get_BlockBaseAddr(self):
+        return self._call_function("Get_BlockBaseAddr", check=False)
 
 
 class RFdcDacBlock(RFdcBlock):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _call_function_implicit(self, name, *args):
-        return self._parent._call_function_implicit(name, self._index, *args)
+    def _call_function_implicit(self, name, *args, **kwargs):
+        return self._parent._call_function_implicit(name, self._index, *args, **kwargs)
     
     def SetDACVOP(self, uACurrent):
         self._call_function_implicit("SetDACVOP", uACurrent)
+
+    def IsDACBlockEnabled(self):
+        return self._call_function_implicit("IsDACBlockEnabled", check=False)
+
+    def IsDACDigitalPathEnabled(self):
+        return self._call_function_implicit("IsDACDigitalPathEnabled", check=False)
+
+    def GetInverseSincFilter(self):
+        return self._call_function_implicit("GetInverseSincFilter", check=False)
+
+    def GetMixedMode(self):
+        return self._call_function_implicit("GetMixedMode", check=False)
 
 
 class RFdcAdcBlock(RFdcBlock):
@@ -278,20 +323,29 @@ class RFdcAdcBlock(RFdcBlock):
         super().__init__(*args, **kwargs)
         self.thresholds = [RFdcThreshold(self, i) for i in range(2)]
 
-    def _call_function_implicit(self, name, *args):
-        return self._parent._call_function_implicit(name, self._index, *args)
+    def _call_function_implicit(self, name, *args, **kwargs):
+        return self._parent._call_function_implicit(name, self._index, *args, **kwargs)
         
     def DisableCoefficientsOverride(self, CalibrationBlock):
         self._call_function_implicit("DisableCoefficientsOverride", CalibrationBlock)
         
     def ResetInternalFIFOWidthObs(self):
-        self._call_function("ResetInternalFIFOWidthObs")
+        self._call_function_implicit("ResetInternalFIFOWidthObs")
         
-    def SetCalCoefficients(self, CalibrationBlock, *CoeffPtr):
-        self._call_function_implicit("SetCalCoefficients", CalibrationBlock, *CoeffPtr)
+    def SetCalCoefficients(self, CalibrationBlock, Coeffs):
+        self._call_function_implicit("SetCalCoefficients", CalibrationBlock,
+            _pack_value("XRFdc_Calibration_Coefficients", Coeffs))
         
-    def GetCalCoefficients(self, CalibrationBlock, *CoeffPtr):
-        self._call_function_implicit("GetCalCoefficients", CalibrationBlock, *CoeffPtr)
+    def GetCalCoefficients(self, CalibrationBlock):
+        value = _ffi.new("XRFdc_Calibration_Coefficients*")
+        self._call_function_implicit("GetCalCoefficients", CalibrationBlock, value)
+        return _unpack_value(value)
+
+    def IsADCBlockEnabled(self):
+        return self._call_function_implicit("IsADCBlockEnabled", check=False)
+
+    def IsADCDigitalPathEnabled(self):
+        return self._call_function_implicit("IsADCDigitalPathEnabled", check=False)
 
 
 
@@ -300,20 +354,29 @@ class RFdcTile:
         self._index = index
         self._parent = parent
 
-    def _call_function(self, name, *args):
-        return self._parent._call_function(name, self._type, self._index, *args)
+    def _call_function(self, name, *args, **kwargs):
+        return self._parent._call_function(name, self._type, self._index, *args, **kwargs)
 
-    def _call_function_implicit(self, name, *args):
-        return self._parent._call_function(name, self._index, *args)
+    def _call_function_implicit(self, name, *args, **kwargs):
+        return self._parent._call_function(name, self._index, *args, **kwargs)
 
     def StartUp(self):
         self._call_function("StartUp")
 
-    def ShutDown(self):
+    def Shutdown(self):
         self._call_function("Shutdown")
+
+    def ShutDown(self):
+        self.Shutdown()
 
     def Reset(self):
         self._call_function("Reset")
+
+    def CustomStartUp(self, StartState, EndState):
+        self._call_function("CustomStartUp", StartState, EndState)
+
+    def WaitForState(self, State):
+        self._call_function("WaitForState", State)
     
     def SetupFIFO(self, Enable):
         self._call_function("SetupFIFO", Enable)
@@ -324,12 +387,31 @@ class RFdcTile:
     def DynamicPLLConfig(self, source, ref_clk_freq, samp_rate):
         self._call_function("DynamicPLLConfig", source, ref_clk_freq, samp_rate)
 
+    def MultiBand(self, DigitalDataPathMask, MixerInOutDataType, DataConverterMask):
+        self._call_function("MultiBand", DigitalDataPathMask, MixerInOutDataType,
+                            DataConverterMask)
+
+    def GetFabClkFreq(self):
+        return self._call_function("GetFabClkFreq", check=False)
+
+    def GetMultibandConfig(self):
+        return self._call_function("GetMultibandConfig", check=False)
+
+    def CheckTileEnabled(self):
+        return self._call_function("CheckTileEnabled", check=False)
+
+    def Get_TileBaseAddr(self):
+        return self._call_function("Get_TileBaseAddr", check=False)
+
 
 class RFdcDacTile(RFdcTile):
     def __init__(self, *args):
         super().__init__(*args)
         self._type = _lib.XRFDC_DAC_TILE
         self.blocks = [RFdcDacBlock(self, i) for i in range(4)]
+
+    def GetNoOfDACBlock(self):
+        return self._call_function_implicit("GetNoOfDACBlock", check=False)
 
 
 class RFdcAdcTile(RFdcTile):
@@ -344,8 +426,16 @@ class RFdcAdcTile(RFdcTile):
     def SetupFIFOBoth(self, Enable):
         self._call_function("SetupFIFOBoth", Enable)
         
-    def GetFIFOStatusObs(self, *EnablePtr):
-        self._call_function("GetFIFOStatusObs", *EnablePtr)
+    def GetFIFOStatusObs(self):
+        value = _ffi.new("u8*")
+        self._call_function("GetFIFOStatusObs", value)
+        return value[0]
+
+    def GetNoOfADCBlocks(self):
+        return self._call_function_implicit("GetNoOfADCBlocks", check=False)
+
+    def IsHighSpeedADC(self):
+        return self._call_function_implicit("IsHighSpeedADC", check=False)
 
 
 class RFdc(pynq.DefaultIP):
@@ -379,8 +469,54 @@ class RFdc(pynq.DefaultIP):
         self.adc_tiles = [RFdcAdcTile(self, i) for i in range(4)]
         self.dac_tiles = [RFdcDacTile(self, i) for i in range(4)]
 
-    def _call_function(self, name, *args):
-        _safe_wrapper(f"XRFdc_{name}", self._instance, *args)
+    def _call_function(self, name, *args, check=True):
+        return _safe_wrapper(f"XRFdc_{name}", self._instance, *args, check=check)
+
+    def SetClkDistribution(self, DistributionSettings):
+        self._call_function("SetClkDistribution",
+            _pack_value("XRFdc_Distribution_Settings", DistributionSettings))
+
+    def GetDriverVersion(self):
+        return _safe_wrapper("XRFdc_GetDriverVersion", check=False)
+
+    def GetTileLayout(self):
+        return self._call_function("GetTileLayout", check=False)
+
+    def Get_IPBaseAddr(self):
+        return self._call_function("Get_IPBaseAddr", check=False)
+
+    def GetMasterTile(self, Type):
+        return self._call_function("GetMasterTile", Type, check=False)
+
+    def GetSysRefSource(self, Type):
+        return self._call_function("GetSysRefSource", Type, check=False)
+
+    def RDReg(self, BaseAddr, RegAddr, Mask):
+        return self._call_function("RDReg", BaseAddr, RegAddr, Mask, check=False)
+
+    def ClrSetReg(self, BaseAddr, RegAddr, Mask, Data):
+        self._call_function("ClrSetReg", BaseAddr, RegAddr, Mask, Data)
+
+    def ClrReg(self, BaseAddr, RegAddr, Mask):
+        self._call_function("ClrReg", BaseAddr, RegAddr, Mask)
+
+    def MultiConverter_Init(self, RefTile, PLL_Codes=None, T1_Codes=None):
+        config = _ffi.new("XRFdc_MultiConverter_Sync_Config*")
+        pll_codes = _ffi.new("int[4]", list(PLL_Codes)) if PLL_Codes is not None else _ffi.NULL
+        t1_codes = _ffi.new("int[4]", list(T1_Codes)) if T1_Codes is not None else _ffi.NULL
+        _safe_wrapper("XRFdc_MultiConverter_Init", config, pll_codes, t1_codes, RefTile)
+        return _unpack_value(config)
+
+    def MultiConverter_Sync(self, Type, Config):
+        config = _pack_value("XRFdc_MultiConverter_Sync_Config", Config)
+        self._call_function("MultiConverter_Sync", Type, config)
+        return _unpack_value(config)
+
+    def MTS_Sysref_Config(self, DACSyncConfig, ADCSyncConfig, SysRefEnable):
+        self._call_function("MTS_Sysref_Config",
+            _pack_value("XRFdc_MultiConverter_Sync_Config", DACSyncConfig),
+            _pack_value("XRFdc_MultiConverter_Sync_Config", ADCSyncConfig),
+            SysRefEnable)
 
 
 # Finally we can add our data-driven properties to each class in the hierarchy
@@ -448,6 +584,40 @@ TRSHD_OFF                  = 0x0
 TRSHD_STICKY_OVER          = 0x1
 TRSHD_STICKY_UNDER         = 0x2
 TRSHD_HYSTERISIS           = 0x3
+
+ADC_TILE = 0x0
+DAC_TILE = 0x1
+
+STATE_OFF      = 0x0
+STATE_SHUTDOWN = 0x1
+STATE_PWRUP    = 0x3
+STATE_CLK_DET  = 0x6
+STATE_CAL      = 0xB
+STATE_FULL     = 0xF
+
+DATA_TYPE_REAL = 0x0
+DATA_TYPE_IQ   = 0x1
+
+MB_DATATYPE_C2C = 0x1
+MB_DATATYPE_R2C = 0x2
+MB_DATATYPE_C2R = 0x4
+
+LINK_COUPLING_DC = 0x0
+LINK_COUPLING_AC = 0x1
+
+SIGDET_MODE_AVG  = 0x0
+SIGDET_MODE_RNDM = 0x1
+
+CAL_BLOCK_OCB1 = 0x0
+CAL_BLOCK_OCB2 = 0x1
+CAL_BLOCK_GCB  = 0x2
+CAL_BLOCK_TSCB = 0x3
+
+TILE_LAYOUT_4ADC_4DAC = 0x0
+TILE_LAYOUT_3ADC_2DAC = 0x1
+
+MTS_SYSREF_DISABLE = 0x0
+MTS_SYSREF_ENABLE  = 0x1
 
 
 
