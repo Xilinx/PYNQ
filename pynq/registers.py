@@ -110,10 +110,13 @@ class Register:
 
         """
 
-        self.address = address
-        self.width = width
-        self.debug = debug
-        self.access = access
+        # Keep the register's own state under private names: a subclass
+        # made by create_subclass can have a field called e.g. ``width``,
+        # and its property then takes over the public name.
+        self._address = address
+        self._width = width
+        self._debug_enabled = debug
+        self._access = access
 
         if width == 32:
             register_type = 'u4'
@@ -133,6 +136,38 @@ class Register:
 
         self._buffer = array.view(dtype=register_type)
 
+    @property
+    def address(self):
+        return self._address
+
+    @address.setter
+    def address(self, value):
+        self._address = value
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        self._width = value
+
+    @property
+    def debug(self):
+        return self._debug_enabled
+
+    @debug.setter
+    def debug(self, value):
+        self._debug_enabled = value
+
+    @property
+    def access(self):
+        return self._access
+
+    @access.setter
+    def access(self, value):
+        self._access = value
+
     def __getitem__(self, index):
         """Get the register value.
 
@@ -144,18 +179,18 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
-        lower, upper, reverse = _calc_index(index, self.width)
+        lower, upper, reverse = _calc_index(index, self._width)
         curr_val = int(self._buffer[0])
-        if self.access == 'write-only':
-            return self.access
+        if self._access == 'write-only':
+            return self._access
         if lower == upper:
             self._debug("Reading index {} at address {}"
-                        .format(index, hex(self.address)))
+                        .format(index, hex(self._address)))
             mask = 1 << lower
             return (curr_val & mask) >> lower
         else:
             self._debug("Reading bits {}:{} at address {}"
-                        .format(upper, lower, hex(self.address)))
+                        .format(upper, lower, hex(self._address)))
             width = upper - lower + 1
             mask = (1 << width) - 1
             raw = (curr_val >> lower) & mask
@@ -174,12 +209,12 @@ class Register:
             The integer index, or slice to access the register value.
 
         """
-        lower, upper, reverse = _calc_index(index, self.width)
+        lower, upper, reverse = _calc_index(index, self._width)
         if upper == lower:
             if value != 0 and value != 1:
                 raise ValueError("Value to be set should be either 0 or 1.")
             self._debug("Setting bit {} at address {} to {}"
-                        .format(lower, hex(self.address), value))
+                        .format(lower, hex(self._address), value))
             mask = 1 << lower
             curr_val = int(self._buffer[0])
             self._buffer[0] = (curr_val & ~mask) | (value << lower)
@@ -192,8 +227,8 @@ class Register:
             if reverse:
                 value = _reverse_bits(value, width)
             self._debug("Setting bits {}:{} at address {} to {}".format(
-                upper, lower, hex(self.address), value))
-            if width == self.width:
+                upper, lower, hex(self._address), value))
+            if width == self._width:
                 self._buffer[0] = value
             else:
                 curr_val = int(self._buffer[0])
@@ -231,7 +266,7 @@ class Register:
         None
 
         """
-        if self.debug:
+        if self._debug_enabled:
             print('Register Debug: {0}'.format(s.format(*args)))
 
     def __repr__(self):
@@ -250,8 +285,8 @@ class Register:
                 else:
                     field_desc.append("{}={}".format(k, 'write-only'))
             return "Register({})".format(", ".join(field_desc))
-        elif self.access == 'write-only':
-            return "Register(value={})".format(self.access)
+        elif self._access == 'write-only':
+            return "Register(value={})".format(self._access)
         else:
             return "Register(value={})".format(self[:])
 
@@ -385,7 +420,7 @@ class RegisterMap:
     def __repr__(self):
         register_info = []
         for k, v in \
-                sorted(self._instances.items(), key=lambda x: x[1].address):
+                sorted(self._instances.items(), key=lambda x: x[1]._address):
             register_info.append("  {} = {}".format(k, repr(v)))
         return "RegisterMap {\n" + ",\n".join(register_info) + "\n}"
 

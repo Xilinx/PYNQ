@@ -531,3 +531,81 @@ def test_too_long():
     buf = bytearray(16)
     with pytest.warns(UserWarning):
         RegClass(buf)
+
+
+def test_reg_attributes(width, capsys):
+    reg, buf = _create_register(width)
+    assert reg.address == ADDRESS
+    assert reg.width == width
+    assert reg.debug is False
+    assert reg.access == 'read-write'
+    reg.address = ADDRESS + 4
+    reg.debug = True
+    reg.width = width
+    reg.access = 'write-only'
+    assert reg[1] == 'write-only'
+    reg[4] = 0
+    out, err = capsys.readouterr()
+    assert out == "Register Debug: Setting bit 4 at address 0x10004 to 0\n"
+
+
+# HLS IP exposes each scalar argument as a register with a single field of
+# the same name, so the field names can match Register's own attributes.
+ATTRIBUTE_NAMES = ['address', 'width', 'debug', 'access']
+
+
+def _single_field_registermap(name, access):
+    return pynq.registers.RegisterMap.create_subclass("Hls", {
+        'CTRL': {
+            'address_offset': 0,
+            'access': 'read-write',
+            'size': 32,
+            'description': 'Control signals',
+            'fields': {
+                'AP_START': {'access': 'read-write', 'bit_offset': 0,
+                             'bit_width': 1, 'description': 'Start'},
+            },
+        },
+        name: {
+            'address_offset': 16,
+            'access': access,
+            'size': 32,
+            'description': 'Data signal of ' + name,
+            'fields': {
+                name: {'access': access, 'bit_offset': 0,
+                       'bit_width': 32, 'description': 'Bit 31 to 0'},
+            },
+        },
+    })
+
+
+@pytest.mark.parametrize('access', ['read-write', 'read-only'])
+@pytest.mark.parametrize('name', ATTRIBUTE_NAMES)
+def test_regmap_field_named_like_attribute(name, access):
+    buf = bytearray(24)
+    buf[16:20] = struct.pack('I', 1920)
+    rm = _single_field_registermap(name, access)(buf)
+    reg = getattr(rm, name)
+    assert getattr(reg, name) == 1920
+    assert repr(rm) == ("RegisterMap {\n  CTRL = Register(AP_START=0),\n"
+                        "  " + name + " = Register(" + name + "=1920)\n}")
+    if access == 'read-write':
+        setattr(reg, name, 1080)
+        assert struct.unpack('I', buf[16:20])[0] == 1080
+        setattr(rm, name, 720)
+        assert struct.unpack('I', buf[16:20])[0] == 720
+    rm.CTRL.AP_START = 1
+    assert buf[0] == 1
+
+
+@pytest.mark.parametrize('name', ATTRIBUTE_NAMES)
+def test_reg_debug_field_named_like_attribute(name, capsys):
+    fields = {name: {'access': 'read-write', 'bit_offset': 0,
+                     'bit_width': 32, 'description': name}}
+    RegClass = pynq.Register.create_subclass("Attr", fields)
+    buf = np.zeros((1,), 'u4')
+    reg = RegClass(ADDRESS, 32, debug=True, buffer=buf)
+    reg[4] = 1
+    out, err = capsys.readouterr()
+    assert out == "Register Debug: Setting bit 4 at address 0x10000 to 1\n"
+    assert getattr(reg, name) == 0x10
