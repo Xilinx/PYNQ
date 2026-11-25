@@ -415,6 +415,7 @@ class Overlay(Bitstream):
             The path of the dtbo file.
 
         """
+        self.device.check_state()
         Clocks.set_device(self.device)
         for i in self.clock_dict:
             if "enable" in self.clock_dict[i]:
@@ -471,6 +472,7 @@ class Overlay(Bitstream):
             True if bitstream is loaded.
 
         """
+        self.device.check_state()
         if not self.timestamp == "":
             return self.timestamp == self.device.timestamp
         else:

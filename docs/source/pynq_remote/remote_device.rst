@@ -3,9 +3,9 @@
 The RemoteDevice Class
 ======================
 
-The ``RemoteDevice`` class enables controlling PYNQ boards over network connections using gRPC. It provides a complete remote access solution including bitstream downloading, memory allocation, MMIO operations, and other PYNQ functionalities through remote procedure calls. 
+The ``RemoteDevice`` class enables controlling PYNQ boards over network connections using gRPC. It provides bitstream downloading, memory allocation and MMIO operations through remote procedure calls.
 
-This module includes classes for remote memory management (``RemoteBuffer``), memory-mapped I/O (``RemoteMMIO``), bitstream handling, and communication channel management. The implementation handles multiple bitstream formats (.bit, .bin, .xsa), metadata parsing, and caching while maintaining compatibility with the local PYNQ API. 
+This module includes classes for remote memory management (``RemoteBuffer``), memory-mapped I/O (``RemoteMMIO``), bitstream handling, and communication channel management. It handles .bit, .bin, .xsa and .pdi files, with metadata parsing and caching on the host.
 
 Remote devices can be configured through the ``PYNQ_REMOTE_DEVICES`` environment
 variable, which should contain a comma-separated list of IP addresses for target
@@ -31,7 +31,7 @@ Local and remote devices share the architecture classes in
 
 Device tree overlays (``.dtbo``) shipped with a bitstream are applied on the
 board. This needs a remote image built with the matching ``pynq-remote``
-server; an older server reports that the remote image must be updated.
+server. Update older remote images before applying device tree overlays.
 
 The ``RemoteDevice`` class is complemented by ``PYNQ.cpp`` which operates on the target device, providing a C++ implementation of the PYNQ API. For more details on the C++ implementation, see the :ref:`cppindex` module documentation.
 
@@ -54,8 +54,14 @@ Create an overlay for each board using its ``device``:
 
    buffer = pynq.allocate(1024, target=b)
 
-``Device.devices`` follows the address order. Each overlay keeps using its
-selected board even if ``Device.active_device`` changes.
+The remote entries in ``Device.devices`` follow the address order. Other
+backends can also contribute devices; the example assumes only these two
+remote devices are discovered.
+
+Overlay programming and resources created by the default overlay drivers use
+the selected board even if ``Device.active_device`` changes. Drivers that use
+global ``PL`` metadata or create resources without passing ``device`` can still
+use the active device; check such drivers before using them with several boards.
 
 Pass ``device`` to standalone ``MMIO``, ``Register`` and ``GPIO`` objects,
 and ``target`` to ``allocate``. Without an explicit target, these use
@@ -74,7 +80,8 @@ Some class-level interfaces select a board differently:
 * ``Clocks`` uses the board of the last overlay created or downloaded.
   Use ``Clocks.set_device(device)`` to select a board explicitly.
 * Remote ``xrfclk`` calls accept ``device``. Without it, they use the most
-  recently created overlay's board, or the active device before the first overlay.
+  recently created remote overlay's board, or the active device before the first
+  remote overlay.
 * ``PL`` describes ``Device.active_device``. Use ``overlay.ip_dict`` to inspect
   a particular overlay.
 

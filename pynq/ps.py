@@ -401,11 +401,11 @@ class _ClocksMeta(type):
 
     @property
     def _instance(cls):
+        if cls.device is None:
+            from pynq.pl_server.device import Device
+            cls.device = Device.active_device
+        cls.device.check_state()
         if not hasattr(cls, '_real_instance'):
-            if not cls.device:
-                # If device is not set, default to active device
-                from pynq.pl_server.device import Device
-                cls.device = Device.active_device
             cls._real_instance = cls.device._clocks_class(device=cls.device)
         return cls._real_instance
 

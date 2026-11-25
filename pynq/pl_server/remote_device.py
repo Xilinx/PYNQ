@@ -20,7 +20,7 @@ from .embedded_device import (
 from .global_state import (
     GlobalState,
     save_global_state, load_global_state,
-    global_state_file_exists, clear_global_state,
+    global_state_file_exists, check_global_state,
     _get_metadata_path,
     bitstream_hash
 )
@@ -169,9 +169,8 @@ class RemoteDevice(Device):
     It provides bitstream downloading, memory allocation, MMIO operations,
     and other PYNQ functionality through gRPC remote procedure calls.
 
-    The device supports multiple bitstream formats (.bit, .bin, .xsa) and
-    handles metadata parsing, caching, and AXI port width configuration
-    remotely.
+    The device supports .bit, .bin, .xsa and .pdi files. Metadata parsing and
+    caching run on the host; AXI port widths are configured on the board.
 
     Constructing `RemoteDevice` returns the subclass for the board's
     architecture. Subclasses should inherit the matching class from
@@ -370,12 +369,13 @@ class RemoteDevice(Device):
         return RemoteDeviceTreeSegment(abs_dtbo, self)
 
     def set_bitfile_name(self, bitfile_name: str) -> None:
+        self.check_state()
         super().set_bitfile_name(bitfile_name)
         RemoteDevice._last_overlay_device = self
 
     def get_bitfile_metadata(self, bitfile_name:str, partial:bool=False):
         if not partial:
-            self.initial_global_state_file_boot_check()
+            self.check_state()
         parser = _get_bitstream_handler(bitfile_name, self._state_tag).get_parser(partial=partial)
         if parser is None:
             raise RuntimeError("Unable to find metadata for bitstream")
@@ -492,9 +492,13 @@ class RemoteDevice(Device):
             if global_state_file_exists(self._state_tag):
                 token = load_global_state(self._state_tag).timestamp
             self.write_file(PL_MARKER, token.encode())
+            self._remote_state = (self._boot_id(), token)
 
         self.set_axi_port_width(parser)
         super().post_download(bitstream, parser, self.name)
+        if not bitstream.partial:
+            self.parser = parser
+            self.systemgraph = getattr(parser, "systemgraph", None)
     
     def _boot_id(self):
         return self.read_file(BOOT_ID).decode("utf-8").strip()
@@ -504,22 +508,30 @@ class RemoteDevice(Device):
             return self.read_file(PL_MARKER).decode("utf-8")
         return None
 
-    def initial_global_state_file_boot_check(self):
-        """Clear the global state unless it still describes the remote PL
+    def check_state(self):
+        """Invalidate state unless it still describes the remote PL.
 
-        The remote FPGA Manager always reports "operating", so the kernel
-        boot ID identifies a reboot, and a marker written after each full
-        download identifies a bitstream loaded by another client.
+        FPGA Manager state does not identify the loaded design. Use the kernel
+        boot ID to detect reboots and the PYNQ marker to detect full downloads.
         """
-        if global_state_file_exists(self._state_tag):
-            gs = load_global_state(self._state_tag)
-            rebooted = gs.boot_id != self._boot_id()
-            if rebooted:
+        state = (self._boot_id(), self._pl_marker())
+        previous = check_global_state(
+            state, self._state_tag, previous=getattr(self, "_remote_state", None)
+        )
+        if previous is not None and previous != state:
+            if previous[0] != state[0]:
                 from pynq.ps import Clocks
                 if Clocks.device is self and hasattr(Clocks, '_real_instance'):
                     del Clocks._real_instance
-            if rebooted or self._pl_marker() != gs.timestamp:
-                clear_global_state(self._state_tag)
+                self.__dict__.pop("_gpio_map", None)
+            self.__dict__.pop("_dict_view_cache", None)
+            self.__dict__.pop("_interrupt_state", None)
+            self.timestamp = ""
+            self.bitfile_name = ""
+            self.parser = None
+            self.systemgraph = None
+            self.clear_dict()
+        self._remote_state = state
 
     def shutdown(self):
         """Shutdown the AXI connections to the PL remotely
@@ -528,7 +540,7 @@ class RemoteDevice(Device):
         AXI connections using shutdown manager IP cores. This prevents
         potential issues during bitstream loading.
         """
-        self.initial_global_state_file_boot_check()
+        self.check_state()
 
         if global_state_file_exists(self._state_tag):
             gs = load_global_state(self._state_tag)

@@ -35,7 +35,7 @@ It is recommended to use a
 
    PYNQ_REMOTE=1 pip install pynq
 
-To install the development version from source:
+To install from source:
 
 .. code-block:: bash
 

@@ -235,7 +235,6 @@ class PLMeta(type):
             A parser object to speed up the reset process.
 
         """
-        clear_global_state()
         clear_global_state(_active_state_tag())
         if not cls.mem_dict is None:
             for i in cls.mem_dict.values():

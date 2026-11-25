@@ -20,7 +20,7 @@ from .cmd import _get_subcommand_abspath
 from .get_notebooks import NOTEBOOKS_GROUP, TARGET_NB_DIR
 
 
-PRIMARY_EXTS = (".bit", ".xsa", ".pdi")
+PRIMARY_EXTS = (".bit", ".bin", ".xsa", ".pdi")
 COMPANION_EXTS = (".hwh", ".dtbo", ".xclbin")
 VERSIONS_FILE = ".versions.json"
 NOTEBOOKS_ENV = "PYNQ_JUPYTER_NOTEBOOKS"

@@ -100,3 +100,18 @@ def load_global_state(device_tag="") -> Optional[GlobalState]:
         jdict = json.load(state_file)
         return GlobalState.parse_obj(jdict)
     return None
+
+
+def check_global_state(current, device_tag="", previous=None):
+    """Discard saved metadata if the configuration generation changed.
+
+    Return the previous (boot ID, download marker), using saved state when
+    the caller has no previous observation.
+    """
+    if previous is None and global_state_file_exists(device_tag):
+        saved = load_global_state(device_tag)
+        previous = (saved.boot_id, saved.timestamp)
+    if previous is not None and previous != current:
+        clear_global_state(device_tag)
+        _get_metadata_path(device_tag).unlink(missing_ok=True)
+    return previous

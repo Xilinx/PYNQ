@@ -117,6 +117,9 @@ class Device(metaclass=DeviceMeta):
         self.tag = tag
         self.parser = None
 
+    def check_state(self):
+        """Refresh device state before using overlay resources."""
+
     @property
     def _clocks_class(self):
         """Default clock implementation selected from the device architecture."""
