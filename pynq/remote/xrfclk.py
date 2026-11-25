@@ -1,11 +1,9 @@
 """Remote xrfclk: set RFSoC reference clocks over gRPC.
 
-Used exactly like classic PYNQ:
+Use the classic PYNQ clock-programming calls:
 
     import xrfclk
     xrfclk.set_ref_clks(lmk_freq=245.76, lmx_freq=491.52)
-
-The only difference from classic is where the clock (TICS) files come from.
 
 Normally you don't need additional clock files. Each board's remote image 
 already ships its own, so set_ref_clks works for the frequencies the board 
@@ -13,6 +11,10 @@ supports. Any unsupported frequency raises "Frequency <f> MHz is not valid".
 
 To override or add a frequency, put a clock file named CHIPNAME_FREQUENCY.txt
 in the directory you run from. A local file takes precedence over the board's.
+
+Pass device= to choose the board. Without it, calls act on the board of the
+most recently created remote Overlay, else on the active device. The module's
+lmk_devices and lmx_devices follow the same rule.
 
 When driving multiple boards from the same host, place board-specific files
 in a subdirectory so they do not clash. The most specific match wins:
@@ -41,19 +43,14 @@ from pynq.remote import xrfclk_pb2, xrfclk_pb2_grpc
 _Config = defaultdict(lambda: defaultdict(dict))
 _Devices = defaultdict(dict)
 
-# Classic (single-board) compatibility surface, read as xrfclk.lmk_devices /
-# xrfclk.lmx_devices. With multiple boards these reflect only the most recently
-# resolved device; per-device chip identities live in _Devices[device].
-lmk_devices = []
-lmx_devices = []
-
 # Self-alias for classic compatibility: expose xrfclk.xrfclk as this module.
 xrfclk = sys.modules[__name__]
 
-# get target devices
-def _get_device(device):
-    """Return device if it is a RemoteDevice, else the active remote device."""
-    if not isinstance(device, RemoteDevice):
+def _get_device(device=None):
+    """Use the supplied device, or default to the last overlay then active device."""
+    if device is None:
+        device = RemoteDevice._last_overlay_device
+    if device is None:
         try:
             device = Device.active_device
         except Exception:
@@ -61,8 +58,18 @@ def _get_device(device):
                                "PYNQ_REMOTE_DEVICES environment variable or pass "
                                "a device explicitly.")
     if not isinstance(device, RemoteDevice):
-        raise RuntimeError("This function is only supported on remote devices.")
+        raise RuntimeError("Expected a RemoteDevice.")
     return device
+
+
+def __getattr__(name):
+    if name not in ('lmk_devices', 'lmx_devices'):
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    try:
+        chip = _Devices.get(_get_device(None), {}).get(name[:3])
+    except RuntimeError:
+        return []
+    return [{'compatible': chip}] if chip else []
 
 
 def _write_LMK_regs(reg_vals, device=None):
@@ -155,11 +162,6 @@ def _find_devices(device=None):
     # Per-device chip identities, used by the dispatch (safe with multiple boards).
     _Devices[device]['lmk'] = response.lmk_device
     _Devices[device]['lmx'] = response.lmx_device
-
-    # Classic-compatible flat globals: reflect the device just resolved.
-    global lmk_devices, lmx_devices
-    lmk_devices = [{'compatible': response.lmk_device}]
-    lmx_devices = [{'compatible': response.lmx_device}]
 
 
 def _load_tics_file(path, config):

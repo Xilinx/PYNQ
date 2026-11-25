@@ -1,4 +1,5 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -45,7 +46,7 @@ def get_dtbo_base_name(dtbo_path):
         The base name of the dtbo file.
 
     """
-    return dtbo_path.split('/')[-1].split('.')[0]
+    return os.path.basename(dtbo_path).split('.')[0]
 
 
 class DeviceTreeSegment:

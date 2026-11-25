@@ -40,6 +40,26 @@ class ExistsFileResponse(_message.Message):
     exists: bool
     def __init__(self, exists: bool = ...) -> None: ...
 
+class MakeDirRequest(_message.Message):
+    __slots__ = ("dir_path",)
+    DIR_PATH_FIELD_NUMBER: _ClassVar[int]
+    dir_path: str
+    def __init__(self, dir_path: _Optional[str] = ...) -> None: ...
+
+class MakeDirResponse(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class RemoveDirRequest(_message.Message):
+    __slots__ = ("dir_path",)
+    DIR_PATH_FIELD_NUMBER: _ClassVar[int]
+    dir_path: str
+    def __init__(self, dir_path: _Optional[str] = ...) -> None: ...
+
+class RemoveDirResponse(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
 class SetBitstreamAttrsRequest(_message.Message):
     __slots__ = ("binfile_name", "partial")
     BINFILE_NAME_FIELD_NUMBER: _ClassVar[int]

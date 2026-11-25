@@ -1,4 +1,5 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -116,6 +117,14 @@ class _GPIO:
 
 _gpio_map = weakref.WeakValueDictionary()
 
+def _resolve_gpio_backend(device=None):
+    """Select the GPIO implementation, allowing local access without a device."""
+    if device is None:
+        from .pl_server.device import Device
+        if hasattr(Device, "_active_device") or Device.devices:
+            device = Device.active_device
+    return device, getattr(device, "_gpio_class", GPIO)
+
 
 class GPIO:
     """Class to wrap Linux's GPIO Sysfs API.
@@ -145,7 +154,7 @@ class GPIO:
                       .format(CPU_ARCH), ResourceWarning)
 
 
-    def __init__(self, gpio_index, direction):
+    def __init__(self, gpio_index, direction, device=None):
         """Return a new GPIO object.
 
         Parameters
@@ -154,8 +163,25 @@ class GPIO:
             The index of the GPIO using Linux's GPIO Sysfs API.
         direction : 'str'
             Input/output direction of the GPIO.
+        device : Device
+            Target device. Defaults to the active device.
 
         """
+        self.device, backend = _resolve_gpio_backend(device)
+        if backend is not GPIO:
+            # The same GPIO number on different boards must use separate handles.
+            if not hasattr(self.device, "_gpio_map"):
+                self.device._gpio_map = weakref.WeakValueDictionary()
+            cache = self.device._gpio_map
+            impl = cache.get(gpio_index)
+            if impl is not None and impl.is_exported():
+                if impl.direction != direction:
+                    raise AttributeError("GPIO already in use in other direction")
+            else:
+                impl = backend(gpio_index, direction, device=self.device)
+                cache[gpio_index] = impl
+            self._impl = impl
+            return
         self._impl = None
         if gpio_index in _gpio_map:
             self._impl = _gpio_map[gpio_index]
@@ -218,7 +244,7 @@ class GPIO:
 
 
     @staticmethod
-    def get_gpio_base_path(target_label=None):
+    def get_gpio_base_path(target_label=None, device=None):
         """This method returns the path to the GPIO base using Linux's
         GPIO Sysfs API.
 
@@ -240,6 +266,9 @@ class GPIO:
             The path to the GPIO base.
 
         """
+        device, backend = _resolve_gpio_backend(device)
+        if backend is not GPIO:
+            return backend.get_gpio_base_path(target_label=target_label, device=device)
         if target_label is None and _is_versal():
             raise ValueError(
                 "target_label must be specified on Versal; use "
@@ -262,7 +291,7 @@ class GPIO:
                         return os.path.join(root, name)
 
     @staticmethod
-    def get_gpio_base(target_label=None):
+    def get_gpio_base(target_label=None, device=None):
         """This method returns the GPIO base using Linux's GPIO Sysfs API.
 
         This is a static method. To use:
@@ -287,12 +316,12 @@ class GPIO:
             The GPIO index of the base.
 
         """
-        base_path = GPIO.get_gpio_base_path(target_label)
+        base_path = GPIO.get_gpio_base_path(target_label, device=device)
         if base_path is not None:
             return int(''.join(x for x in base_path if x.isdigit()))
 
     @staticmethod
-    def get_gpio_pin(gpio_user_index, target_label=None):
+    def get_gpio_pin(gpio_user_index, target_label=None, device=None):
         """This method returns a GPIO instance for PS GPIO pins.
 
         Users only need to specify an index starting from 0; this static
@@ -312,6 +341,8 @@ class GPIO:
         target_label : str
             The label of the GPIO driver to look for, as defined in a
             device tree entry.
+        device : Device
+            Target device. Defaults to the active device.
 
         Returns
         -------
@@ -319,6 +350,11 @@ class GPIO:
             The Linux Sysfs GPIO pin number.
 
         """
+        device, backend = _resolve_gpio_backend(device)
+        if backend is not GPIO:
+            return backend.get_gpio_pin(
+                gpio_user_index, target_label=target_label, device=device
+            )
         if _is_versal():
             if target_label not in GPIO._GPIO_MIN_USER_PIN:
                 raise ValueError(
@@ -331,11 +367,11 @@ class GPIO:
         else:
             GPIO_OFFSET = GPIO._GPIO_MIN_USER_PIN
 
-        return (GPIO.get_gpio_base(target_label) + GPIO_OFFSET +
+        return (GPIO.get_gpio_base(target_label, device=device) + GPIO_OFFSET +
                 gpio_user_index)
 
     @staticmethod
-    def get_gpio_npins(target_label=None):
+    def get_gpio_npins(target_label=None, device=None):
         """This method returns the number of GPIO pins for the GPIO base
         using Linux's GPIO Sysfs API.
 
@@ -357,7 +393,10 @@ class GPIO:
             The number of GPIO pins for the GPIO base.
 
         """
-        base_path = GPIO.get_gpio_base_path(target_label)
+        device, backend = _resolve_gpio_backend(device)
+        if backend is not GPIO:
+            return backend.get_gpio_npins(target_label=target_label, device=device)
+        base_path = GPIO.get_gpio_base_path(target_label, device=device)
         if base_path is not None:
             with open(os.path.join(base_path, "ngpio")) as fd:
                 ngpio = fd.read().rstrip()

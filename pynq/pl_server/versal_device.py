@@ -3,14 +3,13 @@
 
 import os
 
-from pynq.ps import _is_versal
-
+from .arch import VersalArch
 from .embedded_device import EmbeddedDevice
 
 __all__ = ["VersalDevice"]
 
 
-class VersalDevice(EmbeddedDevice):
+class VersalDevice(VersalArch, EmbeddedDevice):
     """Device for the Versal Adaptive SoCs.
 
     Versal reconfigures the PL through the same Linux FPGA Manager
@@ -19,16 +18,6 @@ class VersalDevice(EmbeddedDevice):
     (.pdi) loaded on top of the boot PDI the PLM programmed at boot.
 
     """
-
-    # Probed in preference to EmbeddedDevice, which is 50.
-    _probe_priority_ = 40
-
-    @classmethod
-    def _probe_(cls):
-        if _is_versal():
-            return [VersalDevice()]
-        else:
-            return []
 
     def __init__(self, index=0, tag="versal_xrt{}"):
         super().__init__(index, tag)

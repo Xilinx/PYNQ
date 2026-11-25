@@ -1,4 +1,5 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import glob
@@ -18,7 +19,7 @@ from setuptools.command.build_ext import build_ext
 
 # Requirement
 required = [
-    'pynqmetadata',
+    'pynqmetadata>=0.2.0',
     'pynqutils',
     "setuptools>=24.2.0",
     "cffi",
@@ -362,6 +363,7 @@ extend_pynq_package(
 console_scripts = [
     "pynq = pynq._cli.cmd:main",
     "pynq-get-notebooks = pynq._cli.get_notebooks:main",
+    "pynq-install = pynq._cli.install:main",
 ]
 if REMOTE_INSTALL:
     console_scripts.append("pynq-remote-selftest = pynq.remote.selftest.runner:main")
