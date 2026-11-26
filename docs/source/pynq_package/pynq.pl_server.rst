@@ -10,6 +10,7 @@ configured
 Modules:
   * :mod:`pynq.pl_server.device` - Implements the (programmable) device class.
   * :mod:`pynq.pl_server.arch` - Implements the SoC architecture classes shared by local and remote devices.
+  * :mod:`pynq.pl_server.jtag_device` - Controls FPGA-only devices through JTAG-to-AXI.
   * :mod:`pynq.pl_server.xrt_device` - Implements Xilinx Run Time (XRT) enabled device for x86.
   * :mod:`pynq.pl_server.embedded_device` - Implements Xilinx Run Time (XRT) enabled device for SoC.
   * :mod:`pynq.pl_server.versal_device` - Implements the Versal device class for ``.pdi`` overlays.
@@ -22,6 +23,7 @@ Modules:
 
     pynq.pl_server/pynq.pl_server.device
     pynq.pl_server/pynq.pl_server.arch
+    pynq.pl_server/pynq.pl_server.jtag_device
     pynq.pl_server/pynq.pl_server.xrt_device
     pynq.pl_server/pynq.pl_server.embedded_device
     pynq.pl_server/pynq.pl_server.versal_device

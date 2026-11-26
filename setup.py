@@ -105,6 +105,7 @@ extend_pynq_package(
         "pynq/lib/pynqmicroblaze",
         "pynq/lib/pmod",
         "pynq/pl_server/default.xclbin",
+        "pynq/pl_server/jtag.tcl",
     ]
 )
 

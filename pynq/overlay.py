@@ -425,6 +425,7 @@ class Overlay(Bitstream):
                     Clocks.set_pl_clk(i)
 
         super().download(self.parser)
+        self._ip_map = _IPMap(self._ip_map._description)
         if dtbo:
             super().insert_dtbo(dtbo)
         elif self.dtbo:
