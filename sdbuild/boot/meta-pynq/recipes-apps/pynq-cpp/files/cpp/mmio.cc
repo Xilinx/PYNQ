@@ -3,14 +3,14 @@
 #define DEBUG
 
 MMIO::MMIO(off_t base_address, size_t length_p)
-    : mem_fd(-1), virt_base(0), virt_offset(0), length(0), mapped_base(nullptr)
+    : virt_base(0), virt_offset(0), length(0), mapped_base(nullptr)
 {
-    if (base_address < 0 || length_p < 0)
+    if (base_address < 0 || length_p == 0)
     {
-        std::cerr << "Error: Base address or length cannot be negative." << std::endl;
+        std::cerr << "Error: Base address must be nonnegative and length must be positive." << std::endl;
         return;
     }
-    mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
+    int mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
     if (mem_fd == -1)
     {
         std::cerr << "Error: cannot open /dev/mem" << std::endl;
@@ -21,11 +21,10 @@ MMIO::MMIO(off_t base_address, size_t length_p)
     length = length_p;
 
     mapped_base = mmap(nullptr, length + virt_offset, PROT_READ | PROT_WRITE, MAP_SHARED, mem_fd, virt_base);
+    close(mem_fd);
     if (mapped_base == MAP_FAILED)
     {
         std::cerr << "Error: cannot map memory" << std::endl;
-        close(mem_fd);
-        mem_fd = -1;
         mapped_base = nullptr;
     }
 }
@@ -35,10 +34,6 @@ MMIO::~MMIO()
     if (mapped_base != nullptr)
     {
         munmap(mapped_base, length + virt_offset);
-    }
-    if (mem_fd != -1)
-    {
-        close(mem_fd);
     }
 }
 
