@@ -84,6 +84,11 @@ class RemoteDeviceStub(object):
                 request_serializer=remote__device__pb2.RemoveDirRequest.SerializeToString,
                 response_deserializer=remote__device__pb2.RemoveDirResponse.FromString,
                 _registered_method=True)
+        self.set_device_tree = channel.unary_unary(
+                '/remote_device.RemoteDevice/set_device_tree',
+                request_serializer=remote__device__pb2.DeviceTreeRequest.SerializeToString,
+                response_deserializer=remote__device__pb2.DeviceTreeResponse.FromString,
+                _registered_method=True)
 
 
 class RemoteDeviceServicer(object):
@@ -143,6 +148,12 @@ class RemoteDeviceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def set_device_tree(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_RemoteDeviceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -190,6 +201,11 @@ def add_RemoteDeviceServicer_to_server(servicer, server):
                     servicer.removedir,
                     request_deserializer=remote__device__pb2.RemoveDirRequest.FromString,
                     response_serializer=remote__device__pb2.RemoveDirResponse.SerializeToString,
+            ),
+            'set_device_tree': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_device_tree,
+                    request_deserializer=remote__device__pb2.DeviceTreeRequest.FromString,
+                    response_serializer=remote__device__pb2.DeviceTreeResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -435,6 +451,33 @@ class RemoteDevice(object):
             '/remote_device.RemoteDevice/removedir',
             remote__device__pb2.RemoveDirRequest.SerializeToString,
             remote__device__pb2.RemoveDirResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def set_device_tree(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/remote_device.RemoteDevice/set_device_tree',
+            remote__device__pb2.DeviceTreeRequest.SerializeToString,
+            remote__device__pb2.DeviceTreeResponse.FromString,
             options,
             channel_credentials,
             insecure,

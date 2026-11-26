@@ -910,6 +910,38 @@ class RemoteDeviceImpl final : public RemoteDevice::Service
 private:
     const std::string FIRMWARE = "/lib/firmware/";                               ///< Directory for bitstream files
     Device remote_device_;
+    std::mutex device_tree_mutex_;
+    static constexpr size_t max_device_tree_size_ = 1024 * 1024;
+    const std::filesystem::path device_tree_root_ = "/sys/kernel/config/device-tree/overlays";
+    const std::string device_tree_prefix_ = "pynq-remote-";
+
+    Status clear_device_trees()
+    {
+        std::error_code error;
+        std::vector<std::filesystem::path> pending;
+        std::filesystem::directory_iterator entries(device_tree_root_, error);
+        if (error == std::errc::no_such_file_or_directory)
+            return Status::OK;
+        if (error)
+            return Status(grpc::StatusCode::INTERNAL, error.message());
+        for (const auto &entry : entries)
+            if (entry.path().filename().string().rfind(device_tree_prefix_, 0) == 0)
+                pending.push_back(entry.path());
+        while (!pending.empty())
+        {
+            const auto previous_size = pending.size();
+            for (auto entry = pending.begin(); entry != pending.end();)
+            {
+                if (::rmdir(entry->c_str()) == 0 || errno == ENOENT)
+                    entry = pending.erase(entry);
+                else
+                    ++entry;
+            }
+            if (pending.size() == previous_size)
+                return Status(grpc::StatusCode::INTERNAL, "Unable to remove remote device-tree overlays.");
+        }
+        return Status::OK;
+    }
 #ifdef RFSOC
     XrfdcImpl* xrfdc_service_ = nullptr;   ///< Notified on bitstream download so it can drop its stale RFDC mapping.
     XrfclkImpl* xrfclk_service_ = nullptr; ///< Notified on bitstream download so it can drop its cached clock-device state.
@@ -917,6 +949,71 @@ private:
 
 public:
     std::string device_name = "";
+    Status set_device_tree(ServerContext *, const remote_device::DeviceTreeRequest *request,
+                           remote_device::DeviceTreeResponse *response) override
+    {
+        std::lock_guard<std::mutex> lock(device_tree_mutex_);
+        if (request->clear())
+            return clear_device_trees();
+        const auto &name = request->name();
+        if (name.empty() || name == "." || name == ".." ||
+            name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-") != std::string::npos)
+        {
+            return Status(grpc::StatusCode::INVALID_ARGUMENT, "Invalid device-tree name.");
+        }
+        if (!request->remove() && (request->data().empty() || request->data().size() > max_device_tree_size_))
+        {
+            return Status(grpc::StatusCode::INVALID_ARGUMENT, "Device-tree data must contain 1 to 1048576 bytes.");
+        }
+        const auto directory = device_tree_root_ / (device_tree_prefix_ + name);
+        if (request->remove())
+        {
+            if (::rmdir(directory.c_str()) != 0 && errno != ENOENT)
+                return Status(grpc::StatusCode::INTERNAL, std::strerror(errno));
+            response->set_applied(false);
+            return Status::OK;
+        }
+        std::error_code error;
+        if (!std::filesystem::create_directory(directory, error))
+            return Status(grpc::StatusCode::FAILED_PRECONDITION, error ? error.message() : "Device-tree entry already exists.");
+        const auto attribute = directory / "dtbo";
+        int fd = ::open(attribute.c_str(), O_WRONLY);
+        if (fd < 0)
+        {
+            const std::string message = std::strerror(errno);
+            if (::rmdir(directory.c_str()) != 0 && errno != ENOENT)
+                return Status(grpc::StatusCode::INTERNAL,
+                              message + "; cleanup failed: " + std::strerror(errno));
+            return Status(grpc::StatusCode::INTERNAL, message);
+        }
+        const auto written = ::write(fd, request->data().data(), request->data().size());
+        ::close(fd);
+        bool verified = false;
+        if (written == static_cast<ssize_t>(request->data().size()))
+        {
+            fd = ::open(attribute.c_str(), O_RDONLY);
+            if (fd >= 0)
+            {
+                // Configfs requires the entire DTBO to be read in one syscall.
+                std::vector<char> data(max_device_tree_size_);
+                const auto count = ::read(fd, data.data(), data.size());
+                ::close(fd);
+                verified = count == written && std::memcmp(data.data(), request->data().data(), written) == 0;
+            }
+        }
+        std::ifstream status_file(directory / "status");
+        std::string status;
+        status_file >> status;
+        if (!verified || status != "applied")
+        {
+            if (::rmdir(directory.c_str()) != 0 && errno != ENOENT)
+                return Status(grpc::StatusCode::INTERNAL,
+                              std::string("Device-tree insertion failed; cleanup failed: ") + std::strerror(errno));
+            return Status(grpc::StatusCode::INTERNAL, "Device-tree insertion or readback failed.");
+        }
+        response->set_applied(true);
+        return Status::OK;
+    }
     /**
      * @brief Constructor for RemoteDeviceImpl.
      * Checks if the /lib/firmware/ directory exists and creates it if it does not.

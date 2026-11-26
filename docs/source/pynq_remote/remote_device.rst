@@ -31,7 +31,12 @@ Local and remote devices share the architecture classes in
 
 Device tree overlays (``.dtbo``) shipped with a bitstream are applied on the
 board. This needs a remote image built with the matching ``pynq-remote``
-server. Update older remote images before applying device tree overlays.
+server. Update older remote images before downloading a full bitstream or
+applying device tree overlays.
+
+Device tree files must be nonempty and no larger than 1 MiB. Before a full
+bitstream download, PYNQ removes the board's PYNQ.remote device tree overlays,
+including those installed by other clients.
 
 The ``RemoteDevice`` class is complemented by ``PYNQ.cpp`` which operates on the target device, providing a C++ implementation of the PYNQ API. For more details on the C++ implementation, see the :ref:`cppindex` module documentation.
 

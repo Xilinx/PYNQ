@@ -12,6 +12,7 @@ service RemoteDevice {
     rpc existsfile(ExistsFileRequest) returns (ExistsFileResponse) {}
     rpc makedir(MakeDirRequest) returns (MakeDirResponse) {}
     rpc removedir(RemoveDirRequest) returns (RemoveDirResponse) {}
+    rpc set_device_tree(DeviceTreeRequest) returns (DeviceTreeResponse) {}
 }
 
 //Add ReadFileRequest/Response
@@ -83,4 +84,15 @@ message DownloadRequest {
 
 message DownloadResponse {
     bool status = 1;
+}
+
+message DeviceTreeRequest {
+    string name = 1;
+    bytes data = 2;
+    bool remove = 3;
+    bool clear = 4;
+}
+
+message DeviceTreeResponse {
+    bool applied = 1;
 }

@@ -113,3 +113,21 @@ class DownloadResponse(_message.Message):
     STATUS_FIELD_NUMBER: _ClassVar[int]
     status: bool
     def __init__(self, status: bool = ...) -> None: ...
+
+class DeviceTreeRequest(_message.Message):
+    __slots__ = ("name", "data", "remove", "clear")
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    REMOVE_FIELD_NUMBER: _ClassVar[int]
+    CLEAR_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    data: bytes
+    remove: bool
+    clear: bool
+    def __init__(self, name: _Optional[str] = ..., data: _Optional[bytes] = ..., remove: bool = ..., clear: bool = ...) -> None: ...
+
+class DeviceTreeResponse(_message.Message):
+    __slots__ = ("applied",)
+    APPLIED_FIELD_NUMBER: _ClassVar[int]
+    applied: bool
+    def __init__(self, applied: bool = ...) -> None: ...
