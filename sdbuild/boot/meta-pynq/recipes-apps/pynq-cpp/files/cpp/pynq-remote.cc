@@ -21,6 +21,7 @@
 #include <sstream>
 #include <filesystem>
 #include <cerrno>
+#include <mutex>
 
 
 #include <remote_device.grpc.pb.h>
@@ -563,21 +564,9 @@ class MMIOImpl final : public Mmio::Service
      */
 private:
     std::unordered_map<std::string, std::unique_ptr<MMIO>> mmios_; ///< Map to store MMIO objects
-    uint64_t count = 0;                                            ///< Counter for generating MMIO IDs
+    std::mutex mmio_mutex_;
 
 public:
-    /**
-     * @brief Adds a new MMIO object.
-     * Creates and stores a new MMIO object with the given base address, length, and identifier.
-     * @param base_addr Base address for memory mapping.
-     * @param length Length of the memory region.
-     * @param mmio_id Identifier for the MMIO object.
-     */
-    void addMMIO(uint64_t base_addr, uint64_t length, std::string mmio_id)
-    {
-        mmios_[mmio_id] = std::make_unique<MMIO>(base_addr, length);
-    }
-
     /**
      * @brief Finds an MMIO object by its ID.
      * Searches the internal map for an MMIO object with the given identifier.
@@ -586,6 +575,7 @@ public:
      */
     MMIO *findMMIO(const std::string &mmio_id)
     {
+        std::lock_guard<std::mutex> lock(mmio_mutex_);
         auto it = mmios_.find(mmio_id);
         if (it != mmios_.end())
         {
@@ -596,7 +586,7 @@ public:
 
     /**
      * @brief Handles the GetMmio gRPC request.
-     * Creates a new MMIO object based on the request parameters and returns its identifier.
+     * Creates or reuses the requested physical mapping and returns its identifier.
      * @param context Server context for the request.
      * @param request GetMmioRequest message.
      * @param response GetMmioResponse message.
@@ -610,9 +600,17 @@ public:
                   << "length=" << request->length()
                   << std::endl;
         #endif
-        std::string mmio_id = std::to_string(count);
-        addMMIO(request->base_addr(), request->length(), mmio_id);
-        count += 1;
+        if (request->length() == 0)
+            return Status(grpc::StatusCode::INVALID_ARGUMENT, "MMIO length must be positive.");
+        const auto mmio_id = std::to_string(request->base_addr()) + ":" + std::to_string(request->length());
+        std::lock_guard<std::mutex> lock(mmio_mutex_);
+        if (mmios_.find(mmio_id) == mmios_.end())
+        {
+            auto mmio = std::make_unique<MMIO>(request->base_addr(), request->length());
+            if (!mmio->contains(0, 0))
+                return Status(grpc::StatusCode::INTERNAL, "Cannot map MMIO region.");
+            mmios_.emplace(mmio_id, std::move(mmio));
+        }
         response->set_mmio_id(mmio_id);
         return grpc::Status::OK;
     }
@@ -658,7 +656,7 @@ public:
         std::cout << "Function: write, "
                   << "mmio_id=" << request->mmio_id() << ", "
                   << "offset=" << request->offset() << ", "
-                  << "data=" << *reinterpret_cast<const uint32_t *>(request->data().data())
+                  << "bytes=" << request->data().size()
                   << std::dec
                   << std::endl;
         #endif
@@ -667,9 +665,21 @@ public:
         {
             return grpc::Status(grpc::StatusCode::NOT_FOUND, "MMIO Object not found.");
         }
-        uint32_t value;
-        std::memcpy(&value, request->data().data(), sizeof(value));
-        mmio->write(value, request->offset());
+        const auto &data = request->data();
+        if (request->offset() % sizeof(uint32_t) || data.size() % sizeof(uint32_t))
+        {
+            return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "MMIO writes must be word-aligned.");
+        }
+        if (!mmio->contains(request->offset(), data.size()))
+        {
+            return grpc::Status(grpc::StatusCode::OUT_OF_RANGE, "MMIO write exceeds the mapped region.");
+        }
+        for (size_t position = 0; position < data.size(); position += sizeof(uint32_t))
+        {
+            uint32_t value;
+            std::memcpy(&value, data.data() + position, sizeof(value));
+            mmio->write(value, request->offset() + position);
+        }
         return grpc::Status::OK;
     }
 };

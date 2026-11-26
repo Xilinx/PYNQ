@@ -15,7 +15,6 @@ class MMIO
      Each instance of this class represents a memory-mapped region for reading and writing data.
      */
 private:
-    int mem_fd;        ///< File descriptor for memory access
     off_t virt_base;   ///< Base address for virtual memory
     off_t virt_offset; ///< Offset from the base address
     size_t length;        ///< Length of the memory region
@@ -32,7 +31,7 @@ public:
 
     /**
      * @brief Destructor for MMIO.
-     * Cleans up memory mapping and file descriptor.
+     * Cleans up the memory mapping.
      */
     ~MMIO();
 
@@ -49,6 +48,11 @@ public:
      * @param offset Offset from the base address.
      */
     void write(uint32_t data, uint64_t offset);
+
+    bool contains(uint64_t offset, size_t bytes) const
+    {
+        return mapped_base != nullptr && offset <= length && bytes <= length - offset;
+    }
 };
 
 #endif // MMIO_H
