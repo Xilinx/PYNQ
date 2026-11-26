@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2014, Almar Klein and Wade Brainerd
+# Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # tinynumpy is distributed under the terms of the MIT License.
 #
 # Original code by Wade Brainerd (https://github.com/wadetb/tinyndarray)
@@ -201,12 +202,25 @@ def _zerositer(n):
 ## Public functions
 
 def frombuffer(buffer, dtype, count, offset=0):
+    if not isinstance(offset, int) or offset < 0:
+        raise ValueError('Offset must be a nonnegative integer')
+    if not isinstance(count, int) or count < 0:
+        raise ValueError('Count must be a nonnegative integer')
+    itemsize = int(_convert_dtype(dtype, 'short')[-1])
     if isinstance(buffer, ndarray):
-        offset += buffer._offset
+        if not buffer.flags['C_CONTIGUOUS']:
+            raise ValueError('Buffer must be contiguous')
+        if offset + count * itemsize > buffer.nbytes:
+            raise ValueError('View exceeds the buffer')
+        offset += buffer._offset * buffer.itemsize
         buffer = buffer._data
     if not isinstance(buffer, _FakeBuffer):
         raise RuntimeError('Only fake buffers supported')
-    return ndarray((count,), dtype, buffer=buffer, offset=offset)
+    if buffer._offset + offset + count * itemsize > len(buffer._bytearray):
+        raise ValueError('View exceeds the buffer')
+    result = ndarray((count,), dtype, buffer=buffer)
+    result._data._offset += offset
+    return result
 
 def array(obj, dtype=None, copy=True, order=None):
     """ array(obj, dtype=None, copy=True, order=None)
