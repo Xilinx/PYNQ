@@ -1,4 +1,5 @@
 # Copyright (C) 2022 Xilinx, Inc
+# Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -26,4 +27,4 @@ else:
     from .pmbus import DataRecorder, get_rails
 
 __all__ = ["lib", "tests"]
-__version__ = "4.0.0"
+__version__ = "4.1.0"

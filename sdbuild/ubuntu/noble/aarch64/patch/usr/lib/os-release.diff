@@ -13,11 +13,11 @@
 -BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
 -PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
 +NAME="PynqLinux"
-+VERSION="4.0.0 (Verona)"
++VERSION="4.1.0 (Verona)"
 +ID=pynqlinux
 +ID_LIKE=ubuntu
 +PRETTY_NAME="PynqLinux, based on Ubuntu 24.04"
-+VERSION_ID="4.0.0"
++VERSION_ID="4.1.0"
 +HOME_URL="https://www.pynq.io/"
 +SUPPORT_URL="https://discuss.pynq.io/"
 +BUG_REPORT_URL="https://www.pynq.io"

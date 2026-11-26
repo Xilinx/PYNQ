@@ -1,9 +1,10 @@
 # Copyright (C) 2022 Xilinx, Inc
+# Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 # Builds final pynq source distribution with overlays and BSPs included
 
-VERSION := 4.0.0
+VERSION := 4.1.0
 SDIST := dist/pynq-$(VERSION).tar.gz
 
 BITS := boards/ZCU104/base/base.bit
