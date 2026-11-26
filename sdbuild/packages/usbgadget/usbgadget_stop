@@ -1,3 +1,5 @@
 #!/bin/bash
+set -e
 
 echo "" > /sys/kernel/config/usb_gadget/g/UDC
+echo "" > /sys/kernel/config/usb_gadget/g/functions/mass_storage.ms0/lun.0/file
