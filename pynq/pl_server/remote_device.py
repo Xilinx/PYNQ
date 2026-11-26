@@ -193,6 +193,7 @@ class RemoteDevice(Device):
 
     def __init__(self, index=0, ip_addr=None, port=PYNQ_PORT, tag="remote{}"):
         super().__init__(tag.format(index))
+        self.devicetree_dict = {}
         self.ip_addr = ip_addr
         self.port = port
         self._state_tag = re.sub(r"[^\w.-]", "_", f"{ip_addr}_{port}")
@@ -230,6 +231,14 @@ class RemoteDevice(Device):
     @property
     def _interrupt_class(self):
         return RemoteInterrupt
+
+    def clear_devicetree(self):
+        self._stub["device"].set_device_tree(
+            remote_device_pb2.DeviceTreeRequest(clear=True))
+        self.devicetree_dict.clear()
+
+    def remove_device_tree(self, abs_dtbo):
+        super().remove_device_tree(Path(abs_dtbo).as_posix())
 
     def get_board_name(self):
         board_name_path = "/proc/device-tree/chosen/pynq_board"
@@ -366,7 +375,7 @@ class RemoteDevice(Device):
         )
 
     def _devicetree_segment(self, abs_dtbo):
-        return RemoteDeviceTreeSegment(abs_dtbo, self)
+        return RemoteDeviceTreeSegment(Path(abs_dtbo).as_posix(), self)
 
     def set_bitfile_name(self, bitfile_name: str) -> None:
         self.check_state()
@@ -470,6 +479,7 @@ class RemoteDevice(Device):
         self.write_file(FIRMWARE + bitstream.binfile_name, bin_data)
 
         if not bitstream.partial:
+            self.clear_devicetree()
             self.shutdown()
             self.gen_cache(bitstream, parser)
             flag = "0"
@@ -627,7 +637,9 @@ class RemoteDeviceTreeSegment(DeviceTreeSegment):
     def __init__(self, dtbo_path, device):
         super().__init__(dtbo_path)
         self.device = device
-        self.sysfs_dir = posixpath.join(SYSTEM_DEVICE_TREE_PATH, self.dtbo_name)
+        self.sysfs_dir = posixpath.join(
+            SYSTEM_DEVICE_TREE_PATH, "pynq-remote-" + self.dtbo_name
+        )
 
     def is_dtbo_applied(self):
         status = posixpath.join(self.sysfs_dir, "status")
@@ -636,13 +648,13 @@ class RemoteDeviceTreeSegment(DeviceTreeSegment):
         return self.device.read_file(status) == b"applied\n"
 
     def insert(self):
-        with open(self.dtbo_path, "rb") as f:
-            dtbo_data = f.read()
-        self.device.make_dir(self.sysfs_dir)
         try:
-            path = posixpath.join(self.sysfs_dir, "dtbo")
-            self.device.write_file(path, dtbo_data)
-            if self.device.read_file(path) != dtbo_data or not self.is_dtbo_applied():
+            response = self.device._stub["device"].set_device_tree(
+                remote_device_pb2.DeviceTreeRequest(
+                    name=self.dtbo_name, data=Path(self.dtbo_path).read_bytes()
+                )
+            )
+            if not response.applied:
                 raise RuntimeError(
                     "Failed to apply device-tree overlay {}.".format(self.dtbo_name)
                 )
@@ -652,8 +664,9 @@ class RemoteDeviceTreeSegment(DeviceTreeSegment):
             raise
 
     def remove(self):
-        if self.device.exists_file(self.sysfs_dir).exists:
-            self.device.remove_dir(self.sysfs_dir)
+        self.device._stub["device"].set_device_tree(
+            remote_device_pb2.DeviceTreeRequest(name=self.dtbo_name, remove=True)
+        )
 
 
 class RemoteMemory:
