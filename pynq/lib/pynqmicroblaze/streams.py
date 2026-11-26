@@ -1,8 +1,10 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 import numpy as np
 import struct
+from pynq._3rdparty import tinynumpy as tnp
 
 
 
@@ -17,12 +19,14 @@ def _safe_copy(dest, src):
 
 class SimpleMBChannel:
     def __init__(self, buffer, offset=0, length=0):
-        self.control_array = np.frombuffer(buffer, count=2,
-                                           offset=offset, dtype=np.uint32)
+        frombuffer = (tnp.frombuffer if isinstance(buffer, tnp.ndarray)
+                      else np.frombuffer)
+        self.control_array = frombuffer(buffer, count=2,
+                                       offset=offset, dtype="uint32")
         if not length:
             length = len(buffer) - offset
-        self.data_array = np.frombuffer(buffer, count=(length - 8),
-                                        offset=offset + 8, dtype=np.uint8)
+        self.data_array = frombuffer(buffer, count=(length - 8),
+                                    offset=offset + 8, dtype="uint8")
         self.length = length - 8
 
     def write(self, b):

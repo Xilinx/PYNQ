@@ -1075,10 +1075,16 @@ class _AccessHook:
         length : int
             Number of bytes to read
         """
-        data = self.mmio.read(offset, length)
-        if isinstance(data, int):
-            data = data.to_bytes(length, byteorder='little')
-        return data
+        if offset < 0 or length < 0 or offset + length > self.mmio.length:
+            raise ValueError("Array access exceeds the mapped region.")
+        if not length:
+            return b""
+        start = offset - offset % 4
+        data = b"".join(
+            self.mmio.read(word).to_bytes(4, "little")
+            for word in range(start, offset + length, 4)
+        )
+        return data[offset - start:offset - start + length]
 
     def write(self, offset, data):
         """Write data to remote MMIO
@@ -1087,10 +1093,21 @@ class _AccessHook:
         ----------
         offset : int
             Offset from base address  
-        data : bytes or int
+        data : bytes
             Data to write to remote device
         """
-        self.mmio.write(offset, data)
+        if offset < 0 or offset + len(data) > self.mmio.length:
+            raise ValueError("Array access exceeds the mapped region.")
+        if not data:
+            return
+        start = offset - offset % 4
+        end = offset + len(data)
+        prefix = suffix = b""
+        if offset % 4:
+            prefix = self.mmio.read(start).to_bytes(4, "little")[:offset - start]
+        if end % 4:
+            suffix = self.mmio.read(end - end % 4).to_bytes(4, "little")[end % 4:]
+        self.mmio.write(start, prefix + data + suffix)
 
 class RemoteMMIO:
     """Memory-mapped I/O for remote devices via gRPC
@@ -1118,6 +1135,7 @@ class RemoteMMIO:
         if response.msg:
             raise RuntimeError(response.msg)
         self.mmio_id = response.mmio_id
+        self.length = length
 
         self._hook = _AccessHook(address, self)
         stype = tnp._convert_dtype("u4", to="array")
@@ -1133,14 +1151,23 @@ class RemoteMMIO:
             raise ValueError("MMIO only supports big and little endian.")
         if offset % 4:
             raise MemoryError("Unaligned read: offset must be multiple of 4.")
+        if offset + max(4, length) > self.length:
+            raise ValueError("Read exceeds the mapped region.")
+
+        if length == 8:
+            first = self.read(offset)
+            second = self.read(offset + 4)
+            if word_order == "little":
+                return (second << 32) | first
+            return (first << 32) | second
 
         response = self._stub.read(
             mmio_pb2.ReadRequest(mmio_id=self.mmio_id, offset=offset,
-                                          length=length, word_order=word_order)
+                                          length=4, word_order=word_order)
         )
         if response.msg:
             raise RuntimeError(response.msg)
-        return response.data
+        return response.data & ((1 << (length * 8)) - 1)
 
     def write(self, offset, data):
         if offset < 0:
