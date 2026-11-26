@@ -1,4 +1,5 @@
-#   Copyright (c) 2016, Xilinx, Inc.
+#   Copyright (c) 2016-2022, Xilinx, Inc.
+#   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
 
@@ -447,7 +448,9 @@ def _generate_arraydecl(name, decl, length):
     base on an existing declaration
 
     """
-    typedecl = c_ast.TypeDecl(name, [], None, decl.type)
+    typedecl = deepcopy(decl.type)
+    typedecl.declname = name
+    typedecl.quals = []
     arraydecl = c_ast.ArrayDecl(typedecl, length, [])
     return c_ast.Decl(name, [], None, [], [], arraydecl, [], [])
 
