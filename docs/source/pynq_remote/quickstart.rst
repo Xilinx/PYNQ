@@ -19,9 +19,8 @@ Prerequisites
 Step 1: Install PYNQ.remote on the Host
 ---------------------------------------
 
-PYNQ.remote uses two environment variables at different stages. Set
-``PYNQ_REMOTE=1`` when installing the ``pynq`` package on the host so that
-remote client dependencies are installed and native board binaries are skipped.
+Installing the ``pynq`` package on the host automatically installs remote client
+dependencies and skips native board binaries.
 Set ``PYNQ_REMOTE_DEVICES`` at runtime, before ``import pynq``, to identify the
 target board. See :doc:`env_variables` for platform-specific ways to set
 ``PYNQ_REMOTE_DEVICES``.
@@ -33,7 +32,7 @@ It is recommended to use a
 
 .. code-block:: bash
 
-   PYNQ_REMOTE=1 pip install pynq
+   pip install pynq
 
 To install from source:
 
@@ -41,13 +40,13 @@ To install from source:
 
    git clone --recursive https://github.com/Xilinx/PYNQ.git
    cd PYNQ
-   PYNQ_REMOTE=1 pip install .
+   pip install .
 
 **Windows (PowerShell):**
 
 .. code-block:: powershell
 
-   $env:PYNQ_REMOTE="1"; pip install pynq
+   pip install pynq
 
 Step 2: Prepare and Boot the Target Device
 ------------------------------------------

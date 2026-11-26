@@ -4,8 +4,8 @@ pynq.remote Package
 ===================
 
 The ``pynq.remote`` package provides the host-side gRPC client modules for
-PYNQ.remote. Install it by setting ``PYNQ_REMOTE=1`` when installing the
-``pynq`` package. See :ref:`pynq_remote` for setup and usage.
+PYNQ.remote. It is installed automatically when installing the ``pynq`` package
+on the host. See :ref:`pynq_remote` for setup and usage.
 
 When ``PYNQ_REMOTE_DEVICES`` is set before ``import pynq``, the top-level
 ``pynq`` package registers ``pynq.remote.xrfdc`` and ``pynq.remote.xrfclk`` as

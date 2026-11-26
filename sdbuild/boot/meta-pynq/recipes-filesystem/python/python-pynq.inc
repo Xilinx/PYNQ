@@ -46,6 +46,7 @@ INITSCRIPT_PACKAGES = "${PN}"
 INITSCRIPT_PARAMS = "start 99 S ."
 
 do_compile:prepend() {
+export PYNQ_BUILD_CLASSIC="1"
 install -d "${D}/home/root/notebooks"
 export PYNQ_JUPYTER_NOTEBOOKS="${D}/home/root/notebooks"
 export PYNQ_BUILD_ARCH="${PYNQ_ARCH_${TARGET_ARCH}}"
@@ -55,6 +56,7 @@ export PYNQ_BUILD_ROOT="${STAGING_DIR_TARGET}"
 }
 
 do_install:prepend() {
+export PYNQ_BUILD_CLASSIC="1"
 install -d "${D}/home/root/notebooks"
 export PYNQ_JUPYTER_NOTEBOOKS="${D}/home/root/notebooks"
 export PYNQ_BUILD_ARCH="${PYNQ_ARCH_${TARGET_ARCH}}"
