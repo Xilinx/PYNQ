@@ -1,0 +1,18 @@
+Subject: [PATCH] usb: dwc3: Stop the generic host before OS handoff
+
+Mark the generic host as active DMA so U-Boot invokes its remove callback
+before starting the OS, leaving the controller ready for Linux.
+
+Copyright (C) 2026 Advanced Micro Devices, Inc.
+
+--- a/drivers/usb/dwc3/dwc3-generic.c
++++ b/drivers/usb/dwc3/dwc3-generic.c
+@@ -295,7 +295,7 @@
+ 	.priv_auto	= sizeof(struct dwc3_generic_host_priv),
+ 	.plat_auto	= sizeof(struct dwc3_generic_plat),
+ 	.ops = &xhci_usb_ops,
+-	.flags = DM_FLAG_ALLOC_PRIV_DMA,
++	.flags = DM_FLAG_ALLOC_PRIV_DMA | DM_FLAG_ACTIVE_DMA,
+ };
+ #endif
+ 
