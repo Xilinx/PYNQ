@@ -8,6 +8,7 @@ import os
 
 from .arch import VersalArch, ZynqArch, ZynqUltrascaleArch
 from .device import Device
+from .jtag_device import JtagDevice
 from .global_state import (
     GlobalState,
     global_state_file_exists,
