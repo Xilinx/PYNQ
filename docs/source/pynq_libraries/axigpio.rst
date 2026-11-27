@@ -91,12 +91,12 @@ More information about the AxiGPIO module and the API for reading, writing
 and waiting for interrupts can be found in the :ref:`pynq-lib-axigpio` 
 sections.
 
-For more examples see the "Buttons and LEDs demonstration" notebook for the
+For more examples see the "Using Interrupts and asyncio for Buttons and Switches" notebook for the
 ZCU104 board at:
 
 .. code-block:: console
 
-   <Jupyter Home>/base/board/board_btns_leds.ipynb
+   <Jupyter Home>/base/board/asyncio_buttons.ipynb
    
 The same notebook may be found in the corresponding folder in the GitHub 
 repository. 

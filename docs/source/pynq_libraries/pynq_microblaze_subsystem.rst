@@ -75,7 +75,7 @@ Any hierarchy that contains a Microblaze and meets the above requirements of
 having AXI-accessible code memory, a PS interrupt line and a reset line can be
 used in PYNQ. However in order to use your Microblaze with the IPython magic
 you must provide a board support package (BSP). BSPs are generated from Xilinx
-SDK and contain all of the drivers and configuration data for the peripherals
+Vitis and contain all of the drivers and configuration data for the peripherals
 attached to the Microblaze.
 
 PYNQ provides a TCL script to generate the BSP from the hardware description
@@ -84,10 +84,10 @@ along with the drivers needed for Python/C communication and the ``pynqmb``
 hardware abstraction library. Creating and using the BSP requires the following
 steps:
 
-1. Export Hardware from Vivado to generate the HDF file
+1. Export Hardware from Vivado to generate the XSA file
 
-2. In the ``boards/sw_repo`` directory run ``make HDF=$HDF_FILE``. If no HDF
-   is provided then the Base Overlay BSPs will be generated.
+2. In the ``boards/sw_repo`` directory run ``make XSA=$XSA_FILE``. An XSA
+   must be provided
 
 3. Copy the generated BSP on to the board and ensure it is name
    ``bsp_${hierarchy}`` where ``${hierarchy}`` is the name of the Microblaze

@@ -8,10 +8,10 @@ memory mapped. In particular, registers and address space of peripherals in the
 PL can be accessed. 
 
    
-AXI GP ports
+AXI HPM ports
 ------------
 
-In an overlay, peripherals connected to the AXI General Purpose ports will have
+In an overlay, peripherals connected to the AXI High Performance Master (HPM) ports will have
 their registers or address space mapped into the system memory map. 
 With PYNQ, the register, or address space of an IP can be accessed from Python 
 using the *MMIO* class. 
@@ -21,10 +21,10 @@ using the *MMIO* class.
 
 MMIO provides a simple but powerful way to access and control peripherals. For 
 simple peripherals with a small number of memory accesses, or where performance 
-is not critical, MMIO is usually sufficient for most developers. If performance 
-is critical, or large amounts of data need to be transferred between PS and PL, 
-using the Zynq HP interfaces with DMA IP and the PYNQ DMA class may be more 
-appropriate. 
+is not critical, MMIO is usually sufficient for most developers. If performance
+is critical, or large amounts of data need to be transferred between the PS and
+PL, interfacing with the Zynq UltraScale+ High Performance slave ports, or the
+Versal memory controllers (through the NoC), using the DMA may be more appropriate.
 
 Example
 -------

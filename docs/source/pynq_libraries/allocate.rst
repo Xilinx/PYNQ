@@ -46,7 +46,7 @@ Create a contiguous array of 5 32-bit unsigned integers
    .. code-block:: Python
 
       from pynq import allocate
-      input_buffer = allocate(shape=(5,), dtype='u4')
+      input_buffer = allocate(shape=(5,), dtype=np.uint32)
 
 ``device_address`` property of the buffer
 
@@ -67,6 +67,23 @@ logic:
    .. code-block:: Python
 
       input_buffer.flush()
+
+
+Allocating in ``target`` memory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Contiguous memory buffers can be allocated in specific memory controllers using
+the ``target`` keyword. The memory must be part of the overlay, and listed in
+the ``mem_dict`` dictionary. The target memory must be reserved in the device tree
+to use this feature.
+
+   .. code-block:: Python
+
+      target_buffer = allocate((5,), dtype=np.uint32, target=ol.<memory name>)
+
+This feature is demonstrated in the VCK190 `Versal Memories` 
+<https://github.com/Xilinx/PYNQ/blob/master/boards/VCK190/notebooks/versal_memories.ipynb>`__
+notebook.
 
 More information about memory allocation can be found in the :ref:`pynq-buffer`
 section in the library reference.

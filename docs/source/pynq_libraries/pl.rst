@@ -1,34 +1,28 @@
 .. _pynq-libraries-pl:
 
-Device and Bitstream classes
-============================
-
-The *Device* is a class representing some programmable logic that is mainly
-used by the Overlay class. Each instance of the Device class has a
-corresponding *server* which manages the loaded overlay. The server can stop
-multiple overlays from different applications from overwriting the currently
-loaded overlay. 
-
-The overlay Tcl file is parsed by the Device class to generate the IP, clock,
-interrupts, and gpio dictionaries (lists of information about IP, clocks and
-signals in the overlay).
-
-The *Bitstream* class can be found in the bitstream.py source file, and can be used
-instead of the overlay class to download a bitstream file to the PL without
-requiring an overlay Tcl file. This can be used for testing, but these
-attributes can also be accessed through the Overlay class (which inherits from
-this class). Using the Overlay class is the recommended way to access these
-attributes.
-
-Examples
---------
+Device, Bitstream and PL classes
+================================
 
 Device
-^^^^^^
+------
+
+The *Device* is a class representing the device containing the PL, and is mainly
+used by the Overlay class. Each instance of the Device class downloads overlays
+to the PL, and keeps track of the overlay loaded by the current Python process.
+
+The overlay metadata is parsed by the Device class to generate the IP, GPIO,
+interrupt, hierarchy and memory dictionaries (lists of information about IP,
+signals and memories in the overlay). Metadata is parsed from the Hardware
+Handoff (``.hwh``) file, the Xilinx Support Archive (``.xsa``), or an
+``.xclbin`` file provided with the overlay.
+
+The dictionaries of the Device are populated when an overlay is instantiated.
 
 .. code-block:: Python
 
-   from pynq import Device
+   from pynq import Device, Overlay
+
+   ol = Overlay("base.bit") # base.pdi on Versal
 
    dev = Device.active_device # Retrieve the currently used device
 
@@ -44,59 +38,73 @@ Device
 
    dev.hierarchy_dict # List the hierarchies in the overlay
 
+   dev.mem_dict # List the memories in the overlay
+
+Device Types
+^^^^^^^^^^^^
+
+There are three types of *Devices* supported by PYNQ.
+
+1. ``VersalDevice``: used for Versal devices and programmed with a ``.pdi``
+   file.
+2. ``EmbeddedDevice``: used for Zynq UltraScale+ devices and programmed with a ``.bit``
+   file.
+3. ``RemoteDevice``: used to control a PYNQ board from a host computer over gRPC. More details
+   on remote devices in :ref:`pynq_remote`
+
+The Linux FPGA Manager is used to program the PL for both Versal and Zynq UltraScale+
+devices. ``/dev/mem`` is used to access IP in the PL, and XRT is used to allocate memory.
 
 Bitstream
-^^^^^^^^^
+---------
+
+The *Bitstream* class can be found in the bitstream.py source file, and can also be
+used instead of the *Overlay* class to download a bitstream (``.bit``) or Programmable
+Device Image (``.pdi``) file to the PL without requiring a HWH file. This can be used
+for testing, but the Bitstream methods and attributes can also be accessed through the
+Overlay class (which inherits from the Bitstream class). Using the Overlay class is the
+recommended way to access them.
+
+Below is an example of directly downloading a bitstream file on Zynq UltraScale+.
 
 .. code-block:: Python
 
    from pynq import Bitstream
 
-   bit = Bitstream("base.bit") # No overlay Tcl file required
+   bit = Bitstream("base.bit") # No overlay HWH file required, base.pdi on Versal
 
    bit.download()
 
    bit.bitfile_name
+
+.. code-block:: Python
+
+   '/usr/local/share/pynq-venv/lib/python3.12/site-packages/pynq/overlays/base/base.bit'
+
+PL
+--
+
+When a bitstream is downloaded, the Device saves the details of the loaded
+overlay to a global state file in the ``pynq/pl_server`` directory. This includes
+the bitstream path, a hash of the bitstream, the download timestamp, etc. Parsed
+metadata is also stored in ``_current_metadata.pkl``.
+
+The *PL* class reads from these files, making information about the currently loaded
+overlay available.
+
+.. code-block:: Python
+
+   from pynq import PL
+
+   PL.bitfile_name # Get the path of the bitstream currently loaded on the PL
+
+   PL.timestamp # Get the timestamp when the current overlay was loaded
+
+   PL.ip_dict # List IP in the overlay currently loaded on the PL
    
-'/usr/local/share/pynq-venv/lib/python3.8/site-packages/pynq/overlays/base/base.bit'
-
-Device Server Types
--------------------
-
-The *server* associated to a *Device* can be of two types:
-
-1. *Global* server: this server is globally defined and shared across all 
-   Python processes. 
-2. *Local* server: in this case, the server is defined locally with respect to
-   a specific Python process and exists only within that context.
-
-There are benefits and downsides for both approaches, and based on the 
-requirements, scenarios in which one or the other is more appropriate. A global
-server will arbitrate the usage of a device across different processes, but its
-life-cycle is required to be managed explicitly. Conversely, a local process 
-does not prevent contention across Python processes, but will be automatically 
-spawned when a device is initialized and destroyed when the associated Python
-process exits.
-
-When instantiating a *Device* object, three different strategies can be selected
-by setting the ``server_type`` flag appropriately :
-
-1. ``server_type="global"`` will tell the Device object to use a globally defined 
-   server. This server need to be already started separately.
-2. ``server_type="local"`` will instead spawn a local server, that will be 
-   closed as soon as the Python process terminates.
-3. ``server_type="fallback"`` will attempt to use a global server, and in case
-   it fails, will fallback to a local server instance. This is the default
-   behavior in case ``server_type`` is not defined.
-
-For Zynq and ZynqUltrascale+ devices, the selected server type is *global*. In
-fact, the device server is started as a system service at boot time on PYNQ SD 
-card images.
-
-For XRT devices, the server type strategy is *fallback*. In case required, a 
-system administrator can still setup a global device server to arbitrate usage.
-However, if a global server is not found, it will automatically default to using
-a local server instead.
+If an overlay is loaded and its hash matches the hash currently stored, the
+stored metadata is used to avoid parsing the HWH files again. ``PL.reset()`` can
+be called to clear the global state file.
 
 More information about devices and bitstreams can be found in the
 :ref:`pynq-bitstream` and :ref:`pynq-pl_server` sections.
