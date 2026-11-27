@@ -87,6 +87,8 @@ time. This will fix most of the PS configuration, including setup of DRAM, and
 enabling of the Zynq PS peripherals, including SD card, Ethernet, USB and UART
 which are used by PYNQ.
 
+.. _pl-clock-configuration:
+
 The PS configuration also includes settings for system clocks, including the
 clocks used in the PL. The PL clocks can be programmed at runtime to match the
 requirements of the overlay. This is managed automatically by the PYNQ Overlay
@@ -95,6 +97,23 @@ class.
 During the process of downloading a new overlay, the clock configuration will be
 parsed from the overlay's HWH file. The new clock settings for the overlay will
 be applied automatically before the overlay is downloaded.
+
+PYNQ calculates integer dividers using the currently selected PL clock source,
+normally configured by the boot image. It does not switch to the PLL selected
+in the overlay or reproduce Vivado's PLL settings. PLLs may also supply the PS,
+so reprogramming them can affect the running system. The achievable frequencies
+therefore depend on the image and may differ from the Vivado design.
+
+For frequency requests, PYNQ selects the closest achievable rate, allowing up to
+1% above the requested rate. If this would exceed the limit, it selects the
+closest lower rate, or raises ``ValueError`` if none is available. A difference
+greater than 1% produces a warning.
+
+Read ``Clocks.fclk0_mhz`` through ``Clocks.fclk3_mhz`` after downloading an overlay
+to check the configured rates against the design's timing limits. These values
+are calculated from clock registers, not measured. For timing-critical clocks,
+verify the actual frequency using an AXI Timer against an independent time
+reference.
 
 
 Existing Overlays
