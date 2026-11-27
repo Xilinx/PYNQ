@@ -37,7 +37,7 @@ manager, networking, and board identity.
 Host-side self-test
 -------------------
 
-After installing PYNQ on the host with ``PYNQ_REMOTE=1``, run:
+After installing PYNQ on the host, run:
 
 .. code-block:: bash
 

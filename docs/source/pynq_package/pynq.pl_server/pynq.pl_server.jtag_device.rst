@@ -7,7 +7,7 @@ the PYNQ overlay API, including drivers such as AXI GPIO. Drivers that require
 PS GPIO or host interrupts cannot be used through this connection.
 
 The host requires Vivado or Vivado Lab, with both the tools and ``hw_server`` on
-``PATH``. Install PYNQ using the host installation option, ``PYNQ_REMOTE=1``.
+``PATH``. Install PYNQ on the host with ``pip install pynq``.
 The FPGA design must contain one JTAG-to-AXI master with a 32-bit data bus and
 32-bit addresses. Supply a complete ``.bit`` file and a matching ``.hwh`` file
 with the same name in the same directory.

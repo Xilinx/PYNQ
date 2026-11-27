@@ -27,13 +27,13 @@ if [ "${PYNQ_BOARD}" = "VCK190" ]; then
     pynq_setup_notebooks=
 fi
 
-BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${pynq_setup_notebooks} \
+PYNQ_BUILD_CLASSIC=1 BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${pynq_setup_notebooks} \
      python3 -m pip install dist/*.tar.gz --upgrade --no-deps --no-build-isolation
 
 # v3.1 - if using prebuilt SDIST, allow current pynq_git contents to
 #        override the SDIST python files with current contents (--ignore-installed)
 if [ -z "$REBUILD_PYNQ_SDIST" ]; then
-    BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${pynq_setup_notebooks} \
+    PYNQ_BUILD_CLASSIC=1 BOARD=${PYNQ_BOARD} PYNQ_JUPYTER_NOTEBOOKS=${pynq_setup_notebooks} \
      python3 -m pip install . --upgrade --no-deps --no-build-isolation --ignore-installed
 fi
 

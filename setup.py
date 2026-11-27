@@ -27,11 +27,14 @@ required = [
     "pycparser<3",
     "numpy<2.0",
     "nest_asyncio",
-    'grpcio==1.64.0',
-    'grpcio-tools==1.64.0',
 ]
 
-REMOTE_INSTALL = os.environ.get("PYNQ_REMOTE", False)
+REMOTE_INSTALL = not (
+    os.path.isfile("/proc/device-tree/chosen/pynq_board")
+    or os.environ.get("PYNQ_BUILD_CLASSIC") == "1"
+)
+if REMOTE_INSTALL:
+    required.extend(['grpcio==1.64.0', 'grpcio-tools==1.64.0'])
 
 ZU_ARCH = "aarch64"
 if "PYNQ_BUILD_ARCH" in os.environ:

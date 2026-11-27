@@ -3,11 +3,7 @@
 Setting Environment Variables
 =============================
 
-PYNQ.remote uses two environment variables on the host.
-
-``PYNQ_REMOTE``
-   Set to ``1`` when installing the ``pynq`` package with pip. This selects the
-   remote client install path and skips native board binaries and overlays.
+PYNQ.remote uses an environment variable on the host to identify target boards.
 
 ``PYNQ_REMOTE_DEVICES``
    Set before ``import pynq`` to identify target boards. The value is a
@@ -17,17 +13,20 @@ PYNQ.remote uses two environment variables on the host.
 Installing for PYNQ.remote
 --------------------------
 
+Installing the ``pynq`` package on the host automatically installs remote client
+dependencies and skips native board binaries and overlays.
+
 **Linux/macOS:**
 
 .. code-block:: bash
 
-   PYNQ_REMOTE=1 pip install pynq
+   pip install pynq
 
 **Windows (PowerShell):**
 
 .. code-block:: powershell
 
-   $env:PYNQ_REMOTE="1"; pip install pynq
+   pip install pynq
 
 Runtime device selection
 ------------------------

@@ -22,8 +22,6 @@ executing==2.2.1
 fastjsonschema==2.21.2
 fonttools==4.63.0
 fqdn==1.5.1
-grpcio==1.64.0
-grpcio-tools==1.64.0
 h11==0.16.0
 httpcore==1.0.9
 httpx==0.28.1
