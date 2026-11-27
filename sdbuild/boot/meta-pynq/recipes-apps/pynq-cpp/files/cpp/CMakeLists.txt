@@ -222,6 +222,7 @@ endif()
 
 # Main pynq library
 add_library(pynq
+  interrupt.cc
   buffer.cc
   mmio.cc
   device.cc
@@ -239,6 +240,7 @@ add_dependencies(pynq
 )
 
 target_link_libraries(pynq
+  Threads::Threads
   ${XRT_LIBRARIES}
   ${XRT_ADDITIONAL_LIBRARIES}
   ${RFSOC_SYSTEM_LINKS})

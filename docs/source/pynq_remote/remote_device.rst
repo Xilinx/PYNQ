@@ -40,6 +40,51 @@ including those installed by other clients.
 
 The ``RemoteDevice`` class is complemented by ``PYNQ.cpp`` which operates on the target device, providing a C++ implementation of the PYNQ API. For more details on the C++ implementation, see the :ref:`cppindex` module documentation.
 
+Interrupts
+----------
+
+PL interrupts use the same asynchronous interface as local PYNQ. Pass the
+remote device when creating a standalone interrupt:
+
+.. code-block:: python
+
+   from pynq import Interrupt
+
+   interrupt = Interrupt("my_ip/interrupt", device=dev)
+   await interrupt.wait()
+
+Overlay drivers create interrupts for their selected device. DMA transfers
+can use ``await dma.recvchannel.wait_async()`` or
+``await dma.sendchannel.wait_async()``. The peripheral's interrupt condition
+must be cleared before waiting again; the DMA driver handles this when its
+transfer completes. Several events before rearming may be combined, so use
+the peripheral's status or counters when individual events must be counted.
+
+Interrupts can connect directly to the PS or through AXI interrupt
+controllers, including cascaded controllers. The PS interrupt must have a
+UIO device on the board; the standard images provide the first PL-to-PS
+interrupt line.
+
+Independent clients can wait on different interrupt sources in the same
+loaded overlay. Additional clients must attach without downloading it again:
+
+.. code-block:: python
+
+   overlay = Overlay("design.bit", device=dev, download=False)
+
+Each source is owned by one client; another client waiting
+on that source receives an error. Multiple waiters within the owning client
+are notified together. Cancelling the last wait disables that source while
+retaining ownership. Ownership is released when its interrupt objects are
+discarded or the client disconnects.
+
+Changing the overlay invalidates existing interrupt objects and fails pending
+waits in every client. A lost connection also fails pending waits. Recreate
+the interrupt objects before waiting again. Older remote images report an
+unsupported-feature error when an interrupt wait is requested; update the
+remote image to use interrupts. RF data converter-specific interrupt control
+and callbacks remain unsupported.
+
 Several Remote Boards in One Session
 ------------------------------------
 
@@ -78,7 +123,7 @@ and ``target`` to ``allocate``. Without an explicit target, these use
    output = pynq.GPIO(pin, "out", device=a)
 
 Releasing a GPIO also releases other handles sharing that pin on the same
-device instance. Remote interrupt waiting is not supported.
+device instance.
 
 Some class-level interfaces select a board differently:
 

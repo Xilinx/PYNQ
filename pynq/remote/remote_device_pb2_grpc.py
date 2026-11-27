@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from pynq.remote import remote_device_pb2 as remote__device__pb2
+from pynq.remote import remote_device_pb2 as pynq_dot_remote_dot_remote__device__pb2
 
 GRPC_GENERATED_VERSION = '1.64.0'
 GRPC_VERSION = grpc.__version__
@@ -20,7 +20,7 @@ except ImportError:
 if _version_not_supported:
     warnings.warn(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in remote_device_pb2_grpc.py depends on'
+        + f' but the generated code in pynq/remote/remote_device_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -39,60 +39,93 @@ class RemoteDeviceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.interrupt_state = channel.unary_unary(
+                '/remote_device.RemoteDevice/interrupt_state',
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.InterruptStateRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.InterruptStateResponse.FromString,
+                _registered_method=True)
+        self.interrupts = channel.stream_stream(
+                '/remote_device.RemoteDevice/interrupts',
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.InterruptRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.InterruptResponse.FromString,
+                _registered_method=True)
+        self.complete_download = channel.unary_unary(
+                '/remote_device.RemoteDevice/complete_download',
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.CompleteDownloadRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.CompleteDownloadResponse.FromString,
+                _registered_method=True)
         self.set_bitstream_attrs = channel.unary_unary(
                 '/remote_device.RemoteDevice/set_bitstream_attrs',
-                request_serializer=remote__device__pb2.SetBitstreamAttrsRequest.SerializeToString,
-                response_deserializer=remote__device__pb2.SetBitstreamAttrsResponse.FromString,
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.SetBitstreamAttrsRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.SetBitstreamAttrsResponse.FromString,
                 _registered_method=True)
         self.download = channel.stream_unary(
                 '/remote_device.RemoteDevice/download',
-                request_serializer=remote__device__pb2.DownloadRequest.SerializeToString,
-                response_deserializer=remote__device__pb2.DownloadResponse.FromString,
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.DownloadRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.DownloadResponse.FromString,
                 _registered_method=True)
         self.set_pl_clk = channel.unary_unary(
                 '/remote_device.RemoteDevice/set_pl_clk',
-                request_serializer=remote__device__pb2.SetPlClkRequest.SerializeToString,
-                response_deserializer=remote__device__pb2.SetPlClkResponse.FromString,
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.SetPlClkRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.SetPlClkResponse.FromString,
                 _registered_method=True)
         self.shutdown = channel.unary_unary(
                 '/remote_device.RemoteDevice/shutdown',
-                request_serializer=remote__device__pb2.ShutdownRequest.SerializeToString,
-                response_deserializer=remote__device__pb2.ShutdownResponse.FromString,
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.ShutdownRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.ShutdownResponse.FromString,
                 _registered_method=True)
         self.readfile = channel.unary_stream(
                 '/remote_device.RemoteDevice/readfile',
-                request_serializer=remote__device__pb2.ReadFileRequest.SerializeToString,
-                response_deserializer=remote__device__pb2.ReadFileResponse.FromString,
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.ReadFileRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.ReadFileResponse.FromString,
                 _registered_method=True)
         self.writefile = channel.stream_unary(
                 '/remote_device.RemoteDevice/writefile',
-                request_serializer=remote__device__pb2.WriteFileRequest.SerializeToString,
-                response_deserializer=remote__device__pb2.WriteFileResponse.FromString,
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.WriteFileRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.WriteFileResponse.FromString,
                 _registered_method=True)
         self.existsfile = channel.unary_unary(
                 '/remote_device.RemoteDevice/existsfile',
-                request_serializer=remote__device__pb2.ExistsFileRequest.SerializeToString,
-                response_deserializer=remote__device__pb2.ExistsFileResponse.FromString,
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.ExistsFileRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.ExistsFileResponse.FromString,
                 _registered_method=True)
         self.makedir = channel.unary_unary(
                 '/remote_device.RemoteDevice/makedir',
-                request_serializer=remote__device__pb2.MakeDirRequest.SerializeToString,
-                response_deserializer=remote__device__pb2.MakeDirResponse.FromString,
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.MakeDirRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.MakeDirResponse.FromString,
                 _registered_method=True)
         self.removedir = channel.unary_unary(
                 '/remote_device.RemoteDevice/removedir',
-                request_serializer=remote__device__pb2.RemoveDirRequest.SerializeToString,
-                response_deserializer=remote__device__pb2.RemoveDirResponse.FromString,
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.RemoveDirRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.RemoveDirResponse.FromString,
                 _registered_method=True)
         self.set_device_tree = channel.unary_unary(
                 '/remote_device.RemoteDevice/set_device_tree',
-                request_serializer=remote__device__pb2.DeviceTreeRequest.SerializeToString,
-                response_deserializer=remote__device__pb2.DeviceTreeResponse.FromString,
+                request_serializer=pynq_dot_remote_dot_remote__device__pb2.DeviceTreeRequest.SerializeToString,
+                response_deserializer=pynq_dot_remote_dot_remote__device__pb2.DeviceTreeResponse.FromString,
                 _registered_method=True)
 
 
 class RemoteDeviceServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def interrupt_state(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def interrupts(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def complete_download(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def set_bitstream_attrs(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -157,55 +190,70 @@ class RemoteDeviceServicer(object):
 
 def add_RemoteDeviceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'interrupt_state': grpc.unary_unary_rpc_method_handler(
+                    servicer.interrupt_state,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.InterruptStateRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.InterruptStateResponse.SerializeToString,
+            ),
+            'interrupts': grpc.stream_stream_rpc_method_handler(
+                    servicer.interrupts,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.InterruptRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.InterruptResponse.SerializeToString,
+            ),
+            'complete_download': grpc.unary_unary_rpc_method_handler(
+                    servicer.complete_download,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.CompleteDownloadRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.CompleteDownloadResponse.SerializeToString,
+            ),
             'set_bitstream_attrs': grpc.unary_unary_rpc_method_handler(
                     servicer.set_bitstream_attrs,
-                    request_deserializer=remote__device__pb2.SetBitstreamAttrsRequest.FromString,
-                    response_serializer=remote__device__pb2.SetBitstreamAttrsResponse.SerializeToString,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.SetBitstreamAttrsRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.SetBitstreamAttrsResponse.SerializeToString,
             ),
             'download': grpc.stream_unary_rpc_method_handler(
                     servicer.download,
-                    request_deserializer=remote__device__pb2.DownloadRequest.FromString,
-                    response_serializer=remote__device__pb2.DownloadResponse.SerializeToString,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.DownloadRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.DownloadResponse.SerializeToString,
             ),
             'set_pl_clk': grpc.unary_unary_rpc_method_handler(
                     servicer.set_pl_clk,
-                    request_deserializer=remote__device__pb2.SetPlClkRequest.FromString,
-                    response_serializer=remote__device__pb2.SetPlClkResponse.SerializeToString,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.SetPlClkRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.SetPlClkResponse.SerializeToString,
             ),
             'shutdown': grpc.unary_unary_rpc_method_handler(
                     servicer.shutdown,
-                    request_deserializer=remote__device__pb2.ShutdownRequest.FromString,
-                    response_serializer=remote__device__pb2.ShutdownResponse.SerializeToString,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.ShutdownRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.ShutdownResponse.SerializeToString,
             ),
             'readfile': grpc.unary_stream_rpc_method_handler(
                     servicer.readfile,
-                    request_deserializer=remote__device__pb2.ReadFileRequest.FromString,
-                    response_serializer=remote__device__pb2.ReadFileResponse.SerializeToString,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.ReadFileRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.ReadFileResponse.SerializeToString,
             ),
             'writefile': grpc.stream_unary_rpc_method_handler(
                     servicer.writefile,
-                    request_deserializer=remote__device__pb2.WriteFileRequest.FromString,
-                    response_serializer=remote__device__pb2.WriteFileResponse.SerializeToString,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.WriteFileRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.WriteFileResponse.SerializeToString,
             ),
             'existsfile': grpc.unary_unary_rpc_method_handler(
                     servicer.existsfile,
-                    request_deserializer=remote__device__pb2.ExistsFileRequest.FromString,
-                    response_serializer=remote__device__pb2.ExistsFileResponse.SerializeToString,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.ExistsFileRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.ExistsFileResponse.SerializeToString,
             ),
             'makedir': grpc.unary_unary_rpc_method_handler(
                     servicer.makedir,
-                    request_deserializer=remote__device__pb2.MakeDirRequest.FromString,
-                    response_serializer=remote__device__pb2.MakeDirResponse.SerializeToString,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.MakeDirRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.MakeDirResponse.SerializeToString,
             ),
             'removedir': grpc.unary_unary_rpc_method_handler(
                     servicer.removedir,
-                    request_deserializer=remote__device__pb2.RemoveDirRequest.FromString,
-                    response_serializer=remote__device__pb2.RemoveDirResponse.SerializeToString,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.RemoveDirRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.RemoveDirResponse.SerializeToString,
             ),
             'set_device_tree': grpc.unary_unary_rpc_method_handler(
                     servicer.set_device_tree,
-                    request_deserializer=remote__device__pb2.DeviceTreeRequest.FromString,
-                    response_serializer=remote__device__pb2.DeviceTreeResponse.SerializeToString,
+                    request_deserializer=pynq_dot_remote_dot_remote__device__pb2.DeviceTreeRequest.FromString,
+                    response_serializer=pynq_dot_remote_dot_remote__device__pb2.DeviceTreeResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -217,6 +265,87 @@ def add_RemoteDeviceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class RemoteDevice(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def interrupt_state(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/remote_device.RemoteDevice/interrupt_state',
+            pynq_dot_remote_dot_remote__device__pb2.InterruptStateRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.InterruptStateResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def interrupts(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_stream(
+            request_iterator,
+            target,
+            '/remote_device.RemoteDevice/interrupts',
+            pynq_dot_remote_dot_remote__device__pb2.InterruptRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.InterruptResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def complete_download(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/remote_device.RemoteDevice/complete_download',
+            pynq_dot_remote_dot_remote__device__pb2.CompleteDownloadRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.CompleteDownloadResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def set_bitstream_attrs(request,
@@ -233,8 +362,8 @@ class RemoteDevice(object):
             request,
             target,
             '/remote_device.RemoteDevice/set_bitstream_attrs',
-            remote__device__pb2.SetBitstreamAttrsRequest.SerializeToString,
-            remote__device__pb2.SetBitstreamAttrsResponse.FromString,
+            pynq_dot_remote_dot_remote__device__pb2.SetBitstreamAttrsRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.SetBitstreamAttrsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -260,8 +389,8 @@ class RemoteDevice(object):
             request_iterator,
             target,
             '/remote_device.RemoteDevice/download',
-            remote__device__pb2.DownloadRequest.SerializeToString,
-            remote__device__pb2.DownloadResponse.FromString,
+            pynq_dot_remote_dot_remote__device__pb2.DownloadRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.DownloadResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -287,8 +416,8 @@ class RemoteDevice(object):
             request,
             target,
             '/remote_device.RemoteDevice/set_pl_clk',
-            remote__device__pb2.SetPlClkRequest.SerializeToString,
-            remote__device__pb2.SetPlClkResponse.FromString,
+            pynq_dot_remote_dot_remote__device__pb2.SetPlClkRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.SetPlClkResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -314,8 +443,8 @@ class RemoteDevice(object):
             request,
             target,
             '/remote_device.RemoteDevice/shutdown',
-            remote__device__pb2.ShutdownRequest.SerializeToString,
-            remote__device__pb2.ShutdownResponse.FromString,
+            pynq_dot_remote_dot_remote__device__pb2.ShutdownRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.ShutdownResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -341,8 +470,8 @@ class RemoteDevice(object):
             request,
             target,
             '/remote_device.RemoteDevice/readfile',
-            remote__device__pb2.ReadFileRequest.SerializeToString,
-            remote__device__pb2.ReadFileResponse.FromString,
+            pynq_dot_remote_dot_remote__device__pb2.ReadFileRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.ReadFileResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -368,8 +497,8 @@ class RemoteDevice(object):
             request_iterator,
             target,
             '/remote_device.RemoteDevice/writefile',
-            remote__device__pb2.WriteFileRequest.SerializeToString,
-            remote__device__pb2.WriteFileResponse.FromString,
+            pynq_dot_remote_dot_remote__device__pb2.WriteFileRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.WriteFileResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -395,8 +524,8 @@ class RemoteDevice(object):
             request,
             target,
             '/remote_device.RemoteDevice/existsfile',
-            remote__device__pb2.ExistsFileRequest.SerializeToString,
-            remote__device__pb2.ExistsFileResponse.FromString,
+            pynq_dot_remote_dot_remote__device__pb2.ExistsFileRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.ExistsFileResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -422,8 +551,8 @@ class RemoteDevice(object):
             request,
             target,
             '/remote_device.RemoteDevice/makedir',
-            remote__device__pb2.MakeDirRequest.SerializeToString,
-            remote__device__pb2.MakeDirResponse.FromString,
+            pynq_dot_remote_dot_remote__device__pb2.MakeDirRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.MakeDirResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -449,8 +578,8 @@ class RemoteDevice(object):
             request,
             target,
             '/remote_device.RemoteDevice/removedir',
-            remote__device__pb2.RemoveDirRequest.SerializeToString,
-            remote__device__pb2.RemoveDirResponse.FromString,
+            pynq_dot_remote_dot_remote__device__pb2.RemoveDirRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.RemoveDirResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -476,8 +605,8 @@ class RemoteDevice(object):
             request,
             target,
             '/remote_device.RemoteDevice/set_device_tree',
-            remote__device__pb2.DeviceTreeRequest.SerializeToString,
-            remote__device__pb2.DeviceTreeResponse.FromString,
+            pynq_dot_remote_dot_remote__device__pb2.DeviceTreeRequest.SerializeToString,
+            pynq_dot_remote_dot_remote__device__pb2.DeviceTreeResponse.FromString,
             options,
             channel_credentials,
             insecure,

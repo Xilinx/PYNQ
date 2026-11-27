@@ -416,6 +416,7 @@ class Overlay(Bitstream):
 
         """
         self.device.check_state()
+        self.device._prepare_download(self)
         Clocks.set_device(self.device)
         for i in self.clock_dict:
             if "enable" in self.clock_dict[i]:

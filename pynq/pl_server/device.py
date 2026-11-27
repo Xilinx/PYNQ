@@ -150,6 +150,10 @@ class Device(metaclass=DeviceMeta):
             return metadata
         return None
 
+    def _prepare_download(self, bitstream):
+        """Prepare device resources before changing PL clocks or programming."""
+        pass
+
     def set_bitfile_name(self, bitfile_name: str) -> None:
         self.__dict__.pop("_dict_view_cache", None)
         self.bitfile_name = bitfile_name
