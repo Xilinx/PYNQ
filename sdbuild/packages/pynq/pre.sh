@@ -11,6 +11,15 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 sudo git clone --recursive $BUILD_ROOT/PYNQ  $target/home/xilinx/pynq_git
 sudo mkdir -p $target/home/xilinx/pynq_git/dist
 
+for dependency in PYNQ_METADATA PYNQ_UTILS; do
+    artifact=${!dependency:-}
+    if [ -n "$artifact" ]; then
+        destination="$target/home/xilinx/pynq_git/dependencies/$dependency"
+        sudo mkdir -p "$destination"
+        sudo cp -L -- "$artifact" "$destination/"
+    fi
+done
+
 sudo cp $script_dir/pynq_hostname.sh $target/usr/local/bin
 sudo cp $script_dir/boardname.sh $target/etc/profile.d
 
@@ -77,7 +86,10 @@ if [ -n "$REBUILD_PYNQ_SDIST" ]; then
     sleep 10
 
     # build bitstream, microblazes' bsps and binaries
+    rsync -a --delete --exclude='__pycache__' --exclude='*.pyc' \
+        "$ROOTDIR/../pynq/" "$BUILD_ROOT/PYNQ/pynq/"
     cd $BUILD_ROOT/PYNQ
+    rm -f dist/pynq-*.tar.gz
     make -f build.mk
     sudo cp dist/*.tar.gz $target/home/xilinx/pynq_git/dist
 else

@@ -77,6 +77,24 @@ Once built, all output files will be located in `sdbuild/output/`:
 | `noble.<arch>.<version>.tar.gz` | The root filesystem, with `REBUILD_PYNQ_ROOTFS` |
 | `dist/` | The PYNQ source distribution, with `REBUILD_PYNQ_SDIST` |
 
+### PYNQ development builds
+
+The `PYNQ_METADATA` and `PYNQ_UTILS` options are for PYNQ development only.
+Leave them unset for normal image builds. To test local Metadata or Utils
+changes in a classic image, pass their wheel or source-distribution paths:
+
+```sh
+make BOARDS=ZCU104 PYNQ_METADATA=/packages/pynqmetadata-0.2.0.tar.gz \
+  PYNQ_UTILS=/packages/pynqutils-0.1.3.tar.gz
+```
+
+Each option is independent. Without an option, the build installs that package
+from its upstream Git repository.
+
+Set `REBUILD_PYNQ_SDIST=1` to rebuild the PYNQ source distribution with the
+checkout's current `pynq/` package contents, including uncommitted changes.
+Uncommitted package changes are included only when this option is set.
+
 ## The EDF cache
 
 Boot artefacts are built with AMD's EDF (Yocto/bitbake) flow. The first build creates 
