@@ -17,7 +17,7 @@ Video, and other custom interfaces.
 As the base overlay includes IP for the peripherals on a board, it can also be
 used as a reference design for creating new customized overlays.
 
-In the case of general purpose interfaces, for example Pmod or Arduino headers,
+In the case of general purpose interfaces, for example Pmod headers,
 the base overlay may include a PYNQ MicroBlaze. A PYNQ MicroBlaze allows
 control of devices with different interfaces and protocols on the same port
 without requiring a change to the programmable logic design. 
@@ -146,7 +146,7 @@ Assuming PYNQ has been cloned:
 .. code-block:: console
 
    cd <PYNQ repository>/boards/ZCU104/base
-   source ./build_base_ip.tcl
+   source ./build_ip.tcl
    source ./base.tcl
 
 To build from the command line, open the Vivado Tcl Shell, and run the 
@@ -155,7 +155,7 @@ following:
 .. code-block:: console
 
    cd <PYNQ repository>/boards/ZCU104/base
-   vivado -mode batch -source build_base_ip.tcl
+   vivado -mode batch -source build_ip.tcl
    vivado -mode batch -source base.tcl
    
 Note that you must change to the overlay directory, as the tcl files has 
