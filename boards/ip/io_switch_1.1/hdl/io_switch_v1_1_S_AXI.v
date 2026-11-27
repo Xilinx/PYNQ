@@ -493,7 +493,7 @@
 	        4'h5   : reg_data_out <= slv_reg5;
 	        4'h6   : reg_data_out <= slv_reg6;
 	        4'h7   : reg_data_out <= slv_reg7;
-	        4'h8   : reg_data_out <= {C_NUM_TIMERS,C_NUM_PWMS,C_IO_SWITCH_WIDTH,C_INTERFACE_TYPE}; //slv_reg8;
+	        4'h8   : reg_data_out <= {C_NUM_TIMERS[7:0],C_NUM_PWMS[7:0],C_IO_SWITCH_WIDTH[7:0],C_INTERFACE_TYPE[7:0]}; //slv_reg8;
 	        default : reg_data_out <= 0;
 	      endcase
 	end
