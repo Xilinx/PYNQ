@@ -13,7 +13,7 @@
 -BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
 -PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
 +NAME="PynqLinux"
-+VERSION="4.1.0 (Verona)"
++VERSION="4.1.0 (Hamilton)"
 +ID=pynqlinux
 +ID_LIKE=ubuntu
 +PRETTY_NAME="PynqLinux, based on Ubuntu 24.04"
@@ -22,6 +22,6 @@
 +SUPPORT_URL="https://discuss.pynq.io/"
 +BUG_REPORT_URL="https://www.pynq.io"
 +PRIVACY_POLICY_URL="https://www.pynq.io"
-+VERSION_CODENAME=Verona
++VERSION_CODENAME=Hamilton
  UBUNTU_CODENAME=noble
 -LOGO=ubuntu-logo
