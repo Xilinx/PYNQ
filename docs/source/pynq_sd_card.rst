@@ -114,7 +114,7 @@ To build the PYNQ source distribution and root filesystem from source:
 
    make BOARDS=ZCU104 REBUILD_PYNQ_SDIST=1 REBUILD_PYNQ_ROOTFS=1
 
-The image is written to ``sdbuild/output/<BOARD>-4.0.0.img`` and its boot
+The image is written to ``sdbuild/output/<BOARD>-4.1.0.img`` and its boot
 artefacts are written to ``sdbuild/output/boot/<BOARD>/``.
 
 Rebuilding the prebuilt board-agnostic image

@@ -15,7 +15,7 @@ ALLBOARDS ?= $(basename $(notdir $(wildcard $(BOARDDIR)/*/*.spec)))
 BOARDS ?= $(ALLBOARDS)
 
 UBUNTU_RELEASE := noble
-VERSION := 4.0.0
+VERSION := 4.1.0
 
 # Vivado/EDF tool version (checked in checkenv).
 KERNEL_VERSION := 2025.2

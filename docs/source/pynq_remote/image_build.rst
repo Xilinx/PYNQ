@@ -48,7 +48,7 @@ Using the Docker-based build flow
    RFSoC-PYNQ, are built by passing ``BOARDDIR`` with the board repository
    path. See :ref:`pynq-sd-card` for the board directory layout.
 
-#. Flash the generated ``sdbuild/output/<BOARD>-4.0.0-remote.img`` image to an
+#. Flash the generated ``sdbuild/output/<BOARD>-4.1.0-remote.img`` image to an
    SD card and boot your device (see :doc:`../appendix/sdcard`).
 
 #. After booting, the ``pynq-remote`` server starts automatically. Use
