@@ -1,4 +1,5 @@
 # Copyright (C) 2022 Xilinx, Inc
+# Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 
 import math
@@ -104,6 +105,7 @@ def setup_zu(monkeypatch):
 
     fpd_buffer = device.mmap(ZU_FPD_OFFSET, 0x100)
     fpd_array = np.frombuffer(fpd_buffer, dtype='u4')
+    fpd_array[0x4c >> 2] = 1 << 8  # DPLL_TO_LPD_CTRL
 
     new_ps = importlib.reload(pynq.ps)
     Clocks = new_ps.Clocks
@@ -216,7 +218,7 @@ def test_zynq_nearest(setup_zynq):
         Clocks.fclk0_mhz = 440
 
     source, div0, div1 = split_clk_reg(slcr_array[clk_reg >> 2])
-    assert div0 * div1 == 3
+    assert div0 * div1 == 4
 
 
 def test_divider0(setup_zynq):

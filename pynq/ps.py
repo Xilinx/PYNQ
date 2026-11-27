@@ -2,6 +2,7 @@
 #   Copyright (C) 2022-2026 Advanced Micro Devices, Inc.
 #   SPDX-License-Identifier: BSD-3-Clause
 
+import math
 import platform
 import warnings
 import os
@@ -157,6 +158,13 @@ ZU_CRF_REGISTERS = {
     'VPLL_CTRL': {'address_offset': 0x38, 'access': 'read-write',
                   'size': 32, 'description': 'VPLL Clock Unit Control',
                   'fields': ZU_PLL_FIELDS},
+    'DPLL_TO_LPD_CTRL': {'address_offset': 0x4C, 'access': 'read-write',
+                         'size': 32, 'description': 'DPLL to LPD Clock Control',
+                         'fields': {
+                             'DIVISOR0': {'access': 'read-write',
+                                          'bit_offset': 8, 'bit_width': 6,
+                                          'description': 'DPLL to LPD divisor'}
+                         }},
     'ACPU_CTRL': {'address_offset': 0x60, 'access': 'read-write',
                   'size': 32, 'description': 'CPU Clock Control',
                   'fields': ZU_ARM_FIELDS}
@@ -378,7 +386,9 @@ class _ClocksMeta(type):
         Users have two options:
         1. specify the two frequency divider values directly (div0, div1), or
         2. specify the clock rate, in which case the divider values will be
-        calculated.
+        calculated. Frequency requests allow at most 1 percent overshoot,
+        falling back below the requested rate when necessary. A difference
+        greater than 1 percent produces a warning.
 
         Note
         ----
@@ -411,6 +421,8 @@ class _ClocksMeta(type):
 
 
 class _ClocksBase:
+
+    _FREQUENCY_TOLERANCE = 0.01
 
     def get_pl_clk(self, clk_idx):
         """This method will return the clock frequency.
@@ -479,9 +491,15 @@ class _ClocksBase:
             div0, div1 = self._get_2_divisors(src_clk_mhz, clk_mhz,
                                               div0_width, div1_width)
         elif div0 is not None and div1 is None:
-            div1 = round(src_clk_mhz / clk_mhz / div0)
+            if div0 <= 0 or div0 > ((1 << div0_width) - 1):
+                raise ValueError("Frequency divider 0 value out of range.")
+            div1 = self._get_divisor(src_clk_mhz / div0, clk_mhz,
+                                     range(1, 1 << div1_width))
         elif div1 is not None and div0 is None:
-            div0 = round(src_clk_mhz / clk_mhz / div1)
+            if div1 <= 0 or div1 > ((1 << div1_width) - 1):
+                raise ValueError("Frequency divider 1 value out of range.")
+            div0 = self._get_divisor(src_clk_mhz / div1, clk_mhz,
+                                     range(1, 1 << div0_width))
 
         if div0 <= 0 or div0 > ((1 << div0_width) - 1):
             raise ValueError("Frequency divider 0 value out of range.")
@@ -503,8 +521,9 @@ class _ClocksBase:
     def _get_2_divisors(self, freq_high, freq_desired, reg0_width, reg1_width):
         """Return 2 divisors of the specified width for frequency divider.
 
-        Warning will be raised if the closest clock rate achievable
-        differs more than 1 percent of the desired value.
+        Select the closest frequency, falling back below the requested rate
+        if it would exceed it by more than 1 percent. Warn if the selected
+        frequency differs by more than 1 percent.
 
         Parameters
         ----------
@@ -523,14 +542,28 @@ class _ClocksBase:
             A pair of 2 divisors, each of 6 bits at most.
 
         """
-        div_product_desired = round(freq_high / freq_desired, 6)
-        _, q0 = min(enumerate(self.VALID_CLOCK_DIV_PRODUCTS.keys()),
-                    key=lambda x: abs(x[1] - div_product_desired))
-        if abs(freq_desired - freq_high / q0) > 0.01 * freq_desired:
-            warnings.warn(
-                "Setting frequency to the closest possible value {}MHz.".format(
-                    round(freq_high / q0, 5)))
-        return self.VALID_CLOCK_DIV_PRODUCTS[q0]
+        divisor = self._get_divisor(freq_high, freq_desired,
+                                    self.VALID_CLOCK_DIV_PRODUCTS)
+        return self.VALID_CLOCK_DIV_PRODUCTS[divisor]
+
+    def _get_divisor(self, freq_high, freq_desired, divisors):
+        """Choose the closest frequency within the overshoot tolerance."""
+        if not math.isfinite(freq_desired) or freq_desired <= 0:
+            raise ValueError("Requested frequency must be finite and positive.")
+        if not math.isfinite(freq_high) or freq_high <= 0:
+            raise ValueError("Clock source frequency must be finite and positive.")
+        divisor = min(divisors,
+                      key=lambda d: (abs(freq_high / d - freq_desired), -d))
+        if freq_high / divisor > freq_desired * (1 + self._FREQUENCY_TOLERANCE):
+            divisor = min((d for d in divisors
+                           if freq_high / d <= freq_desired), default=None)
+            if divisor is None:
+                raise ValueError("Requested frequency is below the supported range.")
+        actual = freq_high / divisor
+        if abs(freq_desired - actual) > self._FREQUENCY_TOLERANCE * freq_desired:
+            warnings.warn("Setting frequency to {}MHz (requested {}MHz).".format(
+                round(actual, 5), freq_desired))
+        return divisor
 
 
 class _ClocksUltrascale(_ClocksBase):
@@ -611,10 +644,20 @@ class _ClocksUltrascale(_ClocksBase):
             The clock rate in MHz.
 
         """
+        super().set_pl_clk(clk_idx, div0, div1, clk_mhz)
         pl_clk_reg = self.PL_CLK_CTRLS[clk_idx]
         pl_clk_reg.CLKACT = 1
         pl_clk_reg.SRC_FIELD = self.PLX_CTRL_SRC_DEFAULT
-        super().set_pl_clk(clk_idx, div0, div1, clk_mhz)
+
+    def _get_src_clk_mhz(self, clk_idx):
+        frequency = super()._get_src_clk_mhz(clk_idx)
+        if clk_idx == 3:
+            # DPLL reaches the PL mux through the LPD clock divider.
+            divisor = self._crf_registers.DPLL_TO_LPD_CTRL.DIVISOR0
+            if divisor == 0:
+                raise ValueError("DPLL to LPD divider must be nonzero.")
+            frequency /= divisor
+        return frequency
 
     def get_pll_mhz(self, pll_reg):
         """The getter method for PLL output clocks.
@@ -848,12 +891,8 @@ class _ClocksVersal(_ClocksBase):
 
         if div0 is None:
             src_clk_mhz = self._get_src_clk_mhz(pl_clk_reg.SRCSEL)
-            div0 = min(max(round(src_clk_mhz / clk_mhz), 1),
-                       (1 << div0_width) - 1)
-            if abs(clk_mhz - src_clk_mhz / div0) > 0.01 * clk_mhz:
-                warnings.warn(
-                    "Setting frequency to the closest possible value "
-                    "{}MHz.".format(round(src_clk_mhz / div0, 5)))
+            div0 = self._get_divisor(src_clk_mhz, clk_mhz,
+                                     range(1, 1 << div0_width))
 
         if div0 <= 0 or div0 > ((1 << div0_width) - 1):
             raise ValueError("Frequency divider 0 value out of range.")
