@@ -14,8 +14,17 @@ cd /home/xilinx
 mkdir -p jupyter_notebooks
 
 # clone and then install extra packages
-python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Metadata.git
-python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Utils.git
+for dependency in PYNQ_METADATA PYNQ_UTILS; do
+    artifacts="pynq_git/dependencies/$dependency"
+    if [ -d "$artifacts" ]; then
+        python3 -m pip install --upgrade "$artifacts/"*
+        python3 -m pip install --force-reinstall --no-deps "$artifacts/"*
+    elif [ "$dependency" = PYNQ_METADATA ]; then
+        python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Metadata.git
+    else
+        python3 -m pip install --upgrade git+https://github.com/Xilinx/PYNQ-Utils.git
+    fi
+done
 
 cd pynq_git
 # setuptools>=68 (Python 3.12), <=80 (pynqutils).
