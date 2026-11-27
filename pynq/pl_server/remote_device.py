@@ -32,6 +32,7 @@ from pynq.remote import (
 )
 
 import grpc
+from pynq.remote.interrupt import RemoteInterrupt
 
 PYNQ_PORT = 7967
 BS_FPGA_MAN = "/sys/class/fpga_manager/fpga0/firmware"
@@ -337,6 +338,7 @@ class RemoteDevice(Device):
                 remote_device_pb2.WriteFileRequest(
                     file_path=file_path,
                     data=chunk,
+                    defer_interrupts=(file_path == BS_FPGA_MAN),
                 )
             )
         response = self._stub['device'].writefile(iter(requests))
@@ -450,6 +452,19 @@ class RemoteDevice(Device):
         """
         return RemoteMemory(self, description)
 
+    def _prepare_download(self, bitstream):
+        if not bitstream.binfile_name:
+            bitstream.binfile_name = Path(bitstream.bitfile_name).stem + ".bin"
+        session = self.__dict__.pop("_remote_interrupt_session", None)
+        if session is not None:
+            session.close()
+        self._stub['device'].set_bitstream_attrs(
+            remote_device_pb2.SetBitstreamAttrsRequest(
+                binfile_name=bitstream.binfile_name,
+                partial=bitstream.partial,
+            )
+        )
+
     def download(self, bitstream, parser=None):
         """Download bitstream to the remote FPGA device
 
@@ -466,13 +481,11 @@ class RemoteDevice(Device):
         parser : object, optional
             Metadata parser object. If None, uses default XCLBIN parser.
         """
+        self._prepare_download(bitstream)
         if parser is None:
             from .xclbin_parser import XclBin
             parser = XclBin(xclbin_data=DEFAULT_XCLBIN)
             
-        if not bitstream.binfile_name:
-            bitstream.binfile_name = Path(bitstream.bitfile_name).stem + ".bin"
-
         bin_data = getattr(parser, "bin_data", None)
         if bin_data is None:
             bin_data = _get_bitstream_handler(bitstream.bitfile_name).get_bin_data()
@@ -486,17 +499,8 @@ class RemoteDevice(Device):
         else:
             flag = "1"
 
-        response = self._stub['device'].set_bitstream_attrs(
-            remote_device_pb2.SetBitstreamAttrsRequest(
-                binfile_name=bitstream.binfile_name,
-                partial=bitstream.partial,
-            )
-        )
-        if not response:
-            warnings.warn("Remote device failed to set bitstream attributes")
-
         self.write_file(BS_FPGA_MAN_FLAGS, flag.encode())
-        self.write_file(BS_FPGA_MAN, bitstream.binfile_name.encode())
+        download = self.write_file(BS_FPGA_MAN, bitstream.binfile_name.encode())
         if not bitstream.partial:
             token = ""
             if global_state_file_exists(self._state_tag):
@@ -505,6 +509,11 @@ class RemoteDevice(Device):
             self._remote_state = (self._boot_id(), token)
 
         self.set_axi_port_width(parser)
+        if download.interrupt_generation:
+            self._stub['device'].complete_download(
+                remote_device_pb2.CompleteDownloadRequest(generation=download.interrupt_generation),
+                timeout=5,
+            )
         super().post_download(bitstream, parser, self.name)
         if not bitstream.partial:
             self.parser = parser
@@ -529,6 +538,9 @@ class RemoteDevice(Device):
             state, self._state_tag, previous=getattr(self, "_remote_state", None)
         )
         if previous is not None and previous != state:
+            session = self.__dict__.pop("_remote_interrupt_session", None)
+            if session is not None:
+                session.close()
             if previous[0] != state[0]:
                 from pynq.ps import Clocks
                 if Clocks.device is self and hasattr(Clocks, '_real_instance'):
@@ -1015,27 +1027,6 @@ class RemoteGPIO:
         )
         return response.npins 
         
-
-class RemoteInterrupt:
-    """Remote Interrupt placeholder class
-    
-    Placeholder implementation for interrupt handling on remote devices.
-    Interrupt functionality is not yet implemented for remote PYNQ devices.
-    
-    Parameters
-    ----------
-    fullpath : str, optional
-        Full path to interrupt device
-    """
-    
-    def __init__(self, fullpath=None, device=None):
-        self.fullpath = fullpath
-        self.device = device if device is not None else Device.active_device
-        warnings.warn(f"Interrupts are not yet implemented for remote devices")
-        
-    def wait(self, timeout=None):
-        raise RuntimeError("Interrupts are not yet implemented for remote devices")
-
 
 class RemoteUioController:
     """Remote UIO Controller placeholder class

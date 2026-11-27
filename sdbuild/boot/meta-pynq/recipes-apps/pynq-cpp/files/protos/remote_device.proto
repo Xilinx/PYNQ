@@ -3,6 +3,9 @@ syntax = "proto3";
 package remote_device;
 
 service RemoteDevice {
+    rpc interrupt_state(InterruptStateRequest) returns (InterruptStateResponse) {}
+    rpc interrupts(stream InterruptRequest) returns (stream InterruptResponse) {}
+    rpc complete_download(CompleteDownloadRequest) returns (CompleteDownloadResponse) {}
     rpc set_bitstream_attrs(SetBitstreamAttrsRequest) returns (SetBitstreamAttrsResponse) {}
     rpc download (stream DownloadRequest) returns (DownloadResponse) {}
     rpc set_pl_clk(SetPlClkRequest) returns (SetPlClkResponse) {}
@@ -13,6 +16,35 @@ service RemoteDevice {
     rpc makedir(MakeDirRequest) returns (MakeDirResponse) {}
     rpc removedir(RemoveDirRequest) returns (RemoveDirResponse) {}
     rpc set_device_tree(DeviceTreeRequest) returns (DeviceTreeResponse) {}
+}
+
+message InterruptStateRequest {}
+message InterruptStateResponse { string generation = 1; }
+message CompleteDownloadRequest { string generation = 1; }
+message CompleteDownloadResponse {}
+
+// Route entries run from the leaf controller towards the PS interrupt.
+message InterruptRoute {
+    uint64 address = 1;
+    uint32 index = 2;
+}
+
+message InterruptRequest {
+    enum Operation { ACQUIRE = 0; ARM = 1; CANCEL = 2; RELEASE = 3; }
+    Operation operation = 1;
+    uint64 subscription = 2;
+    uint64 sequence = 3;
+    string generation = 4;
+    uint32 raw_irq = 5;
+    repeated InterruptRoute route = 6;
+}
+
+message InterruptResponse {
+    enum Event { ACQUIRED = 0; ARMED = 1; CANCELLED = 2; RELEASED = 3; FIRED = 4; ERROR = 5; }
+    Event event = 1;
+    uint64 subscription = 2;
+    uint64 sequence = 3;
+    string message = 4;
 }
 
 //Add ReadFileRequest/Response
@@ -28,9 +60,10 @@ message ReadFileResponse {
 message WriteFileRequest {
     string file_path = 1;
     bytes data = 2;
+    bool defer_interrupts = 3;
 }
 
-message WriteFileResponse {}
+message WriteFileResponse { string interrupt_generation = 1; }
 
 //Add existsfileRequest/Response
 message ExistsFileRequest {

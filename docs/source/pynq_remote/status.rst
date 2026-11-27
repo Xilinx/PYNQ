@@ -19,7 +19,6 @@ This document outlines the current status of PYNQ.remote.
    * :doc:`../pynq_libraries/dma`
    * :doc:`../pynq_libraries/allocate`
    * :doc:`../pynq_libraries/psgpio` (``RemoteGPIO``)
+   * PL :doc:`../pynq_libraries/interrupt` and interrupt-driven DMA
    * RFSoC clock and data converter control (RFSoC remote images)
    * Multi-board support
-* **Not yet supported**:
-   * :doc:`../pynq_libraries/interrupt`

@@ -36,6 +36,7 @@
 #include "buffer.cc"
 #include "mmio.h"
 #include "device.h"
+#include "interrupt.h"
 #include "gpio.h"
 #ifdef RFSOC
 #include "xrfclk.h"
@@ -910,6 +911,8 @@ class RemoteDeviceImpl final : public RemoteDevice::Service
 private:
     const std::string FIRMWARE = "/lib/firmware/";                               ///< Directory for bitstream files
     Device remote_device_;
+    InterruptManager interrupt_manager_;
+    std::mutex reconfiguration_mutex_;
     std::mutex device_tree_mutex_;
     static constexpr size_t max_device_tree_size_ = 1024 * 1024;
     const std::filesystem::path device_tree_root_ = "/sys/kernel/config/device-tree/overlays";
@@ -949,6 +952,32 @@ private:
 
 public:
     std::string device_name = "";
+    Status interrupt_state(ServerContext *, const remote_device::InterruptStateRequest *,
+                           remote_device::InterruptStateResponse *response) override
+    {
+        response->set_generation(interrupt_manager_.generation());
+        if (response->generation().empty())
+            return Status(grpc::StatusCode::FAILED_PRECONDITION,
+                          "Interrupts unavailable during or after incomplete reconfiguration");
+        return Status::OK;
+    }
+
+    Status interrupts(ServerContext *context,
+        grpc::ServerReaderWriter<remote_device::InterruptResponse,
+                                 remote_device::InterruptRequest> *stream) override
+    {
+        return interrupt_manager_.serve(context, stream);
+    }
+
+    Status complete_download(ServerContext *, const remote_device::CompleteDownloadRequest *request,
+                             remote_device::CompleteDownloadResponse *) override
+    {
+        std::lock_guard<std::mutex> lock(reconfiguration_mutex_);
+        if (!interrupt_manager_.resume(request->generation()))
+            return Status(grpc::StatusCode::FAILED_PRECONDITION,
+                          "Overlay changed before download setup completed");
+        return Status::OK;
+    }
     Status set_device_tree(ServerContext *, const remote_device::DeviceTreeRequest *request,
                            remote_device::DeviceTreeResponse *response) override
     {
@@ -1050,6 +1079,8 @@ public:
      */
     Status set_bitstream_attrs(ServerContext *context, const SetBitstreamAttrsRequest *request, SetBitstreamAttrsResponse *response) override
     {
+        std::lock_guard<std::mutex> lock(reconfiguration_mutex_);
+        interrupt_manager_.invalidate();
         remote_device_.set_bitstream_attrs(request->binfile_name(), request->partial());
         return grpc::Status::OK;
     }
@@ -1064,6 +1095,8 @@ public:
      */
     Status download(ServerContext *context, ServerReader<DownloadRequest> *reader, DownloadResponse *reply) override
     {
+        std::lock_guard<std::mutex> lock(reconfiguration_mutex_);
+        const auto generation = interrupt_manager_.invalidate();
         std::ofstream file(FIRMWARE + remote_device_.get_bitstream_attrs().first);
         DownloadRequest request;
         int chunk_count = 0;
@@ -1073,7 +1106,10 @@ public:
             file << request.buffer();
         }
         file.close();
-        remote_device_.download(remote_device_.get_bitstream_attrs().first);
+        if (!remote_device_.download(remote_device_.get_bitstream_attrs().first))
+            return Status(grpc::StatusCode::INTERNAL, "FPGA download failed");
+        if (!interrupt_manager_.resume(generation))
+            return Status(grpc::StatusCode::FAILED_PRECONDITION, "Overlay changed during download");
 
 #ifdef RFSOC
         // The PL has been reprogrammed, so any cached RFDC/clock state on the
@@ -1177,6 +1213,13 @@ public:
             return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "No file path provided");
         }
 
+        const bool firmware = std::filesystem::path(request.file_path()).lexically_normal() ==
+                              "/sys/class/fpga_manager/fpga0/firmware";
+        std::unique_lock<std::mutex> lock(reconfiguration_mutex_, std::defer_lock);
+        if (firmware) lock.lock();
+        const bool defer_interrupts = request.defer_interrupts();
+        const auto generation = firmware ? interrupt_manager_.invalidate() : "";
+
         std::ofstream file(request.file_path(), std::ios::binary);
         if (!file.is_open())
         {
@@ -1193,6 +1236,12 @@ public:
         file.close();
         if (!file)
             return grpc::Status(grpc::StatusCode::INTERNAL, "Failed to close file after writing");
+        if (firmware)
+        {
+            reply->set_interrupt_generation(generation);
+            if (!defer_interrupts && !interrupt_manager_.resume(generation))
+                return Status(grpc::StatusCode::FAILED_PRECONDITION, "Overlay changed during download");
+        }
         return grpc::Status::OK;
     }
 
